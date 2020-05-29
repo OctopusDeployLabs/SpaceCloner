@@ -1,12 +1,12 @@
 # Space Cloner
-Sample PowerShell script to help you clone a space using the Octopus Deploy Restful API.
+PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
 # This cloning process is provided as is
 This script was developed internally for the Customer Success team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work.  
 
-It would be impossible for us to write a script such as this to match your hyper-specific use.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.
+This repository is [licensed](license) under the Apache license.  It is possible for the script to work for your use cases without modification.  However, it is impossible for us to write a script that matches every specific use case.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.  
 
-This repository is [licensed](license) under the Apache license.  You are free to fork the repo and add whatever feature you wish.  Think of this script as a starting point in your process.  We encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  It is possible for the script to work for your use cases without modification.
+As such, we encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  If you feel your change can benefit the community, please submit a pull request!
 
 ## Issues and Feature Requests
 
