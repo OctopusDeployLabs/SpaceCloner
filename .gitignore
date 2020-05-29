@@ -1,0 +1,4 @@
+*.txt
+/logs/**/*
+/src/**/*.png
+/src/**/*.tmp
