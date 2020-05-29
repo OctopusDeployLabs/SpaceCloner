@@ -6,7 +6,18 @@ This script was developed internally for the Customer Success team at Octopus De
 
 It would be impossible for us to write a script such as this to match your hyper-specific use.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.
 
- This repository is [licensed](license) under the MIT license.  You are free to fork the repo and add whatever feature you wish.  Think of this script as a starting point in your process.  We encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  It is possible for the script to work for your use cases without modification.
+This repository is [licensed](license) under the Apache license.  You are free to fork the repo and add whatever feature you wish.  Think of this script as a starting point in your process.  We encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  It is possible for the script to work for your use cases without modification.
+
+## Issues and Feature Requests
+
+Issues, bugs, and feature requests will not be accepted.  As stated earlier, this repository is [licensed](license) under the Apache license.  You are free to fork the repository and fix any issues or add any features you think is useful.
+
+The Customer Success team plans on keeping this script up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
+
+## Pull Requests
+
+We do accept Pull Requests on this repository.
+
 
 # Use cases
 This script was written for the following use cases.
@@ -41,15 +52,6 @@ Below are questions and answers to common questions we've gotten about this proj
 
 ### Why was this script created?
 The Customer Success at Octopus Deploy team developed this script.  We use it to clone items for our [samples instance](https://samples.octopus.app).
-
-### Will you fix my bug?  
-Sorry, but no.  This repository is under the Octopus Samples organization instead of Octopus Deploy.  Issues are not monitored.  This script is meant as a starting point for your process.  This repository is [licensed](license) under the MIT license.  You are free to fork the repo and fix your specific issue.  
-
-### What about feature requests?
-No.  We won't accept feature requests for the script.  This repository is [licensed](license) under the MIT license.  You are free to fork the repo and add whatever feature you wish.  The Customer Success team plans on keeping this script up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
-
-### Do you accept pull requests?
-Yes!  If you want to improve this script, please submit a pull request!
 
 ### Can I use this to migrate from self-hosted to the cloud?
 Yes.  However, this script is not a full migration.  It will jump-start your migration.  This script hits the API, meaning it won't have access to your sensitive variables.  See the [how it works](docs/HowItWorks.md) page for details on what it will and won't clone.  
