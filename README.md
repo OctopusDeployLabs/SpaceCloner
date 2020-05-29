@@ -16,7 +16,7 @@ The Customer Success team plans on keeping this script up to date with the lates
 
 ## Pull Requests
 
-We do accept Pull Requests on this repository.
+We do accept Pull Requests on this repository.  See [Contributing guidelines](docs/Contributing.md).
 
 ## Tested Octopus Deploy Versions
 
