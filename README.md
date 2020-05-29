@@ -18,8 +18,14 @@ The Customer Success team plans on keeping this script up to date with the lates
 
 We do accept Pull Requests on this repository.
 
+## Tested Octopus Deploy Versions
+
+This script was developed using an Octopus Deploy instance running `2020.1.x` and later `2020.2.x`.  It was tested against a variety of different versions.  It should work with Octopus Deploy `3.4` or higher.  However, you'll have much better luck using `2020.x` or higher.
+
+You will notice some version checks being run in the script.  This is to prevent the script from calling specific API endpoints when it shouldn't.
 
 # Use cases
+
 This script was written for the following use cases.
 
 - As a user, I want to split my one massive default space into [multiple spaces on the same instance](docs/UseCase-BreakUpSpace.md).
@@ -57,10 +63,7 @@ The Customer Success at Octopus Deploy team developed this script.  We use it to
 Yes.  However, this script is not a full migration.  It will jump-start your migration.  This script hits the API, meaning it won't have access to your sensitive variables.  See the [how it works](docs/HowItWorks.md) page for details on what it will and won't clone.  
 
 ### Is this the space migration / self-hosted to Octopus Cloud migrator tool that has been teased in the past?
-No.  It was designed for specific use cases, and the limits placed on it were intentional.  For example, it can't access your Master Key, and without that, it cannot decrypt your sensitive data.  It should get you 80-90% of the way there.  You are free to fork this repo to modify the scripts to help get you another 5% of the way there.  
-
-### What version of Octopus Deploy does this script support?
-It _should_ work with any Octopus version `3.4` or higher.  It was developed by testing against a version running `2020.x`.  You will notice some version checks being run in the script.  This is to prevent the script from calling specific API endpoints when it shouldn't.
+No.  It was designed for specific use cases, and the limits placed on it were intentional.  For example, it can't access your Master Key, and without that, it cannot decrypt your sensitive data.  It should get you 80-90% of the way there.  You are free to fork this repo to modify the scripts to help get you another 5% of the way there.   
 
 ### Can I use this script to migrate from 2018.10 to 2020.2?
 No.  The script compares the major and minor versions of the source and destination.  
