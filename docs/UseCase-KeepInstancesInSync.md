@@ -73,7 +73,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
 
 This example will clone a specific project between a mirrored instance.
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 The other options are:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.

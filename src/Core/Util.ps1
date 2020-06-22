@@ -167,9 +167,49 @@ function Get-OctopusFilteredList
         $filters
     )
 
+    $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters  
+        
+    if ($filteredList.Length -eq 0)
+    {
+        Write-OctopusWarning "No $itemType items were found to clone, skipping"
+    }
+    else
+    {
+        Write-OctopusSuccess "$itemType items were found to clone, starting clone for $itemType"
+    }
+
+    return $filteredList
+}
+
+function Get-OctopusExclusionList
+{
+    param(
+        $itemList,
+        $itemType,
+        $filters
+    )
+
+    $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters  
+        
+    if ($filteredList.Length -eq 0)
+    {
+        Write-OctopusWarning "No $itemType items were found to exclude"
+    }    
+
+    return $filteredList
+}
+
+function New-OctopusFilteredList
+{
+    param(
+        $itemList,
+        $itemType,
+        $filters
+    )
+
     $filteredList = @()  
     
-    Write-OctopusSuccess "Creating filter list for $itemType"
+    Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
 
     if ([string]::IsNullOrWhiteSpace($filters) -eq $false)
     {
@@ -200,19 +240,10 @@ function Get-OctopusFilteredList
                 }
             }
         }
-
-        if ($filteredList.Length -eq 0)
-        {
-            Write-OctopusWarning "No $itemType items were found to clone, skipping"
-        }
-        else
-        {
-            Write-OctopusSuccess "$itemType items were found to clone, starting clone for $itemType"
-        }
     }
     else
     {
-        Write-OctopusWarning "The filter for $itemType was not set.  No $itemType will be cloned.  If you wish to clone all $itemType use 'all' or use a comma seperated list (wild cards supported), IE 'AWS*,Space Infrastructure."
+        Write-OctopusWarning "The filter for $itemType was not set."
     }
 
     return $filteredList

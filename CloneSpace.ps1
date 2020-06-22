@@ -4,8 +4,7 @@ param (
     $SourceSpaceName,
     $DestinationOctopusUrl,
     $DestinationOctopusApiKey,
-    $DestinationSpaceName,
-    $VerboseLogging,
+    $DestinationSpaceName,    
     $EnvironmentsToClone,
     $WorkerPoolsToClone,
     $ProjectGroupsToClone, 
@@ -69,7 +68,6 @@ param (
 . ($PSScriptRoot + ".\src\Cloners\WorkerCloner.ps1")
 . ($PSScriptRoot + ".\src\Cloners\WorkerPoolCloner.ps1")
 
-Clear-Host
 $ErrorActionPreference = "Stop"
 
 if ($null -eq $OverwriteExistingVariables)

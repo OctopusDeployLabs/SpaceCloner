@@ -1,7 +1,15 @@
 # How it works
 You provide the script the name of the source space on an Octopus Deploy instance, the name of a destination space on an Octopus instance.  The script leverages the Octopus Deploy Restful API to copy items from the source space into the destination space.
 
-## What will it clone
+## CloneSpaceProject.ps1
+
+The `CloneSpaceProject.ps1` is a new addition to this repository.  `CloneSpace.ps1` expects you to know exactly what you want to clone.  In a lot of cases, you won't know those details.  `CloneSpaceProject.ps1` was designed to fill in that gap.  It will loop through the list of projects you provide and it will walk the dependency tree and determine what items are required.  It will build up the `CloneSpace.ps1` parameters for you and call the script.
+
+## CloneSpace.ps1
+
+The `CloneSpace.ps1` is the workhorse of this repository.  It contains all the logic to perform the actual cloning.
+
+### What will it clone
 The script `CloneSpace.ps1` will clone the following:
 
 - Accounts
@@ -27,7 +35,7 @@ The script `CloneSpace.ps1` will clone the following:
 - Worker Pools
 - Workers (no polling tentacles)
 
-## What won't it clone
+### What won't it clone
 The script `CloneSpace.ps1` will not clone the following items:
 - Releases
 - Deployments

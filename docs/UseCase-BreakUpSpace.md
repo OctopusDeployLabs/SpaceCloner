@@ -17,10 +17,10 @@ In my destination space, I only have three of those four environments, `Test`, `
 
 ![](../img/destination-global-variables-environment-scoping-missing-env.png)
 
-# Example
+# Example - CloneSpace.ps1
 This example will clone a project from one space (along with its dependencies) to another in the same instance.  It includes only dependencies the project cares about.
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
 - `AddAdditionalVariableValuesOnExistingVariableSets` - set to `false` so any new values (specifically around scoping) are not added.  
@@ -53,6 +53,40 @@ CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -TargetsToClone "AWS*" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
+    -OverwriteExistingVariables "false" `
+    -AddAdditionalVariableValuesOnExistingVariableSets "False" `
+    -OverwriteExistingCustomStepTemplates "false" `
+    -OverwriteExistingLifecyclesPhases "false" `
+    -CloneProjectChannelRules "true" `
+    -CloneTeamUserRoleScoping "true" `
+    -CloneProjectVersioningReleaseCreationSettings "true"
+```
+
+# Example - CloneSpaceProject.ps1
+This example will clone a project from one space (along with its dependencies) to another in the same instance.  It includes only dependencies the project cares about.
+
+Please refer to the [Parameter reference page](CloneSpaceProjectParameterReference.md) for more details on the parameters.
+
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
+- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `false` so any new values (specifically around scoping) are not added.  
+- `OverwriteExistingCustomStepTemplates` - Set to `false` so the step templates are not updated. 
+- `OverwriteExistingLifecyclesPhases` - Set to `false` as the two spaces will have different phases.
+- `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
+- `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
+- `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+
+```PowerShell
+CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
+    -SourceOctopusApiKey "SOME KEY" `
+    -SourceSpaceName "Target - SQL Server" `
+    -DestinationOctopusUrl "https://samples.octopus.app" `
+    -DestinationOctopusApiKey "My Key" `
+    -DestinationSpaceName "Redgate Space" `    
+    -ProjectsToClone "Redgate - Feature Branch Example" `
+    -EnvironmentsToExclude $null
+    -WorkersToExclude $null
+    -TargetsToExclude $null
+    -TenantsToExclude $null
     -OverwriteExistingVariables "false" `
     -AddAdditionalVariableValuesOnExistingVariableSets "False" `
     -OverwriteExistingCustomStepTemplates "false" `

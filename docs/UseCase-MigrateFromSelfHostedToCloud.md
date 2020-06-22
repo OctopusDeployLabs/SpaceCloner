@@ -17,11 +17,11 @@ The following steps will help ensure the cloner runs as smoothly as possible.
 
 Here are some example scripts to help get you started.
 
-## Clone Everything
+## Clone Everything - CloneSpace.ps1
 
 This example will clone everything the script is allowed to clone from the local instance to your cloud instance.  Please see Please refer to the [how it works page](HowItWorks.md#what-will-it-clone) to get a full list of items cloned and not cloned.
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 The other options are:
 - `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
@@ -63,11 +63,11 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectVersioningReleaseCreationSettings "true"
 ```
 
-## Clone Everything But Environments, Workers, and Targets
+## Clone Everything But Environments, Workers, and Targets - CloneSpace.ps1
 
 Chances are you did a lot of prep work to get targets and workers registered on your cloud instance.  To do that, you needed to create environments, worker pools, workers, and targets.  This example will exclude those items but clone everything else the clone is allowed to do.  Please see Please refer to the [how it works page](HowItWorks.md#what-will-it-clone) to get a full list of items cloned and not cloned.
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 The other options are:
 - `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
@@ -104,3 +104,37 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true"
 ``` 
+
+# Example - CloneSpaceProject.ps1
+This example will clone a project from one space (along with its dependencies) to another in the same instance.  It includes only dependencies the project cares about.
+
+Please refer to the [Parameter reference page](CloneSpaceProjectParameterReference.md) for more details on the parameters.
+
+- `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
+- `OverwriteExistingCustomStepTemplates` - Set to `true` so all step templates are cloned from the source instance.
+- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `true` to add all variables.  
+- `OverwriteExistingLifecyclesPhases` - Set to `true` to keep the lifecycles in sync.
+- `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
+- `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
+- `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+
+```PowerShell
+CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
+    -SourceOctopusApiKey "SOME KEY" `
+    -SourceSpaceName "Target - SQL Server" `
+    -DestinationOctopusUrl "https://samples.octopus.app" `
+    -DestinationOctopusApiKey "My Key" `
+    -DestinationSpaceName "Redgate Space" `    
+    -ProjectsToClone "all" `
+    -EnvironmentsToExclude $null
+    -WorkersToExclude $null
+    -TargetsToExclude $null
+    -TenantsToExclude $null
+    -OverwriteExistingVariables "true" `
+    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingCustomStepTemplates "true" `
+    -OverwriteExistingLifecyclesPhases "true" `
+    -CloneProjectChannelRules "true" `
+    -CloneTeamUserRoleScoping "true" `
+    -CloneProjectVersioningReleaseCreationSettings "true"
+```
