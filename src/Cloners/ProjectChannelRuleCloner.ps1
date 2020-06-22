@@ -32,8 +32,7 @@ function Copy-OctopusProjectChannelRules
             continue
         }
         
-        Write-OctopusVerbose "Cloning the channel rules for $($channel.Name)"
-        Write-Host $channel.Rules
+        Write-OctopusVerbose "Cloning the channel rules for $($channel.Name)"        
 
         $cloneChannel = Copy-OctopusObject -ItemToCopy $matchingChannel -ClearIdValue $false -SpaceId $destinationData.SpaceId        
 

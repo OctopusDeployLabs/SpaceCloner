@@ -209,7 +209,7 @@ function New-OctopusFilteredList
 
     $filteredList = @()  
     
-    Write-OctopusSuccess "Creating filter list for $itemType"
+    Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
 
     if ([string]::IsNullOrWhiteSpace($filters) -eq $false)
     {
@@ -245,6 +245,8 @@ function New-OctopusFilteredList
     {
         Write-OctopusWarning "The filter for $itemType was not set."
     }
+
+    return $filteredList
 }
 
 function Convert-OctopusProcessDeploymentStepId

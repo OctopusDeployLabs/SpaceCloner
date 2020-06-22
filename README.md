@@ -24,6 +24,25 @@ This script was developed using an Octopus Deploy instance running `2020.1.x` an
 
 You will notice some version checks being run in the script.  This is to prevent the script from calling specific API endpoints when it shouldn't.
 
+# Just Get Me Going!
+
+This repository contains two scripts:
+
+- [CloneSpace.ps1](CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
+- [CloneSpaceProject.ps1](CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
+
+The fastest way to get started is to run this command.  It will clone everything in a space for you.
+
+```PowerShell
+CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
+    -SourceOctopusApiKey "SOME KEY" `
+    -SourceSpaceName "Target - SQL Server" `
+    -DestinationOctopusUrl "https://samples.octopus.app" `
+    -DestinationOctopusApiKey "My Key" `
+    -DestinationSpaceName "Redgate Space" `    
+    -ProjectsToClone "all"
+```
+
 # Use cases
 
 This script was written for the following use cases.
