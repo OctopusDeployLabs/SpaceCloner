@@ -11,10 +11,6 @@ function Copy-OctopusTargets {
         return
     }
 
-    if ($sourceData.OctopusUrl -ne $destinationData.OctopusUrl) {
-        Write-OctopusCritical "You are cloning workers from one instance to another, the server thumbprints will not be accepted by the workers until you run Tentacle.exe configure --trust='your server thumbprint'"
-    }
-
     foreach ($target in $filteredList) {
         Write-OctopusVerbose "Starting Clone of target $($target.Name)"
 
