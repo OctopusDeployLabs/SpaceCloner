@@ -1,22 +1,26 @@
-function Get-OctopusUrl {
+function Get-OctopusUrl
+{
     param (
         $EndPoint,
         $SpaceId,
         $OctopusUrl
     )
 
-    if ($EndPoint -match "/api") {
+    if ($EndPoint -match "/api")
+    {
         return "$OctopusUrl/$endPoint"
     }
 
-    if ([string]::IsNullOrWhiteSpace($SpaceId)) {
+    if ([string]::IsNullOrWhiteSpace($SpaceId))
+    {
         return "$OctopusUrl/api/$EndPoint"
     }
 
     return "$OctopusUrl/api/$spaceId/$EndPoint"
 }
 
-function Invoke-OctopusApi {
+function Invoke-OctopusApi
+{
     param
     (
         $url,
@@ -26,13 +30,16 @@ function Invoke-OctopusApi {
         $filePath
     )
 
-    try {
-        if ($null -ne $filePath) {
+    try
+    {
+        if ($null -ne $filePath)
+        {
             Write-OctopusVerbose "Filepath $filePath parameter provided, saving output to the filepath from $url"
             return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -OutFile $filePath
         }
 
-        if ($null -eq $item) {
+        if ($null -eq $item)
+        {
             Write-OctopusVerbose "No data to post or put, calling bog standard invoke-restmethod for $url"
             return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -ContentType 'application/json; charset=utf-8'
         }
@@ -43,8 +50,10 @@ function Invoke-OctopusApi {
         Write-OctopusVerbose "Invoking $method $url"
         return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -Body $body -ContentType 'application/json; charset=utf-8'
     }
-    catch {
-        if ($null -ne $_.Exception.Response) {
+    catch
+    {
+        if ($null -ne $_.Exception.Response)
+        {
             $result = $_.Exception.Response.GetResponseStream()
             $reader = New-Object System.IO.StreamReader($result)
             $reader.BaseStream.Position = 0
@@ -52,7 +61,8 @@ function Invoke-OctopusApi {
             $responseBody = $reader.ReadToEnd();
             Write-OctopusVerbose -Message "Error calling $url $($_.Exception.Message) StatusCode: $($_.Exception.Response.StatusCode.value__ ) StatusDescription: $($_.Exception.Response.StatusDescription) $responseBody"
         }
-        else {
+        else
+        {
             Write-OctopusVerbose $_.Exception
         }
     }
@@ -60,7 +70,8 @@ function Invoke-OctopusApi {
     Throw "There was an error calling the Octopus API please check the log for more details"
 }
 
-Function Get-OctopusApiItemList {
+Function Get-OctopusApiItemList
+{
     param (
         $EndPoint,
         $ApiKey,
@@ -77,7 +88,8 @@ Function Get-OctopusApiItemList {
     return $results.Items
 }
 
-Function Get-OctopusApi {
+Function Get-OctopusApi
+{
     param (
         $EndPoint,
         $ApiKey,
@@ -92,7 +104,8 @@ Function Get-OctopusApi {
     return $results
 }
 
-Function Save-OctopusApi {
+Function Save-OctopusApi
+{
     param (
         $EndPoint,
         $ApiKey,
@@ -109,7 +122,8 @@ Function Save-OctopusApi {
     return $results
 }
 
-function Save-OctopusApiItem {
+function Save-OctopusApiItem
+{
     param(
         $Item,
         $Endpoint,
@@ -120,7 +134,8 @@ function Save-OctopusApiItem {
 
     $method = "POST"
 
-    if ($null -ne $Item.Id) {
+    if ($null -ne $Item.Id)
+    {
         Write-OctopusVerbose "Item has id, updating method call to PUT"
         $method = "Put"
         $endPoint = "$endPoint/$($Item.Id)"
@@ -133,7 +148,8 @@ function Save-OctopusApiItem {
     return $results
 }
 
-function Get-OctopusItemLogo {
+function Get-OctopusItemLogo
+{
     param(
         $item,
         $octopusUrl,
@@ -146,7 +162,8 @@ function Get-OctopusItemLogo {
     return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
 }
 
-function Save-OctopusItemLogo {
+function Save-OctopusItemLogo
+{
     param(
         $item,
         $octopusUrl,
