@@ -4,57 +4,52 @@ function Copy-OctopusTargets
         $sourceData,
         $destinationData,
         $cloneScriptOptions
-    )    
-    
-    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TargetList -itemType "target List" -filters $cloneScriptOptions.WorkersToClone
+    )
+
+    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TargetList -itemType "target List" -filters $cloneScriptOptions.TargetsToClone
 
     if ($filteredList.length -eq 0)
     {
         return
     }
 
-    if ($sourceData.OctopusUrl -ne $destinationData.OctopusUrl)
-    {
-        Write-OctopusCritical "You are cloning workers from one instance to another, the server thumbprints will not be accepted by the workers until you run Tentacle.exe configure --trust='your server thumbprint'"
-    }    
-
     foreach ($target in $filteredList)
-    {                              
+    {
         Write-OctopusVerbose "Starting Clone of target $($target.Name)"
 
         if ((Get-OctopusTargetCanBeCloned -target $target) -eq $false)
         {
             continue
         }
-        
+
         $matchingItem = Get-OctopusItemByName -ItemName $target.Name -ItemList $destinationData.TargetList
-                
+
         If ($null -eq $matchingItem)
-        {            
-            Write-OctopusVerbose "Target $($target.Name) was not found in destination, creating new record."                                        
+        {
+            Write-OctopusVerbose "Target $($target.Name) was not found in destination, creating new record."
 
-            $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $target -SpaceId $destinationData.SpaceId -ClearIdValue $true    
+            $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $target -SpaceId $destinationData.SpaceId -ClearIdValue $true
 
-            $copyOfItemToClone.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds)  
+            $copyOfItemToClone.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds)
             $copyOfItemToClone.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds)
-            
+
             $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
-            $copyOfItemToClone.StatusSummary = ""  
-            
+            $copyOfItemToClone.StatusSummary = ""
+
             Convert-OctopusCloudRegionTarget -target $copyOfItemToClone -sourceData $sourceData -destinationData $destinationData
             Convert-OctopusK8sTarget -target $copyOfItemToClone -sourceData $sourceData -destinationData $destinationData
             Convert-OctopusAzureWebAppTarget -target $copyOfItemToClone -sourceData $sourceData -destinationData $destinationData
             Convert-OctopusTargetTenantedDeploymentParticipation -target $copyOfItemToClone
 
-            Save-OctopusTarget -target $copyOfItemToClone -destinationdata $destinationData            
+            Save-OctopusTarget -target $copyOfItemToClone -destinationdata $destinationData
         }
-        else 
+        else
         {
-            Write-OctopusVerbose "Target $($target.Name) already exists in destination, skipping"    
+            Write-OctopusVerbose "Target $($target.Name) already exists in destination, skipping"
         }
-    }    
+    }
 
     Write-OctopusSuccess "Targets successfully cloned, reloading destination list"
     $destinationData.TargetList = Get-OctopusTargetList -OctopusData $DestinationData
@@ -63,16 +58,16 @@ function Copy-OctopusTargets
 function Get-OctopusTargetCanBeCloned
 {
     param ($target)
-    
+
     if ($target.Endpoint.CommunicationStyle -eq "TentacleActive")
     {
         Write-OctopusWarning "The Target $($target.Name) is a polling tentacle, this script cannot clone polling tentacles, skipping."
         return $false
     }
 
-    if ($target.EndPoint.CommunicationStyle -ne "None" -and $target.Endpoint.CommunicationStyle -ne "Kubernetes" -and $target.Endpoint.CommunicationStyle -ne "TentacleActive" -and $target.Endpoint.CommunicationStyle -ne "AzureWebApp")
+    if ($target.EndPoint.CommunicationStyle -ne "None" -and $target.Endpoint.CommunicationStyle -ne "Kubernetes" -and $target.Endpoint.CommunicationStyle -ne "TentaclePassive" -and $target.Endpoint.CommunicationStyle -ne "AzureWebApp")
     {
-        Write-OctopusWarning "$($target.Name) is not going to be cloned, at this time this script supports cloud regions, K8s targets, listentin tentacles, and Azure Web Apps."
+        Write-OctopusWarning "$($target.Name) is not going to be cloned, at this time this script supports cloud regions, K8s targets, listening tentacles, and Azure Web Apps."
         return $false
     }
 
@@ -123,7 +118,7 @@ function Convert-OctopusK8sTarget
     if ($target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAzure" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAWS")
     {
         $target.EndPoint.Authentication.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.Authentication.AccountId
-    }    
+    }
 }
 
 function Convert-OctopusAzureWebAppTarget
@@ -138,7 +133,7 @@ function Convert-OctopusAzureWebAppTarget
         return
     }
 
-    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId    
+    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId
 }
 
 function Convert-OctopusTargetTenantedDeploymentParticipation
