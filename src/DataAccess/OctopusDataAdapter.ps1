@@ -1,21 +1,21 @@
 function Get-OctopusUrl
 {
     param (
-        $EndPoint,        
+        $EndPoint,
         $SpaceId,
         $OctopusUrl
-    )  
+    )
 
     if ($EndPoint -match "/api")
-    {        
+    {
         return "$OctopusUrl/$endPoint"
     }
-    
+
     if ([string]::IsNullOrWhiteSpace($SpaceId))
     {
         return "$OctopusUrl/api/$EndPoint"
     }
-    
+
     return "$OctopusUrl/api/$spaceId/$EndPoint"
 }
 
@@ -27,30 +27,30 @@ function Invoke-OctopusApi
         $apiKey,
         $method,
         $item,
-        $filePath        
+        $filePath
     )
 
-    try 
-    {                    
+    try
+    {
         if ($null -ne $filePath)
         {
             Write-OctopusVerbose "Filepath $filePath parameter provided, saving output to the filepath from $url"
-            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey"="$ApiKey"} -OutFile $filePath
-        }                     
+            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -OutFile $filePath
+        }
 
         if ($null -eq $item)
-        {       
+        {
             Write-OctopusVerbose "No data to post or put, calling bog standard invoke-restmethod for $url"
-            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey"="$ApiKey"}                            
+            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -ContentType 'application/json; charset=utf-8'
         }
 
         $body = $item | ConvertTo-Json -Depth 10
-        Write-OctopusVerbose $body    
-            
-        Write-OctopusVerbose "Invoking $method $url"  
-        return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey"="$ApiKey"} -Body $body
+        Write-OctopusVerbose $body
+
+        Write-OctopusVerbose "Invoking $method $url"
+        return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -Body $body -ContentType 'application/json; charset=utf-8'
     }
-    catch 
+    catch
     {
         if ($null -ne $_.Exception.Response)
         {
@@ -59,11 +59,11 @@ function Invoke-OctopusApi
             $reader.BaseStream.Position = 0
             $reader.DiscardBufferedData()
             $responseBody = $reader.ReadToEnd();
-            Write-OctopusVerbose -Message "Error calling $url $($_.Exception.Message) StatusCode: $($_.Exception.Response.StatusCode.value__ ) StatusDescription: $($_.Exception.Response.StatusDescription) $responseBody"        
+            Write-OctopusVerbose -Message "Error calling $url $($_.Exception.Message) StatusCode: $($_.Exception.Response.StatusCode.value__ ) StatusDescription: $($_.Exception.Response.StatusDescription) $responseBody"
         }
-        else 
+        else
         {
-            Write-OctopusVerbose $_.Exception    
+            Write-OctopusVerbose $_.Exception
         }
     }
 
@@ -77,13 +77,13 @@ Function Get-OctopusApiItemList
         $ApiKey,
         $SpaceId,
         $OctopusUrl
-    )    
+    )
 
-    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl    
+    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl
 
     $results = Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey
-    
-    Write-OctopusVerbose "$url returned a list with $($results.Items.Length) item(s)" 
+
+    Write-OctopusVerbose "$url returned a list with $($results.Items.Length) item(s)"
 
     return $results.Items
 }
@@ -95,9 +95,9 @@ Function Get-OctopusApi
         $ApiKey,
         $SpaceId,
         $OctopusUrl
-    )    
+    )
 
-    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl    
+    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl
 
     $results = Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey
 
@@ -115,8 +115,8 @@ Function Save-OctopusApi
         $OctopusUrl
     )
 
-    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl 
-    
+    $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl
+
     $results = Invoke-OctopusApi -Method $Method -Url $url -apiKey $ApiKey -item $item
 
     return $results
@@ -130,17 +130,17 @@ function Save-OctopusApiItem
         $ApiKey,
         $SpaceId,
         $OctopusUrl
-    )    
+    )
 
     $method = "POST"
 
-    if ($null -ne $Item.Id)    
+    if ($null -ne $Item.Id)
     {
         Write-OctopusVerbose "Item has id, updating method call to PUT"
         $method = "Put"
         $endPoint = "$endPoint/$($Item.Id)"
     }
-    
+
     $results = Save-OctopusApi -EndPoint $Endpoint $method $method -Item $Item -ApiKey $ApiKey -OctopusUrl $OctopusUrl -SpaceId $SpaceId
 
     Write-OctopusVerbose $results
@@ -156,7 +156,7 @@ function Get-OctopusItemLogo
         $apiKey,
         $filePath
     )
-    
+
     $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
 
     return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
@@ -168,13 +168,13 @@ function Save-OctopusItemLogo
         $item,
         $octopusUrl,
         $apiKey,
-        $fileContentToUpload        
+        $fileContentToUpload
     )
-    
+
     $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
 
-    Write-OctopusVerbose "Uploading logo to $url"        
-    
+    Write-OctopusVerbose "Uploading logo to $url"
+
     Add-Type -AssemblyName System.Net.Http
 
     $httpClientHandler = New-Object System.Net.Http.HttpClientHandler
@@ -183,7 +183,7 @@ function Save-OctopusItemLogo
     $httpClient.DefaultRequestHeaders.Add("X-Octopus-ApiKey", $ApiKey)
 
     $packageFileStream = New-Object System.IO.FileStream @($fileContentToUpload, [System.IO.FileMode]::Open)
-    
+
     $contentDispositionHeaderValue = New-Object System.Net.Http.Headers.ContentDispositionHeaderValue "form-data"
     $contentDispositionHeaderValue.Name = "fileData"
     $contentDispositionHeaderValue.FileName = [System.IO.Path]::GetFileName($fileContentToUpload)
@@ -192,12 +192,12 @@ function Save-OctopusItemLogo
     $streamContent.Headers.ContentDisposition = $contentDispositionHeaderValue
     $ContentType = "application/octet-stream"
     $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue $ContentType
-    
+
     $content = New-Object System.Net.Http.MultipartFormDataContent
     $content.Add($streamContent)
 
     $httpClient.PostAsync($url, $content).Result
 
     return
-        
+
 }
