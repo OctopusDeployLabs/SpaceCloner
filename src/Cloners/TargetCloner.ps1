@@ -57,8 +57,8 @@ function Get-OctopusTargetCanBeCloned {
         return $false
     }
 
-    if ($target.EndPoint.CommunicationStyle -ne "None" -and $target.Endpoint.CommunicationStyle -ne "Kubernetes" -and $target.Endpoint.CommunicationStyle -ne "TentacleActive" -and $target.Endpoint.CommunicationStyle -ne "AzureWebApp") {
-        Write-OctopusWarning "$($target.Name) is not going to be cloned, at this time this script supports cloud regions, K8s targets, listentin tentacles, and Azure Web Apps."
+    if ($target.EndPoint.CommunicationStyle -ne "None" -and $target.Endpoint.CommunicationStyle -ne "Kubernetes" -and $target.Endpoint.CommunicationStyle -ne "TentaclePassive" -and $target.Endpoint.CommunicationStyle -ne "AzureWebApp") {
+        Write-OctopusWarning "$($target.Name) is not going to be cloned, at this time this script supports cloud regions, K8s targets, listening tentacles, and Azure Web Apps."
         return $false
     }
 
