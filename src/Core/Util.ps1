@@ -40,12 +40,15 @@ function Convert-SourceIdToDestinationId
     )
 
     $idValueSplit = $IdValue -split "-"
-    if (($idValueSplit[1] -match "^[\d\.]+$") -eq $false)
+    if ($idValueSplit.Length -le 2)
     {
-        Write-OctopusVerbose "The id value $idValue is a built in id, no need to convert, returning it."
-        return $IdValue
+        if (($idValueSplit[1] -match "^[\d\.]+$") -eq $false)
+        {
+            Write-OctopusVerbose "The id value $idValue is a built in id, no need to convert, returning it."
+            return $IdValue
+        }
     }
-
+    
     Write-OctopusVerbose "Getting Name of $IdValue"
     $sourceItem = Get-OctopusItemById -ItemList $SourceList -ItemId $IdValue
 

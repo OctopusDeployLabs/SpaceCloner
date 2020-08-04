@@ -46,7 +46,7 @@ function Write-OctopusWarning
 {
     param($message)
 
-    Write-Host $message -ForegroundColor Yellow    
+    Write-Host "Warning $message" -ForegroundColor Yellow    
     Write-OctopusVerbose $message
 }
 
@@ -54,7 +54,7 @@ function Write-OctopusCritical
 {
     param ($message)
 
-    Write-Host $message -ForegroundColor Red
+    Write-Host "Critical Message: $message" -ForegroundColor Red
     Write-OctopusVerbose $message
 }
 

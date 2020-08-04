@@ -15,9 +15,10 @@ function Copy-OctopusProcessStepAction
     $action.Channels = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels)
     
     Convert-OctopusProcessActionWorkerPoolId -action $action -sourceData $sourceData -destinationData $destinationData                
+    Convert-OctopusProcessActionExecutionContainerFeedId -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionStepTemplate -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionManualIntervention -action $action -sourceData $sourceData -destinationData $destinationData
-    Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData    
+    Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData        
     Convert-OctopusProcessActionPackageList -action $action
         
     return $action    
@@ -36,6 +37,23 @@ function Convert-OctopusProcessActionWorkerPoolId
         if ($null -ne $action.WorkerPoolId)
         {
             $action.WorkerPoolId = Convert-SourceIdToDestinationId -SourceList $SourceData.WorkerPoolList -DestinationList $DestinationData.WorkerPoolList -IdValue $action.WorkerPoolId                             
+        }
+    }
+}
+
+function Convert-OctopusProcessActionExecutionContainerFeedId
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData
+    )
+
+    if ((Test-OctopusObjectHasProperty -objectToTest $action -propertyName "Container"))
+    {
+        if ($null -ne $action.Container.FeedId)
+        {
+            $action.Container.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Container.FeedId            
         }
     }
 }

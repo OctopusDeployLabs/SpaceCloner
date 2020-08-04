@@ -28,7 +28,9 @@ function Copy-OctopusProjectRunbooks
             
             $runbookToClone.ProjectId = $destinationProject.Id
             $runbookToClone.PublishedRunbookSnapshotId = $null
-            $runbookToClone.RunbookProcessId = $null            
+            $runbookToClone.RunbookProcessId = $null 
+            
+            Convert-OctopusRunbookEnvironmentIdList -runbookToClone $runbookToClone -sourceData $sourceData -destinationData $destinationData
 
             Write-OctopusVerbose "The runbook $($runbook.Name) for $($destinationProject.Name) doesn't exist, creating it now"            
             $destinationRunbook = Save-OctopusProjectRunbook -Runbook $runbookToClone -DestinationData $destinationData
@@ -42,5 +44,19 @@ function Copy-OctopusProjectRunbooks
         Write-OctopusPostCloneCleanUp "*****************End Sync for runbook process $($runbook.Name)********************"        
             
         Save-OctopusProjectRunbookProcess -RunbookProcess $destinationRunbookProcess -DestinationData $destinationData        
+    }
+}
+
+function Convert-OctopusRunbookEnvironmentIdList
+{
+    param (
+        $runbookToClone,
+        $sourceData,
+        $destinationData
+    )
+
+    if ((Test-OctopusObjectHasProperty -objectToTest $runbookToClone -propertyName "Environments"))
+    {
+        $runbookToClone.Environments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $runbookToClone.Environments)        
     }
 }
