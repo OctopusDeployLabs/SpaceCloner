@@ -22,9 +22,15 @@ We do accept Pull Requests on this repository.  See [Contributing guidelines](do
 
 ## Tested Octopus Deploy Versions
 
-This script was developed using an Octopus Deploy instance running `2020.1.x` and later `2020.2.x`.  It was tested against a variety of different versions, including the latest version of Octopus Deploy.  It should work with Octopus Deploy `3.4` or higher.  However, you'll have much better luck using `2020.x` or higher.
+This script has been tested against the following versions of Octopus Deploy:
 
-You will notice some version checks being run in the script.  This is to prevent the script from calling specific API endpoints when it shouldn't.
+- `2020.1.x`
+- `2020.2.x`
+- `2020.3.x`
+
+It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` release of Octopus Deploy.
+
+The source instance and the destination instance **must** be running the same major/minor (2020.1, 2020.2) release.  The script will check the version of the source instance and destination instance to ensure this rule is met.
 
 # Just Get Me Going!
 
