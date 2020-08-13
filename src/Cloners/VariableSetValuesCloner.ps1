@@ -39,15 +39,21 @@ function Copy-OctopusVariableSetValues
                 $NewOwnerIds = @()
                 foreach($value in $octopusVariable.Scope.ProcessOwner)
                 {
-                    if ($value -contains "Projects-")
+                    Write-OctopusVerbose "Attempting to convert $value to a destination value"
+
+                    if ($value -like "Projects-*")
                     {
+                        Write-OctopusVerbose "The process owner is the project, converting to the new project id"
                         $NewOwnerIds += $DestinationProjectData.Project.Id
                     }
-                    elseif($value -contains "Runbooks-")
+                    elseif($value -like "Runbooks-*")
                     {
+                        Write-OctopusVerbose "The process owner is a runbook, converting to the new runbook id"
                         $NewOwnerIds += Convert-SourceIdToDestinationId -SourceList $SourceProjectData.RunbookList -DestinationList $DestinationProjectData.RunbookList -IdValue $value
                     }
                 }
+
+                Write-OctopusVerbose "The new process owner ids are $NewOwnerIds"
                 
                 $octopusVariable.Scope.ProcessOwner = @($NewOwnerIds)            
             }
@@ -118,6 +124,7 @@ function Copy-OctopusVariableSetValues
         elseif ($foundIndex -gt -1)
         {
             $DestinationVariableSetVariables.Variables[$foundIndex].Value = $octopusVariable.Value
+            $DestinationVariableSetVariables.Variables[$foundIndex].Scope = $octopusVariable.Scope
             if ($octopusVariable.Value -eq "Dummy Value")         
             {                
                 Write-OctopusPostCloneCleanUp "The variable $variableName is a sensitive variable, value set to 'Dummy Value'"

@@ -461,16 +461,22 @@ foreach ($project in $projectListToClone)
 {
     Write-OctopusSuccess "Starting $($project.Name)"
     Write-OctopusSuccess "  Adding variable sets for $($project.Name)"
-    foreach ($variableSetId in $project.IncludedLibraryVaraibleSetIds)
+    foreach ($variableSetId in $project.IncludedLibraryVariableSetIds)
     {        
+        Write-OctopusSuccess "      Attempting to find variableSetId $variableSetId in VariableSetList"
         $variableSet = Get-OctopusItemById -itemId $variableSetId -itemList $sourceData.VariableSetList
 
-        if ($variableSet.ContentType -eq "ScriptModule")
+        Write-OctopusSuccess "      Attempting to find variableSetId $variableSetId in ScriptModuleList"
+        $scriptModule = Get-OctopusItemById -itemId $variableSetId -itemList $sourceData.ScriptModuleList
+
+        if ($null -ne $scriptModule)
         {
-            $cloneSpaceCommandLineOptions.ScriptModulesToClone= Add-OctopusIdToCloneList -itemId $variableSetId -itemType "Script Module" -destinationList $cloneSpaceCommandLineOptions.ScriptModulesToClone -sourceList $sourceData.ScriptModuleList -exclusionList @()
+            Write-OctopusSuccess "      Adding the script module $($scriptModule.Name) to the items script modules to clone"
+            $cloneSpaceCommandLineOptions.ScriptModulesToClone = Add-OctopusIdToCloneList -itemId $variableSetId -itemType "Script Module" -destinationList $cloneSpaceCommandLineOptions.ScriptModulesToClone -sourceList $sourceData.ScriptModuleList -exclusionList @()
         }
-        else
+        elseif ($null -ne $variableSet)
         {
+            Write-OctopusSuccess "      Adding the variable set $($variableSet.Name) to the items variable sets to clone"
             $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone = Add-OctopusIdToCloneList -itemId $variableSetId -itemType "Library Variable Set" -destinationList $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone -sourceList $sourceData.VariableSetList -exclusionList @()
             $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $variableSet -OctopusData $sourceData
             Add-OctopusVariableSetItemsToCloneList -variableSet $sourceVariableSetVariables -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude

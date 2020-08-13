@@ -71,7 +71,18 @@ function Copy-OctopusProjectSettings
         $copyOfProject.ClonedFromProjectId = $null        
 
         $VariableSetIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds)
+        $scriptModuleIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds)
+
         $copyOfProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
+
+        if ($scriptModuleIds.Count -gt 0)
+        {
+            foreach ($scriptModuleId in $scriptModuleIds)
+            {
+                $copyOfProject.IncludedLibraryVariableSetIds += $scriptModuleId
+            }
+        }        
+
         $copyOfProject.ProjectGroupId = Convert-SourceIdToDestinationId -SourceList $SourceData.ProjectGroupList -DestinationList $DestinationData.ProjectGroupList -IdValue $copyOfProject.ProjectGroupId
         $copyOfProject.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $copyOfProject.LifeCycleId        
 
@@ -90,7 +101,20 @@ function Copy-OctopusProjectSettings
     }
     else
     {            
-        $matchingProject.Description = $sourceProject.Description                   
+        $matchingProject.Description = $sourceProject.Description    
+        
+        $VariableSetIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $sourceProject.IncludedLibraryVariableSetIds)
+        $scriptModuleIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $sourceProject.IncludedLibraryVariableSetIds)
+
+        $matchingProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
+
+        if ($scriptModuleIds.Count -gt 0)
+        {
+            foreach ($scriptModuleId in $scriptModuleIds)
+            {
+                $matchingProject.IncludedLibraryVariableSetIds += $scriptModuleId
+            }
+        } 
 
         Save-OctopusProject -Project $matchingProject -DestinationData $destinationData        
 
