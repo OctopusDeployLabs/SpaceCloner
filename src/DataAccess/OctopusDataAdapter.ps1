@@ -8,7 +8,12 @@ function Get-OctopusUrl
 
     if ($EndPoint -match "/api")
     {
-        return "$OctopusUrl/$endPoint"
+        if (!$EndPoint.StartsWith("/api"))
+        {
+            $EndPoint = $EndPoint.Substring($EndPoint.IndexOf("/api"))
+        }
+
+        return "$OctopusUrl/$EndPoint"
     }
 
     if ([string]::IsNullOrWhiteSpace($SpaceId))
