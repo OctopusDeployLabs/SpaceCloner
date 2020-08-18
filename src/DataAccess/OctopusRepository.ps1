@@ -276,6 +276,78 @@ function Get-OctopusTeamScopedUserRoleList
     return Get-OctopusApiItemList -EndPoint "teams/$($team.Id)/scopeduserroles?skip=0&take=1000" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
 
+function Get-OctopusPackageList
+{
+    param(
+        $octopusData
+    )
+
+    return Get-OctopusApiItemList -EndPoint "packages?filter=&latest=true&take=1000" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -spaceId $octopusData.SpaceId
+}
+
+function Get-OctopusPackage
+{
+    param(
+        $package,
+        $octopusData,
+        $filePath
+    )
+
+    $url = Get-OctopusUrl -EndPoint $package.Links.Raw -SpaceId $null -OctopusUrl $octopusData.OctopusUrl    
+
+    return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $octopusData.OctopusApiKey -filePath $filePath
+}
+
+function Get-OctopusItemLogo
+{
+    param(
+        $item,
+        $octopusUrl,
+        $apiKey,
+        $filePath
+    )
+
+    $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
+
+    return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
+}
+
+function Save-OctopusItemLogo
+{
+    param(
+        $item,
+        $octopusUrl,
+        $apiKey,
+        $fileContentToUpload
+    )
+
+    $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
+
+    return Save-OctopusBlobData -url $url -apiKey $apiKey -fileContentToUpload $fileContentToUpload    
+}
+
+function Save-OctopusPackage
+{
+    param(        
+        $octopusData,
+        $fileContentToUpload
+    )
+
+    $url = Get-OctopusUrl -EndPoint "packages/raw?replace=false" -SpaceId $octopusData.SpaceId -OctopusUrl $OctopusData.OctopusUrl
+
+    return Save-OctopusBlobData -url $url -apiKey $octopusData.OctopusApiKey -fileContentToUpload $fileContentToUpload
+}
+
+function Save-OctopusBuildInformation
+{
+    param(
+        $buildInformation,
+        $destinationData
+    )
+
+    return Save-OctopusApiItem -Item $buildInformation -Endpoint "build-information" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+}
+
 function Save-OctopusAccount
 {
     param(

@@ -153,32 +153,15 @@ function Save-OctopusApiItem
     return $results
 }
 
-function Get-OctopusItemLogo
+function Save-OctopusBlobData
 {
     param(
-        $item,
-        $octopusUrl,
-        $apiKey,
-        $filePath
-    )
-
-    $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
-
-    return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
-}
-
-function Save-OctopusItemLogo
-{
-    param(
-        $item,
-        $octopusUrl,
+        $url,
         $apiKey,
         $fileContentToUpload
-    )
+    )    
 
-    $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
-
-    Write-OctopusVerbose "Uploading logo to $url"
+    Write-OctopusVerbose "Uploading data to $url"
 
     Add-Type -AssemblyName System.Net.Http
 
@@ -195,7 +178,7 @@ function Save-OctopusItemLogo
 
     $streamContent = New-Object System.Net.Http.StreamContent $packageFileStream
     $streamContent.Headers.ContentDisposition = $contentDispositionHeaderValue
-    $ContentType = "application/octet-stream"
+    $ContentType = "multipart/form-data"
     $streamContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue $ContentType
 
     $content = New-Object System.Net.Http.MultipartFormDataContent
@@ -204,5 +187,4 @@ function Save-OctopusItemLogo
     $httpClient.PostAsync($url, $content).Result
 
     return
-
 }

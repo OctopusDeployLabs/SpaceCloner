@@ -22,7 +22,8 @@ param (
     $ParentProjectName,
     $ChildProjectsToSync,
     $TenantsToClone,
-    $SpaceTeamsToClone,    
+    $SpaceTeamsToClone, 
+    $PackagesToClone,   
     $OverwriteExistingVariables,
     $AddAdditionalVariableValuesOnExistingVariableSets,
     $OverwriteExistingCustomStepTemplates,
@@ -48,6 +49,7 @@ param (
 . ($PSScriptRoot + ".\src\Cloners\LifecycleCloner.ps1")
 . ($PSScriptRoot + ".\src\Cloners\LogoCloner.ps1")
 . ($PSScriptRoot + ".\src\Cloners\MachinePolicyCloner.ps1")
+. ($PSScriptRoot + ".\src\Cloners\PackageCloner.ps1")
 . ($PSScriptRoot + ".\src\Cloners\ParentProjectTemplateSyncer.ps1")
 . ($PSScriptRoot + ".\src\Cloners\ProcessCloner.ps1")
 . ($PSScriptRoot + ".\src\Cloners\ProjectChannelCloner.ps1")
@@ -134,6 +136,7 @@ $CloneScriptOptions = @{
     ChildProjectsToSync = $ChildProjectsToSync;
     ParentProjectName = $ParentProjectName;
     SpaceTeamsToClone = $SpaceTeamsToClone;
+    PackagesToClone = $PackagesToClone;
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings
@@ -167,6 +170,7 @@ if ($sourceData.OctopusUrl -eq $destinationData.OctopusUrl -and $SourceSpaceName
     }
 }
 
+Copy-OctopusBuiltInPackages -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusEnvironments -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusProjectGroups -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions

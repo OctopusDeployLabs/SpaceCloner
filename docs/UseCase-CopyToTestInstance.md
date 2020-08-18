@@ -43,7 +43,8 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -WorkersToCLone "AWS*" `
     -TargetsToClone "AWS*" `
     -MachinePoliciesToClone "all" `
-    -SpaceTeamsToClone "all" `   
+    -SpaceTeamsToClone "all" `  
+    -PackagesToClone "Redgate.*,DBUp.*" ` 
     -OverwriteExistingVariables "true" `
     -AddAdditionalVariableValuesOnExistingVariableSets "true" `
     -OverwriteExistingCustomStepTemplates "true" `

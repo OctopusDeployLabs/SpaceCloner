@@ -48,6 +48,7 @@ $cloneSpaceCommandLineOptions = @{
     TenantsToClone = $null;
     SpaceTeamsToClone = $null;    
     RolesToClone = $null;
+    PackagesToClone = $null;
 }
 
 function Get-OctopusIsInExclusionList
@@ -109,6 +110,34 @@ function Add-OctopusIdToCloneList
     }
 
     $matchingItemName = $matchingItem.Name
+
+    if (Get-OctopusIsInExclusionList -exclusionList $exclusionList -itemName $matchingItemName)
+    {
+        Write-OctopusVerbose "The item $matchingItemName is in the exclusion list, skipping"
+        return $destinationList
+    }
+
+    return Add-OctopusNameToCloneList -itemName $matchingItemName -destinationList $destinationList    
+}
+
+function Add-OctopusPackageIdToCloneList
+{
+    param(
+        $itemId,
+        $destinationList,
+        $sourceList,        
+        $exclusionList
+    )
+    
+    $matchingItem = Get-OctopusItemByPackageId -ItemList $sourceList -ItemPackageId $itemId
+    
+    if ($null -eq $matchingItem)
+    {
+        Write-OctopusVerbose "The matching item for $itemId could not be found"
+        return $destinationList
+    }
+
+    $matchingItemName = $matchingItem.PackageId
 
     if (Get-OctopusIsInExclusionList -exclusionList $exclusionList -itemName $matchingItemName)
     {
@@ -210,10 +239,15 @@ function Add-OctopusExternalFeedsToCloneList
     {        
         $feed = Get-OctopusItemById -itemId $package.FeedId -ItemList $sourceData.FeedList               
 
-        if ($feed.FeedType -ne "BuiltIn")
+        if ($feed.FeedType -ne "BuiltIn" -and $feed.FeedType -ne "OctopusProjects")
         {
             Write-OctopusVerbose "Adding Feed for $($package.PackageId) to the list"
             $cloneSpaceCommandLineOptions.ExternalFeedsToClone = Add-OctopusIdToCloneList -itemId $package.FeedId -itemType "Feed" -destinationList $cloneSpaceCommandLineOptions.ExternalFeedsToClone -sourceList $sourceData.FeedList -exclusionList @()            
+        }
+        elseif ($feed.FeedType -eq "BuiltIn")
+        {
+            Write-OctopusVerbose "Adding the package $($package.PackageId) to the clone list"
+            $cloneSpaceCommandLineOptions.PackagesToClone = Add-OctopusPackageIdToCloneList -itemId $package.PackageId -itemType "Package" -destinationList $cloneSpaceCommandLineOptions.PackagesToClone -sourceList $sourceData.PackageList -exclusionList @()            
         }
     }
 }
@@ -550,6 +584,7 @@ Write-OctopusSuccess "  -MachinePoliciesToClone $($cloneSpaceCommandLineOptions.
 Write-OctopusSuccess "  -WorkersToClone $($cloneSpaceCommandLineOptions.WorkersToClone)"
 Write-OctopusSuccess "  -TargetsToClone $($cloneSpaceCommandLineOptions.TargetsToClone)"
 Write-OctopusSuccess "  -SpaceTeamsToClone $($cloneSpaceCommandLineOptions.SpaceTeamsToClone)"
+Write-OctopusSuccess "  -PackagesToClone $($cloneSpaceCommandLineOptions.PackagesToClone)"
 Write-OctopusSuccess "  -OverwriteExistingVariables $OverwriteExistingVariables"
 Write-OctopusSuccess "  -AddAdditionalVariableValuesOnExistingVariableSets $AddAdditionalVariableValuesOnExistingVariableSets"
 Write-OctopusSuccess "  -OverwriteExistingCustomStepTemplates $OverwriteExistingCustomStepTemplates"
@@ -582,6 +617,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -WorkersToClone "$($cloneSpaceCommandLineOptions.WorkersToClone)" `
     -TargetsToClone "$($cloneSpaceCommandLineOptions.TargetsToClone)" `
     -SpaceTeamsToClone "$($cloneSpaceCommandLineOptions.SpaceTeamsToClone)" `
+    -PackagesToClone "$($cloneSpaceCommandLineOptions.PackagesToClone)" `
     -OverwriteExistingVariables "$OverwriteExistingVariables" `
     -AddAdditionalVariableValuesOnExistingVariableSets "$AddAdditionalVariableValuesOnExistingVariableSets" `
     -OverwriteExistingCustomStepTemplates "$OverwriteExistingCustomStepTemplates" `

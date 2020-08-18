@@ -53,6 +53,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -TargetsToClone "AWS*" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
+    -PackagesToClone "Redgate.*" `
     -OverwriteExistingVariables "false" `
     -AddAdditionalVariableValuesOnExistingVariableSets "False" `
     -OverwriteExistingCustomStepTemplates "false" `

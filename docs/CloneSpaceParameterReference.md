@@ -29,6 +29,7 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 - `LibraryVariableSetsToClone` - The list of library variable sets to clone. 
 - `LifeCyclesToClone` - The list of lifecycles to clone.  
 - `MachinePoliciesToClone` - The list of machine policies to clone.  
+- `PackagesToClone` - The list of packages to clone.  Will only clone the latest version.  Any build information associated with the package will be cloned as well. Big packages will slow down the runtime of this script.
 - `ProjectGroupsToClone` - The list of project groups to clone.  
 - `ProjectsToClone` - The list of projects to clone.  
 - `ScriptModulesToClone` - The list of script modules to clone. 

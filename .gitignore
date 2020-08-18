@@ -2,3 +2,5 @@
 /logs/**/*
 /src/**/*.png
 /src/**/*.tmp
+/src/**/*.zip
+/src/**/*.nupkg

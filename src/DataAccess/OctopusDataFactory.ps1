@@ -84,5 +84,8 @@ function Get-OctopusData
     Write-OctopusSuccess "Getting User Roles for $spaceName in $OctopusUrl"
     $octopusData.UserRoleList = Get-OctopusUserList -octopusData $octopusData
 
+    Write-OctopusSuccess "Getting Packages for $spaceName in $OctopusUrl"
+    $octopusData.PackageList = Get-OctopusPackageList -octopusData $octopusData
+
     return $octopusData
 }

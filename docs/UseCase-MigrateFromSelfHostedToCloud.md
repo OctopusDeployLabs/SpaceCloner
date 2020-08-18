@@ -96,6 +96,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -ProjectsToClone "all" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
+    -PackagesToClone "all" `
     -OverwriteExistingVariables "true" `
     -AddAdditionalVariableValuesOnExistingVariableSets "true" `
     -OverwriteExistingCustomStepTemplates "true" `

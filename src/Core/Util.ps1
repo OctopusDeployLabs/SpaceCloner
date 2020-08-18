@@ -31,6 +31,29 @@ function Get-OctopusItemById
     return $null    
 }
 
+function Get-OctopusItemByPackageId
+{
+    param (
+        $ItemList,
+        $ItemPackageId
+        ) 
+        
+    Write-OctopusVerbose "Attempting to find $ItemPackageId in the item list of $($ItemList.Length) item(s)"
+
+    foreach($item in $ItemList)
+    {
+        Write-OctopusVerbose "Checking to see if $($item.PackageId) matches with $ItemPackageId"
+        if ($item.PackageId -eq $ItemPackageId)
+        {
+            Write-OctopusVerbose "The Ids match, return the item $($item.PackageId)"
+            return $item
+        }
+    }
+
+    Write-OctopusVerbose "No match found returning null"
+    return $null    
+}
+
 function Convert-SourceIdToDestinationId
 {
     param(
@@ -184,6 +207,28 @@ function Get-OctopusFilteredList
     return $filteredList
 }
 
+function Get-OctopusFilteredListByPackageId
+{
+    param(
+        $itemList,
+        $itemType,
+        $filters
+    )
+
+    $filteredList = New-OctopusPackageIdFilteredList -itemList $itemList -itemType $itemType -filters $filters  
+        
+    if ($filteredList.Length -eq 0)
+    {
+        Write-OctopusWarning "No $itemType items were found to clone, skipping"
+    }
+    else
+    {
+        Write-OctopusSuccess "$itemType items were found to clone, starting clone for $itemType"
+    }
+
+    return $filteredList
+}
+
 function Get-OctopusExclusionList
 {
     param(
@@ -214,7 +259,7 @@ function New-OctopusFilteredList
     
     Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
 
-    if ([string]::IsNullOrWhiteSpace($filters) -eq $false)
+    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
     {
         $splitFilters = $filters -split ","
 
@@ -240,6 +285,56 @@ function New-OctopusFilteredList
                 else
                 {
                     Write-OctopusVerbose "The item $($item.Name) does not match filter $filter"
+                }
+            }
+        }
+    }
+    else
+    {
+        Write-OctopusWarning "The filter for $itemType was not set."
+    }
+
+    return $filteredList
+}
+
+function New-OctopusPackageIdFilteredList
+{
+    param(
+        $itemList,
+        $itemType,
+        $filters
+    )
+
+    $filteredList = @()  
+    
+    Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
+
+    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
+    {
+        $splitFilters = $filters -split ","
+
+        foreach($item in $itemList)
+        {
+            foreach ($filter in $splitFilters)
+            {
+                Write-OctopusVerbose "Checking to see if $filter matches $($item.PackageId)"
+                if ([string]::IsNullOrWhiteSpace($filter))
+                {
+                    continue
+                }
+                if (($filter).ToLower() -eq "all")
+                {
+                    Write-OctopusVerbose "The filter is 'all' -> adding $($item.PackageId) to $itemType filtered list"
+                    $filteredList += $item
+                }
+                elseif ($item.PackageId -like $filter)
+                {
+                    Write-OctopusVerbose "The filter $filter matches $($item.PackageId), adding $($item.PackageId) to $itemType filtered list"
+                    $filteredList += $item
+                }
+                else
+                {
+                    Write-OctopusVerbose "The item $($item.PackageId) does not match filter $filter"
                 }
             }
         }

@@ -13,11 +13,13 @@ The `CloneSpace.ps1` is the workhorse of this repository.  It contains all the l
 The script `CloneSpace.ps1` will clone the following:
 
 - Accounts
+- Build Information
 - Environments
 - External Feeds
 - Library Variable Sets
 - Lifecycles
 - Machine Policies
+- Packages
 - Project Groups
 - Projects
     - Settings
@@ -39,13 +41,11 @@ The script `CloneSpace.ps1` will clone the following:
 The script `CloneSpace.ps1` will not clone the following items:
 - Releases
 - Deployments
-- Roles
+- User Roles
 - Users
 - External Auth Providers
 - Tenant Variables
 - Server Settings (folders, SMTP, JIRA, etc)
-- Packages
-- Build Information
 - Certificates
 
 This script assumes the user for the destination has `Space manager` rights.  Some of those items, users, roles, and creating spaces, cannot be copied over because the space manager does not have permissions to do so.
@@ -65,6 +65,7 @@ This script was designed to be run multiple times with the same parameters.  It 
 - Feeds (match by name)
 - Infrastructure Accounts (match by name)
 - Library Variable Set Sensitive variables (match by name)
+- Packages (match by package name and version)
 - Project Items
     - Channels (match by name)
     - Deployment Process steps (match by name)    

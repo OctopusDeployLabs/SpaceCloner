@@ -15,7 +15,8 @@ function Copy-OctopusItemLogo
 
         $imageDate = Get-Date 
         $dateForImage = $imageDate.ToString("yyyy_MM_dd_HH_mm_ss")
-        $filePath = "$PSScriptRoot\TempImage_$dateForImage.tmp"
+
+        $filePath = [System.IO.Path]::Combine($PSScriptRoot, "TempImage_$dateForImage.tmp")        
         Get-OctopusItemLogo -item $sourceItem -OctopusUrl $SourceData.OctopusUrl -ApiKey $SourceData.OctopusApiKey -filepath $filePath
 
         Write-OctopusVerbose "The item $($sourceItem.Name) has a logo to upload, uploading to destination"        

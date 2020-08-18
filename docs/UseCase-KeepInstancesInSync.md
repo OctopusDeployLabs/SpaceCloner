@@ -59,7 +59,8 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
     -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
-    -ProjectsToClone "Redgate - Feature Branch Example" `    
+    -ProjectsToClone "Redgate - Feature Branch Example" `
+    -PackagesToClone "Redgate.*" `    
     -OverwriteExistingVariables "false" `
     -AddAdditionalVariableValuesOnExistingVariableSets "False" `
     -OverwriteExistingCustomStepTemplates "true" `
@@ -104,6 +105,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
+    -PackagesToClone "Redgate.*" `
     -OverwriteExistingVariables "false" `
     -AddAdditionalVariableValuesOnExistingVariableSets "False" `
     -OverwriteExistingCustomStepTemplates "true" `

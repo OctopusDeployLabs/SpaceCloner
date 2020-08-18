@@ -8,9 +8,9 @@ if ((Test-Path -Path $logFolder) -eq $false)
     New-Item -Path $logFolder -ItemType Directory
 }
 
-$logPath = "$logFolder\Log.txt"
-$cleanupLogPath = "$logFolder\CleanUp.txt"
-$apiResponsesLogPath = "$logFolder\ApiResponses.txt"
+$logPath = [System.IO.Path]::Combine($logFolder, "Log.txt")
+$cleanupLogPath = [System.IO.Path]::Combine($logFolder, "CleanUp.txt")
+$apiResponsesLogPath = [System.IO.Path]::Combine($logFolder, "ApiResponses.txt")
 
 function Get-OctopusCleanUpLogPath
 {
