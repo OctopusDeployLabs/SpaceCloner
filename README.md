@@ -50,6 +50,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -DestinationSpaceName "Redgate Space" `    
     -ProjectsToClone "all"
 ```
+Note: The destination space should be created before running the clone scripts. 
 
 # Use cases
 
