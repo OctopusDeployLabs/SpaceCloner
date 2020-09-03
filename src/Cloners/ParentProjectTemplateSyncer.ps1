@@ -12,11 +12,11 @@ function Sync-OctopusMasterOctopusProjectWithChildProjects
         return
     }
 
-    $filteredSourceList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ParentProjectName
+    $filteredSourceList = @(Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ParentProjectName)
 
-    if ($filteredSourceList.Length -ne 1)
+    if ($filteredSourceList.Count -ne 1)
     {
-        Throw "The project you specified as the template $($CloneScriptOptions.ParentProjectName) resulted in $($filteredList.Length) item(s) found in the source.  This count must be exactly equal to 1.  Please update the filter."
+        Throw "The project you specified as the template $($CloneScriptOptions.ParentProjectName) resulted in $($filteredList.Count) item(s) found in the source.  This count must be exactly equal to 1.  Please update the filter."
     }
 
     $sourceProject = $filteredSourceList[0]
@@ -25,16 +25,21 @@ function Sync-OctopusMasterOctopusProjectWithChildProjects
     
     foreach($destinationProject in $filteredDestinationList)
     {                
-        $sourceChannels = Get-OctopusProjectChannelList -project $project -OctopusData $sourceData
+        $sourceChannels = Get-OctopusProjectChannelList -project $sourceProject -OctopusData $sourceData
         $destinationChannels = Get-OctopusProjectChannelList -project $destinationProject -OctopusData $DestinationData
 
-        Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -sourceProject $sourceProject -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+        if ($CloneScriptOptions.CloneProjectDeploymentProcess -eq $true)
+        {
+            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -sourceProject $sourceProject -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+        }
 
         if ($CloneScriptOptions.CloneProjectRunbooks -eq $true)
         {
             Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData            
         }
-
-        Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions -createdNewProject $createdNewProject        
+        
+        Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions -createdNewProject $false        
+        Copy-OctopusProjectChannelRules -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData -cloneScriptOptions $CloneScriptOptions
+        Copy-OctopusProjectReleaseVersioningSettings -sourceData $sourceData -sourceProject $sourceProject -sourceChannels $sourceChannels -destinationData $destinationData -destinationProject $destinationProject -destinationChannels $destinationChannels -CloneScriptOptions $CloneScriptOptions
     }
 }

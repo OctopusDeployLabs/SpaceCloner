@@ -29,6 +29,8 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -60,7 +62,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
-    -CloneProjectVersioningReleaseCreationSettings "true"
+    -CloneProjectVersioningReleaseCreationSettings "true" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
 ```
 
 # Example - CloneSpaceProject.ps1
@@ -75,6 +79,8 @@ Please refer to the [Parameter reference page](CloneSpaceProjectParameterReferen
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 
 ```PowerShell
 CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -94,5 +100,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
-    -CloneProjectVersioningReleaseCreationSettings "true"
+    -CloneProjectVersioningReleaseCreationSettings "true" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
 ```

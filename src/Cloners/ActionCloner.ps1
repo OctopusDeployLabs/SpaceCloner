@@ -19,7 +19,7 @@ function Copy-OctopusProcessStepAction
     Convert-OctopusProcessActionStepTemplate -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionManualIntervention -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData        
-    Convert-OctopusProcessActionPackageList -action $action
+    Convert-OctopusProcessActionPackageList -action $action -sourceData $sourceData -destinationData $destinationData 
         
     return $action    
 }
@@ -137,7 +137,11 @@ function Convert-OctopusProcessActionFeedId
 
 function Convert-OctopusProcessActionPackageList
 {
-    param ($action)
+    param (
+        $action,
+        $sourceData,
+        $destinationData
+    )
 
     foreach ($package in $action.Packages)
     {

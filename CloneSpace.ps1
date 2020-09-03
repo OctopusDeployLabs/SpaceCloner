@@ -24,6 +24,7 @@ param (
     $TenantsToClone,
     $SpaceTeamsToClone, 
     $PackagesToClone,   
+    $RunbooksToClone,
     $OverwriteExistingVariables,
     $AddAdditionalVariableValuesOnExistingVariableSets,
     $OverwriteExistingCustomStepTemplates,
@@ -31,7 +32,8 @@ param (
     $CloneProjectRunbooks,
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
-    $CloneProjectVersioningReleaseCreationSettings  
+    $CloneProjectVersioningReleaseCreationSettings,
+    $CloneProjectDeploymentProcess    
 )
 
 . ($PSScriptRoot + ".\src\Core\Logging.ps1")
@@ -112,6 +114,16 @@ if ($null -eq $CloneProjectVersioningReleaseCreationSettings)
     $CloneProjectVersioningReleaseCreationSettings = $false
 }
 
+if ($null -eq $CloneProjectDeploymentProcess)
+{
+    $CloneProjectDeploymentProcess = $true
+}
+
+if ($null -eq $RunbooksToClone)
+{
+    $RunbooksToClone = "all"
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -137,9 +149,11 @@ $CloneScriptOptions = @{
     ParentProjectName = $ParentProjectName;
     SpaceTeamsToClone = $SpaceTeamsToClone;
     PackagesToClone = $PackagesToClone;
+    RunbooksToClone = $RunbooksToClone;
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
-    CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings
+    CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
+    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;
 }
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName

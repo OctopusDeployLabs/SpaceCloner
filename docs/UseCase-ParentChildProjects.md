@@ -7,11 +7,11 @@ Please refer to the [how it works page](HowItWorks.md#what-will-it-clone) to get
 
 Right now, the runbook clone is very simple.  You tell it to sync the runbooks, or you tell it to skip the runbooks.  
 
-# Example - Parent / Child Projects
+# Example - Parent / Child Projects Different Space
 
 This example is syncing the parent project in the same space.  
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 Options:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
@@ -21,6 +21,8 @@ Options:
 - `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to rune.
 - `CloneTeamUserRoleScoping` - set to `false` as its the same space in the same instance, and this makes no sense to run.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -28,7 +30,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `
     -DestinationOctopusUrl "https://instance1.yoursite.com" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "My Space Name" `        
+    -DestinationSpaceName "New Space Name" `        
     -ParentProjectName "Redgate - Feature Branch Example" `
     -ChildProjectsToSync "Redgate - Child*" `   
     -OverwriteExistingVariables "false" `
@@ -37,5 +39,35 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "false" `
     -CloneTeamUserRoleScoping "false" `
-    -CloneProjectVersioningReleaseCreationSettings "false"
+    -CloneProjectVersioningReleaseCreationSettings "false" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
+```
+
+# Example - Parent / Child Projects Same Space
+
+This example is syncing the parent project in the same space.  
+
+Please refer to the [Parameter reference page](ProjectSyncerParameterReference.md) for more details on the parameters.
+
+Options:
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
+- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `True` to add new variables values found for the same variable name.  
+- `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to rune.
+- `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+
+```PowerShell
+CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
+    -SourceOctopusApiKey "SOME KEY" `
+    -SourceSpaceName "My Space Name" `         
+    -ParentProjectName "Redgate - Feature Branch Example" `
+    -ChildProjectsToSync "Redgate - Child*" `   
+    -OverwriteExistingVariables "false" `
+    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -CloneProjectChannelRules "false" `        
+    -CloneProjectVersioningReleaseCreationSettings "false" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
 ```

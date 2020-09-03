@@ -18,7 +18,14 @@ function Copy-OctopusProjectRunbooks
     $sourceRunbooks = Get-OctopusProjectRunbookList -project $sourceProject -OctopusData $sourceData
     $destinationRunbooks = Get-OctopusProjectRunbookList -project $destinationProject -OctopusData $DestinationData
 
-    foreach ($runbook in $sourceRunbooks)
+    $filteredList = Get-OctopusFilteredList -itemList $sourceRunbooks -itemType "Project Runbooks" -filters $cloneScriptOptions.RunbooksToClone
+
+    if ($filteredList.length -eq 0)
+    {
+        return
+    }
+
+    foreach ($runbook in $filteredList)
     {
         $destinationRunbook = Get-OctopusItemByName -ItemList $destinationRunbooks -ItemName $runbook.Name
         

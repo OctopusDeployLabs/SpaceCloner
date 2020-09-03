@@ -36,7 +36,10 @@ function Copy-OctopusProjects
         Copy-OctopusProjectChannels -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData
         $destinationChannels = Get-OctopusProjectChannelList -project $destinationProject -OctopusData $DestinationData
 
-        Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -sourceProject $project -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+        if ($CloneScriptOptions.CloneProjectDeploymentProcess -eq $true)
+        {
+            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -sourceProject $project -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+        }
 
         if ($CloneScriptOptions.CloneProjectRunbooks -eq $true)
         {

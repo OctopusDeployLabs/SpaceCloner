@@ -33,7 +33,7 @@ This should be done once; after that, the space cloner should be used or subsequ
 
 This example will clone a specific project, but it will exclude all environments, accounts, external feeds, tenants, and lifecycles, as those differences will likely be differences between the two instances.  
 
-Please refer to the [Parameter reference page](ParameterReference.md) for more details on the parameters.
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 The other options are:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
@@ -43,6 +43,8 @@ The other options are:
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -67,7 +69,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -OverwriteExistingLifecyclesPhases "false"
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
-    -CloneProjectVersioningReleaseCreationSettings "true"
+    -CloneProjectVersioningReleaseCreationSettings "true" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
 ```
 
 # Example - Mirrored Instances
@@ -84,6 +88,8 @@ The other options are:
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -111,7 +117,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true"
     -CloneProjectChannelRules "true" `
-    -CloneTeamUserRoleScoping "true"
+    -CloneTeamUserRoleScoping "true" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectDeploymentProcess "true"
 ```
 
 

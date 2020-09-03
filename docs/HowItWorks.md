@@ -5,6 +5,10 @@ You provide the script the name of the source space on an Octopus Deploy instanc
 
 The `CloneSpaceProject.ps1` is a new addition to this repository.  `CloneSpace.ps1` expects you to know exactly what you want to clone.  In a lot of cases, you won't know those details.  `CloneSpaceProject.ps1` was designed to fill in that gap.  It will loop through the list of projects you provide and it will walk the dependency tree and determine what items are required.  It will build up the `CloneSpace.ps1` parameters for you and call the script.
 
+## ProjectSyncer.ps1
+
+The `ProjectSyncer.ps1` is a simplified version of the space cloner.  It allows you to keep projects in sync with one another in the same space.  This is useful when you have a template project and you make a modification to it and you want to update all the child projects.
+
 ## CloneSpace.ps1
 
 The `CloneSpace.ps1` is the workhorse of this repository.  It contains all the logic to perform the actual cloning.

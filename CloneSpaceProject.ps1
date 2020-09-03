@@ -17,7 +17,8 @@ param (
     $CloneProjectRunbooks,
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
-    $CloneProjectVersioningReleaseCreationSettings  
+    $CloneProjectVersioningReleaseCreationSettings,
+    $CloneProjectDeploymentProcess  
 )
 
 $ErrorActionPreference = "Stop"
@@ -592,6 +593,7 @@ Write-OctopusSuccess "  -OverwriteExistingLifecyclesPhases $OverwriteExistingLif
 Write-OctopusSuccess "  -CloneProjectChannelRules $CloneProjectChannelRules"
 Write-OctopusSuccess "  -CloneProjectRunbooks $CloneProjectRunbooks"
 Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $CloneProjectVersioningReleaseCreationSettings"
+Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
 
 $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
 & $cloneSpaceScript `
@@ -625,4 +627,5 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectChannelRules "$CloneProjectChannelRules" `
     -CloneProjectRunbooks "$CloneProjectRunbooks" `
     -CloneProjectVersioningReleaseCreationSettings "$CloneProjectVersioningReleaseCreationSettings" `
+    -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess"
 

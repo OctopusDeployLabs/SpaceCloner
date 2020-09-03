@@ -23,23 +23,24 @@ You can provide a comma-separated list of items.  For example, setting the `Vari
 
 You must specify items to clone.  By default, nothing is cloned.  If you wish to skip an item, you can exclude it from the parameter list OR set the value to an empty string "".  
 
-- `EnvironmentsToClone` - The list of environments to clone.
-- `ExternalFeedsToClone` - The list of external feeds to clone.  
-- `InfrastructureAccountsToClone` - The list of accounts feeds to clone.  
-- `LibraryVariableSetsToClone` - The list of library variable sets to clone. 
-- `LifeCyclesToClone` - The list of lifecycles to clone.  
-- `MachinePoliciesToClone` - The list of machine policies to clone.  
-- `PackagesToClone` - The list of packages to clone.  Will only clone the latest version.  Any build information associated with the package will be cloned as well. Big packages will slow down the runtime of this script.
-- `ProjectGroupsToClone` - The list of project groups to clone.  
-- `ProjectsToClone` - The list of projects to clone.  
-- `ScriptModulesToClone` - The list of script modules to clone. 
-- `SpaceTeamsToClone` - The list of teams specific to the space to clone.  Will not clone system teams.  Version 2019 or higher required. 
-- `StepTemplatesToClone` - The list of step templates to clone.  
-- `TargetsToClone` - The list of targets to clone.  Please note, this won't clone any polling tentacles.
-- `TenantsToClone` - The list of tenants to clone.  Please note, this will not clone tenant variables.
-- `TenantTagsToClone` - The list of tenant tags to clone.  
-- `WorkerPoolsToClone` - The list of worker pools to clone.  
-- `WorkersToClone` - The list of workers to clone.  Please note, this won't clone any polling tentacles.         
+- `EnvironmentsToClone` - The list of environments to clone.  The default is `$null`, nothing will be cloned.
+- `ExternalFeedsToClone` - The list of external feeds to clone.  The default is `$null`, nothing will be cloned.
+- `InfrastructureAccountsToClone` - The list of accounts feeds to clone.  The default is `$null`, nothing will be cloned.
+- `LibraryVariableSetsToClone` - The list of library variable sets to clone. The default is `$null`, nothing will be cloned.
+- `LifeCyclesToClone` - The list of lifecycles to clone.  The default is `$null`, nothing will be cloned.
+- `MachinePoliciesToClone` - The list of machine policies to clone.  The default is `$null`, nothing will be cloned.
+- `PackagesToClone` - The list of packages to clone.  Will only clone the latest version.  Any build information associated with the package will be cloned as well. Big packages will slow down the runtime of this script. The default is `$null`, nothing will be cloned.
+- `ProjectGroupsToClone` - The list of project groups to clone.  The default is `$null`, nothing will be cloned.
+- `ProjectsToClone` - The list of projects to clone. The default is `$null`, nothing will be cloned.
+- `RunbooksToClone` -  The list of runbooks in the projects to clone.  This defaults to `all`.
+- `ScriptModulesToClone` - The list of script modules to clone. The default is `$null`, nothing will be cloned.
+- `SpaceTeamsToClone` - The list of teams specific to the space to clone.  Will not clone system teams.  Version 2019 or higher required. The default is `$null`, nothing will be cloned.
+- `StepTemplatesToClone` - The list of step templates to clone.  The default is `$null`, nothing will be cloned.
+- `TargetsToClone` - The list of targets to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned.
+- `TenantsToClone` - The list of tenants to clone.  Please note, this will not clone tenant variables. The default is `$null`, nothing will be cloned.
+- `TenantTagsToClone` - The list of tenant tags to clone.  The default is `$null`, nothing will be cloned.
+- `WorkerPoolsToClone` - The list of worker pools to clone.  The default is `$null`, nothing will be cloned.
+- `WorkersToClone` - The list of workers to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned.        
 
 ## Parent / Child Projects
 - `ParentProjectName` - The name of the project to clone.  This has to match exactly one project in the source space.  If this is specified, the regular project cloner process is skipped.
@@ -53,7 +54,8 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `OverwriteExistingLifecyclesPhases` - Indicates you want to overwrite the phases on existing lifecycles.  This is useful when you have an updated lifecycle you want to be applied another space/instance.  You will want to leave this to false if the destination lifecycle has different phases.  The default is `false`.
 - `OverwriteExistingVariables` - Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.
 - `CloneProjectChannelRules` - Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
-- `CloneProjectRunbooks` - Indicates if project runbooks should be cloned.  This is useful when you just want to copy the project deployment process and the variables, but not the runbooks.  The defaults is `true`.
+- `CloneProjectDeploymentProcess` - Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
+- `CloneProjectRunbooks` - Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The defaults is `true`.
 - `CloneProjectVersioningReleaseCreationSettings` - Indicates if the release versioning strategy and release creation strategy should be cloned.  The default is `false`.
 - `CloneTeamUserRoleScoping` - Indicates if the space teams should have their scoping cloned.  Will use the same teams based on parameter `SpaceTeamsToClone`.  The default is`false`.
 - `AddAdditionalVariableValuesOnExistingVariableSets` - Indicates a variable on the destination should only have one value.  You would have multiple values if you were scoping variables.  The defaults is `false`.
