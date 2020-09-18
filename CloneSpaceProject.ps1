@@ -18,7 +18,9 @@ param (
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess  
+    $CloneProjectDeploymentProcess,
+    $IgnoreVersionCheckResult,
+    $SkipPausingWhenIgnoringVersionCheckResult  
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,6 +33,61 @@ $ErrorActionPreference = "Stop"
 . ($PSScriptRoot + ".\src\DataAccess\OctopusRepository.ps1")
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
+
+if ($null -eq $CloneProjectRunbooks)
+{
+    $CloneProjectRunbooks = $true
+}
+
+if ($null -eq $CloneTeamUserRoleScoping)
+{
+    $CloneTeamUserRoleScoping = $false
+}
+
+if ($null -eq $CloneProjectChannelRules)
+{
+    $CloneProjectChannelRules = $false
+}
+
+if ($null -eq $CloneProjectVersioningReleaseCreationSettings)
+{
+    $CloneProjectVersioningReleaseCreationSettings = $true
+}
+
+if ($null -eq $CloneProjectDeploymentProcess)
+{
+    $CloneProjectDeploymentProcess = $true
+}
+
+if ($null -eq $OverwriteExistingVariables)
+{
+    $OverwriteExistingVariables = $false
+}
+
+if ($null -eq $AddAdditionalVariableValuesOnExistingVariableSets)
+{
+    $AddAdditionalVariableValuesOnExistingVariableSets = $false
+}
+
+if ($null -eq $OverwriteExistingCustomStepTemplates)
+{
+    $OverwriteExistingCustomStepTemplates = $false
+}
+
+if ($null -eq $OverwriteExistingLifecyclesPhases)
+{
+    $OverwriteExistingLifecyclesPhases = $false
+}
+
+if ($null -eq $IgnoreVersionCheckResult)
+{
+    $IgnoreVersionCheckResult = $false
+}
+
+if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
+{
+    $SkipPausingWhenIgnoringVersionCheckResult = $false
+}
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
@@ -594,6 +651,8 @@ Write-OctopusSuccess "  -CloneProjectChannelRules $CloneProjectChannelRules"
 Write-OctopusSuccess "  -CloneProjectRunbooks $CloneProjectRunbooks"
 Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $CloneProjectVersioningReleaseCreationSettings"
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
+Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
+Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
 
 $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
 & $cloneSpaceScript `
@@ -627,5 +686,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectChannelRules "$CloneProjectChannelRules" `
     -CloneProjectRunbooks "$CloneProjectRunbooks" `
     -CloneProjectVersioningReleaseCreationSettings "$CloneProjectVersioningReleaseCreationSettings" `
-    -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess"
+    -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
+    -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
+    -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" 
 

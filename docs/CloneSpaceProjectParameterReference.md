@@ -48,9 +48,12 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `OverwriteExistingVariables` - Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.
 - `CloneProjectChannelRules` - Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
 - `CloneProjectDeploymentProcess` - Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
-- `CloneProjectRunbooks` - Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The defaults is `true`.
+- `CloneProjectRunbooks` - Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The default is `true`.
+- `CloneProjectVersioningReleaseCreationSettings` - Indicates if the same versioning rules will be applied to the project.  The default is `false`.
 - `CloneTeamUserRoleScoping` - Indicates if the space teams should have their scoping cloned.  Will use the same teams based on parameter `SpaceTeamsToClone`.  The default is`false`.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - Indicates a variable on the destination should only have one value.  You would have multiple values if you were scoping variables.  The defaults is `false`.
+- `AddAdditionalVariableValuesOnExistingVariableSets` - Indicates a variable on the destination should only have one value.  You would have multiple values if you were scoping variables.  The default is `false`.
+- `IgnoreVersionCheckResult` - Indicates if the script should ignore version checks rules and proceed with the clone.  This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.
+- `SkipPausingWhenIgnoringVersionCheckResult` - When `IgnoreVersionCheckResult` is set to true the script will pause for 20 seconds when it detects a difference to let you cancel.  You can skip that check by setting this to `true`. This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.
 
 ## AddAdditionalVariableValuesOnExistingVariableSets further detail
 

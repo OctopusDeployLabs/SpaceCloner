@@ -33,7 +33,9 @@ param (
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess    
+    $CloneProjectDeploymentProcess,
+    $IgnoreVersionCheckResult,
+    $SkipPausingWhenIgnoringVersionCheckResult
 )
 
 . ($PSScriptRoot + ".\src\Core\Logging.ps1")
@@ -124,6 +126,16 @@ if ($null -eq $RunbooksToClone)
     $RunbooksToClone = "all"
 }
 
+if ($null -eq $IgnoreVersionCheckResult)
+{
+    $IgnoreVersionCheckResult = $false
+}
+
+if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
+{
+    $SkipPausingWhenIgnoringVersionCheckResult = $false
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -159,9 +171,37 @@ $CloneScriptOptions = @{
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
 $destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName
 
-if ($sourceData.MajorVersion -ne $destinationData.MajorVersion -or $sourceData.MinorVersion -ne $sourceData.MinorVersion)
+if ($sourceData.MajorVersion -ne $destinationData.MajorVersion -or $sourceData.MinorVersion -ne $destinationData.MinorVersion)
 {
-    Throw "The source $($sourceData.OctopusUrl) is on version $($sourceData.MajorVersion).$($sourceData.MinorVersion).x while the destination $($destinationData.OctopusUrl) is on version $($destinationData.MajorVersion).$($DestinationData.MinorVersion).x.  Nothing good will come of this clone.  Please upgrade the source or destination to match and try again."    
+    Write-OctopusCritical "The source $($sourceData.OctopusUrl) is on version $($sourceData.MajorVersion).$($sourceData.MinorVersion).x while the destination $($destinationData.OctopusUrl) is on version $($destinationData.MajorVersion).$($DestinationData.MinorVersion).x."
+
+    if ($IgnoreVersionCheckResult -eq $false)
+    {
+        Write-OctopusCritical "Nothing good will come of this clone.  Please upgrade the source or destination to match and try again.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"    
+        Exit 1
+    }
+
+    Write-OctopusCritical "You have chosen to ignore that difference.  This run may work or it may not work."
+    
+    if ($SkipPausingWhenIgnoringVersionCheckResult -eq $false)
+    {
+        Write-OctopusCritical "I am pausing for 20 seconds to give you a chance to cancel.  If you cloning to a production instance it is highly recommended you cancel this.  You can skip this pausing by setting the argument SkipPausingWhenIgnoringVersionCheckResult to $true"
+        $versionCheckCountDown = 20
+        
+        while ($versionCheckCountDown -gt 0)
+        {
+            Write-OctopusCritical "Seconds left: $versionCheckCountDown"
+            Start-Sleep -Seconds 1        
+            $versionCheckCountDown -= 1
+        }
+    }
+    else
+    {
+        Write-OctopusCritical "Someone ate their YOLO-flakes today and elected to skip the pause of the version check as well."    
+    }
+    
+
+    Write-OctopusCritical "Alright, this is a bold choice, I like it.  Proceeding."
 }
 
 if ($sourceData.OctopusUrl -eq $destinationData.OctopusUrl -and $SourceSpaceName -eq $DestinationSpaceName)
@@ -180,7 +220,8 @@ if ($sourceData.OctopusUrl -eq $destinationData.OctopusUrl -and $SourceSpaceName
 
     if ($canProceed -eq $false)
     {
-        throw "Invalid parameters detected.  Please check log and correct them."
+        Write-OctopusCritical "Invalid parameters detected.  Please check log and correct them."
+        Exit 1
     }
 }
 

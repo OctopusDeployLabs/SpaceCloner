@@ -2,7 +2,7 @@
 PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
 # This cloning process is provided as is
-This script was developed internally for the Customer Success team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
+This script was developed internally for the Octopus Advisory Team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
 
 > **Note:** Owing to the "as is" nature of this script, **Octopus Deploy does not provide any support for this via our support channels.**
 
@@ -14,7 +14,7 @@ As such, we encourage you to fork it, test it out on an empty space or empty ins
 
 Issues, bugs, and feature requests will not be accepted.  As stated earlier, this repository is [licensed](license) under the Apache license.  You are free to fork the repository and fix any issues or add any features you think is useful.
 
-The Customer Success team plans on keeping this script up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
+The Octopus Advisory Team plans on keeping this script up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
 
 ## Pull Requests
 
@@ -36,8 +36,9 @@ The source instance and the destination instance **must** be running the same ma
 
 This repository contains two scripts:
 
-- [CloneSpace.ps1](CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
-- [CloneSpaceProject.ps1](CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
+- [CloneSpace.ps1](docs/CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
+- [CloneSpaceProject.ps1](docs/CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
+- [ProjectSyncer.ps1](docs/ProjectSyncerParameterReference) - Will sync a parent project with 1 to N child projects.
 
 The fastest way to get started is to run this command.  It will clone everything in a space for you.
 
@@ -50,11 +51,10 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -DestinationSpaceName "Redgate Space" `    
     -ProjectsToClone "all"
 ```
-Note: The destination space should be created before running the clone scripts. 
+**Note**: The destination space should be created before running the clone scripts. 
 
 # Use cases
-
-This script was written for the following use cases.
+This script was written to cover the following use cases.
 
 - As a user, I want to split my one massive default space into [multiple spaces on the same instance](docs/UseCase-BreakUpSpace.md).
 - As a user, I have two Octopus Deploy instances.  One for dev/test deployments.  Another for staging/prod deployments.  I have the [same set of projects I want to keep in sync](docs/UseCase-KeepInstancesInSync.md).
@@ -63,7 +63,6 @@ This script was written for the following use cases.
 - As a user, I would like to copy my projects from [self-hosted Octopus to Octopus Cloud](docs/UseCase-MigrateFromSelfHostedToCloud.md).
 
 ## Possible but not recommended
-
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
 
 # How the space cloner workers
@@ -85,18 +84,20 @@ Please see the [example page](docs/Examples.md).
 Below are questions and answers to common questions we've gotten about this project.
 
 ### Why was this script created?
-The Customer Success at Octopus Deploy team developed this script.  We use it to clone items for our [samples instance](https://samples.octopus.app).
+The Octopus Advisory Team at Octopus Deploy team developed this script.  We use it to clone items for our [samples instance](https://samples.octopus.app).
 
 ### Can I use this to migrate from self-hosted to the cloud?
-Yes.  However, this script is not a full migration.  It will jump-start your migration.  This script hits the API, meaning it won't have access to your sensitive variables.  See the [how it works](docs/HowItWorks.md) page for details on what it will and won't clone.  
+Yes.  However, this script is not a full migration.  It will jump-start your migration.  This script hits the API, meaning it won't have access to your sensitive variables.  it will not clone releases or deployments.  See the [how it works](docs/HowItWorks.md) page for details on what it will and won't clone.  
 
 ### Is this the space migration / self-hosted to Octopus Cloud migrator tool that has been teased in the past?
 No.  It was designed for specific use cases, and the limits placed on it were intentional.  For example, it can't access your Master Key, and without that, it cannot decrypt your sensitive data.  It should get you 80-90% of the way there.  You are free to fork this repo to modify the scripts to help get you another 5% of the way there.   
 
 ### Can I use this script to migrate from 2018.10 to 2020.2?
-No.  The script compares the major and minor versions of the source and destination.  
+By default, no.  The script compares the major and minor versions of the source and destination.  
 
 **Unless the source and destination [major].[minor] versions are the same; the script will not proceed.**
+
+That can be overridden by setting the parameter `IgnoreVersionCheckResult` to `true`.  That should only be set to `true` when cloning to test spaces or test instances.  Setting it to `true` when cloning to production instances is asking for trouble.  This parameter was added to make it easier for the Octopus Advisory Team to set up test instances of Octopus Deploy with EAP versions.
 
 ### What permissions should the users tied to the API keys have?
 For the source instance, a user with read-only permissions to all objects copied is required.  It will never write anything back to the source.
@@ -112,11 +113,10 @@ Honestly, it's a security concern.  There are two built-in roles that provide th
 Yes, you can create a custom role and assign the service account user to that role.  The goal of this script is it should "just work" with a minimal amount of configuration on your end.  Once you start diving into permissions and custom roles, it is going to be much harder to get working.  
 
 ### Does the script clone users, teams, and roles?
-
 This script does _**NOT**_ clone users, roles, or system teams.  You can tell it to clone space-specific teams only. 
 
-When it attempts to set up scoping for a team, it will see if the role exists on the destination; if the role does not exist on the destination instance the scoping will be skipped.  
+When it attempts to set up scoping for a team, it will skip any missing roles on the destination.  
 
 Teams that are created have the external groups cleared.  
 
-In other words, the clone team functionality will only assign existing users and roles to space teams.  It will not attempt to create anything new, which might compromise your security.  
+In other words, the clone team functionality will only assign existing users and roles to space teams.  This is an intentional decision, as creating anything new might compromise your security on the destination instance.  
