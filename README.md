@@ -34,11 +34,12 @@ The source instance and the destination instance **must** be running the same ma
 
 # Just Get Me Going!
 
-This repository contains two scripts:
+This repository contains multiple scripts:
 
 - [CloneSpace.ps1](docs/CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
 - [CloneSpaceProject.ps1](docs/CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
-- [ProjectSyncer.ps1](docs/ProjectSyncerParameterReference) - Will sync a parent project with 1 to N child projects.
+- [CloneLibraryVariableSet.ps1](docs/CloneLibraryVariableSetParameterReference.md) - To be used when you want to copy a library variable set in the same space or different spaces.
+- [ProjectSyncer.ps1](docs/ProjectSyncerParameterReference) - Will sync a parent project with 1 to N child projects in the same space on the same instance.
 
 The fastest way to get started is to run this command.  It will clone everything in a space for you.
 
@@ -61,6 +62,7 @@ This script was written to cover the following use cases.
 - As a user, I want to clone a set of projects to a test instance to [verify an upgrade](docs/UseCase-CopyToTestInstance.md).
 - As a user, I have a set of "parent" projects.  I clone from that project when I need to create a new project.  However, when the process on the "parent" project is updated, I would like to [update the existing "child" projects](docs/UseCase-ParentChildProjects.md).
 - As a user, I would like to copy my projects from [self-hosted Octopus to Octopus Cloud](docs/UseCase-MigrateFromSelfHostedToCloud.md).
+- As a user, I would like to [create a copy an existing variable set in the same space](docs/UseCase-CopyLibraryVariableSet.md).
 
 ## Possible but not recommended
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.

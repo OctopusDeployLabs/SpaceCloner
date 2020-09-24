@@ -8,7 +8,8 @@ function Get-OctopusData
 
     $octopusData = @{
         OctopusUrl = $octopusUrl;
-        OctopusApiKey = $octopusApiKey
+        OctopusApiKey = $octopusApiKey;
+        SpaceName = $spaceName
     }
 
     $octopusData.ApiInformation = Get-OctopusBaseApiInformation -octopusData $octopusData

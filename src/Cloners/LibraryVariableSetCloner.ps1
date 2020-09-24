@@ -16,15 +16,22 @@ function Copy-OctopusLibraryVariableSets
     
     foreach($sourceVariableSet in $filteredList)
     {
-        Write-OctopusVerbose "Starting clone of $($sourceVariableSet.Name)"
+        $destinationVariableSetName = $sourceVariableSet.Name
+        if ($null -ne $CloneScriptOptions.DestinationVariableSetName)
+        {            
+            $destinationVariableSetName = $cloneScriptOptions.DestinationVariableSetName
+        }
 
-        $destinationVariableSet = Get-OctopusItemByName -ItemList $destinationData.VariableSetList -ItemName $sourceVariableSet.Name
+        Write-OctopusSuccess "Starting clone of $($sourceVariableSet.Name) to $destinationVariableSetName on space $($DestinationData.SpaceName)"
+
+        $destinationVariableSet = Get-OctopusItemByName -ItemList $destinationData.VariableSetList -ItemName $destinationVariableSetName
 
         if ($null -eq $destinationVariableSet)
         {
             Write-OctopusVerbose "Variable Set $($sourceVariableSet.Name) was not found in destination, creating new base record."
             $copySourceVariableSet = Copy-OctopusObject -ItemToCopy $sourceVariableSet -ClearIdValue $true -SpaceId $destinationData.SpaceId                       
             $copySourceVariableSet.VariableSetId = $null
+            $copySourceVariableSet.Name = $destinationVariableSetName
 
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copySourceVariableSet -destinationData $destinationData
         }

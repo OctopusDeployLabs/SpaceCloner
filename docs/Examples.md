@@ -6,6 +6,7 @@ This script was written to solve the following use cases.  Please pick the use c
 - As a user, I want to clone a set of projects to a test instance to [verify an upgrade](UseCase-CopyToTestInstance.md).
 - As a user, I have a set of "parent" projects.  I clone from that project when I need to create a new project.  However, when the process on the "parent" project is updated, I would like to [update the existing "child" projects](UseCase-ParentChildProjects.md).
 - As a user, I would like to copy my projects from [self-hosted Octopus to Octopus Cloud](UseCase-MigrateFromSelfHostedToCloud.md).
+- As a user, I would like to [create a copy an existing variable set in the same space](UseCase-CopyLibraryVariableSet.md).
 
 ## Possible but not recommended.
 
