@@ -104,7 +104,7 @@ function Copy-OctopusVariableSetValues
             }
         }        
         
-        if ($foundCounter -gt 1 -and $variableExistsOnDestination -eq $true -and $CloneScriptOptions.AddAdditionalVariableValuesOnExistingVariableSets -eq $true)
+        if ($foundCounter -gt 1 -and $variableExistsOnDestination -eq $true -and $CloneScriptOptions.AddAdditionalVariableValuesOnExistingVariableSets -eq $false)
         {
             Write-OctopusVerbose "The variable $variableName already exists on destination. You selected to skip duplicate instances, skipping."
         }       
