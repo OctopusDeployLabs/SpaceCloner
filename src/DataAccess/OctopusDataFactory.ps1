@@ -88,5 +88,8 @@ function Get-OctopusData
     Write-OctopusSuccess "Getting Packages for $spaceName in $OctopusUrl"
     $octopusData.PackageList = Get-OctopusPackageList -octopusData $octopusData
 
+    Write-OctopusSuccess "Getting Certificates for $spaceName in $OctopusUrl"
+    $octopusData.CertificateList = Get-OctopusCertificateList -octopusData $octopusData
+
     return $octopusData
 }

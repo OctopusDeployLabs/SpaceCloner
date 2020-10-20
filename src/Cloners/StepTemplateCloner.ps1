@@ -40,6 +40,8 @@ function Copy-OctopusStepTemplates
                 $stepTemplateToClone.Id = $matchingItem.Id
             }
 
+            Convert-OctopusPackageList -item $stepTemplateToClone -SourceData $sourceData -destinationData $destinationData
+
             $destinationStepTemplate = Save-OctopusStepTemplate -StepTemplate $stepTemplateToClone -DestinationData $destinationData            
 
             Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions

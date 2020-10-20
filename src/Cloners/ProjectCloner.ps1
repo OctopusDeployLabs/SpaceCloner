@@ -19,7 +19,7 @@ function Copy-OctopusProjects
         return
     }
     
-    Write-OctopusPostCloneCleanUp "*****************Starting clone for all projects***************"
+    Write-OctopusPostCloneCleanUpHeader "*****************Starting clone for all projects***************"
     
     foreach($project in $filteredList)
     {
@@ -52,7 +52,7 @@ function Copy-OctopusProjects
         Copy-OctopusItemLogo -sourceItem $project -destinationItem $destinationProject -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
     }
 
-    Write-OctopusPostCloneCleanUp "*****************Ending Clone for all projects***************"
+    Write-OctopusPostCloneCleanUpHeader "*****************Ending Clone for all projects***************"
 }
 
 function Copy-OctopusProjectSettings

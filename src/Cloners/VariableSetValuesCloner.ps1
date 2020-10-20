@@ -69,6 +69,12 @@ function Copy-OctopusVariableSetValues
             $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $octopusVariable.Value
         }
 
+        if ($octopusVariable.Type -eq "Certificate")
+        {
+            Write-OctopusVerbose "$variableName is an certificate value, converting to destination account"
+            $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $octopusVariable.Value
+        }
+
         if ($octopusVariable.IsSensitive -eq $true)
         {
             $octopusVariable.Value = "Dummy Value"

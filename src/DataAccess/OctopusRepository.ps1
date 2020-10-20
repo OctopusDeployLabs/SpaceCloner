@@ -192,6 +192,15 @@ Function Get-OctopusUserList
     return Get-OctopusApiItemList -EndPoint "users?skip=0&take=1000" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
 
+Function Get-OctopusCertificateList
+{
+    param(        
+        $octopusData
+    )
+
+    return Get-OctopusApiItemList -EndPoint "certificates?skip=0&take=1000" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
+}
+
 Function Get-OctopusUserRoleList
 {
     param(        

@@ -70,9 +70,9 @@ function Convert-OctopusAzureServicePrincipalAccount
         return
     }
 
-    $accountClone.SubscriptionNumber = New-Guid
-    $accountClone.ClientId = New-Guid
-    $accountClone.TenantId = New-Guid
+    $accountClone.SubscriptionNumber = $(New-Guid).Guid
+    $accountClone.ClientId = $(New-Guid).Guid
+    $accountClone.TenantId = $(New-Guid).Guid
     $accountClone.Password.HasValue = $false
     $accountClone.Password.NewValue = "DUMMY VALUE DUMMY VALUE"    
 }

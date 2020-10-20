@@ -432,3 +432,18 @@ function Compare-OctopusVersions
         Write-OctopusCritical "Alright, this is a bold choice, I like it.  Proceeding."
     }
 }
+
+function Convert-OctopusPackageList
+{
+    param (
+        $item,
+        $sourceData,
+        $destinationData
+    )
+
+    foreach ($package in $item.Packages)
+    {
+        $package.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $package.FeedId
+        $package.Id = $null
+    }    
+}
