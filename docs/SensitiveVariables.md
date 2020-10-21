@@ -11,16 +11,14 @@ Here is a break down of all the areas where the script will insert dummy data.  
 - Feeds
     - All usernames and passwords are cleared
 - Accounts
-    - Azure Accounts: 
-        - SubscriptionNumber = New-Guid
-        - ClientId = New-Guid
-        - TenantId = New-Guid        
-        - Key = "DUMMY VALUE DUMMY VALUE"  
-    - AWS Accounts:
-        - AccessKey = "AKIABCDEFGHI3456789A"        
-        - SecretKey = "DUMMY VALUE DUMMY VALUE"    
+    - All Accounts:
+        - Description includes a note about it being cloned and any secret values have dummy values in them.
+    - Azure Accounts:        
+        - Key = `DUMMY VALUE DUMMY VALUE`  
+    - AWS Accounts:        
+        - SecretKey = `DUMMY VALUE DUMMY VALUE`
     - Token Accounts:
-        - Token = "DUMMY VALUE"
+        - Token = `DUMMY VALUE`
     - SSH Accounts:
         - PFX File: uploads a dummy file with the word "test" in it.
 

@@ -31,7 +31,8 @@ function Copy-OctopusInfrastructureAccounts
             Convert-OctopusAzureServicePrincipalAccount -accountClone $accountClone
             Convert-OctopusTokenAccount -accountClone $accountClone                                
             Convert-OctopusAccountTenantedDeploymentParticipation -accountClone $accountClone   
-            Convert-OctopusSSHAccount -accountClone $accountClone                    
+            Convert-OctopusSSHAccount -accountClone $accountClone 
+            Convert-OctopusAccountDescription -accountClone $accountClone -sourceData $sourceData                   
 
             Save-OctopusAccount -Account $accountClone -DestinationData $DestinationData            
             Write-OctopusPostCloneCleanUp "Account $($account.Name) was created with dummy values."
@@ -55,8 +56,7 @@ function Convert-OctopusAWSAccountInformation
     {
         return
     } 
-
-    $accountClone.AccessKey = "AKIABCDEFGHI3456789A"
+    
     $accountClone.SecretKey.HasValue = $false
     $accountClone.SecretKey.NewValue = "DUMMY VALUE DUMMY VALUE"    
 }
@@ -70,9 +70,6 @@ function Convert-OctopusAzureServicePrincipalAccount
         return
     }
 
-    $accountClone.SubscriptionNumber = $(New-Guid).Guid
-    $accountClone.ClientId = $(New-Guid).Guid
-    $accountClone.TenantId = $(New-Guid).Guid
     $accountClone.Password.HasValue = $false
     $accountClone.Password.NewValue = "DUMMY VALUE DUMMY VALUE"    
 }
@@ -111,4 +108,17 @@ function Convert-OctopusSSHAccount
 
     $accountClone.PrivateKeyFile.HasValue = $true
     $accountClone.PrivateKeyFile.NewValue = "VGVzdA=="
+}
+
+function Convert-OctopusAccountDescription
+{
+    param (
+        $accountClone,
+        $sourceData
+        )
+
+    if (Get-Member -InputObject $accountClone -Name "Description" -MemberType Properties)
+    {
+        $accountClone.Description = "$($accountClone.Description) Cloned from space $($sourceData.SpaceName) on $($sourceData.OctopusUrl).  Any keys/sensitive variables were set to DUMMY VALUE"
+    }
 }
