@@ -80,7 +80,21 @@ function Copy-OctopusVariableSetValues
             $octopusVariable.Value = "Dummy Value"
         }
 
-        $trackingName = $variableName -replace "\.", ""        
+        $trackingName = $variableName -replace "\.", ""
+        
+        $variableExistsOnDestination = $false        
+        for($i = 0; $i -lt $DestinationVariableSetVariables.Variables.Length; $i++)
+        {            
+            if ($DestinationVariableSetVariables.Variables[$i].Name -eq $variableName)
+            {
+                $variableExistsOnDestination = $true
+                $foundCounter += 1
+                if ($foundCounter -eq $variableTracker[$trackingName])
+                {
+                    $foundIndex = $i
+                }
+            }
+        }   
         
         Write-OctopusVerbose "Cloning $variableName"
         if ($null -eq $variableTracker[$trackingName])
@@ -101,6 +115,10 @@ function Copy-OctopusVariableSetValues
         {            
             if ($DestinationVariableSetVariables.Variables[$i].Name -eq $variableName)
             {
+                Write-OctopusVerbose "Found the variable $variableName in the destination, checking to see if the scope matches"
+
+                Compare-VariableScoping -sourceVariable $octopusVariable -destinationVariable $DestinationVariableSetVariables.Variables[$i] -sourceData $sourceData -destinationData $destinationData
+
                 $variableExistsOnDestination = $true
                 $foundCounter += 1
                 if ($foundCounter -eq $variableTracker[$trackingName])
@@ -139,4 +157,82 @@ function Copy-OctopusVariableSetValues
     }
 
     Save-OctopusVariableSetVariables -libraryVariableSetVariables $DestinationVariableSetVariables -destinationData $DestinationData    
+}
+
+function Compare-VariableScoping
+{
+    param(
+        $sourceVariable,
+        $destinationVariable,
+        $sourceData,
+        $destinationData
+    )
+
+    $hasMatchingEnvironmentScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Environment"
+
+    if ($hasMatchingEnvironmentScoping -eq $false)
+    {
+        return $false
+    }
+
+    $hasMatchingChannelScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Channel"
+
+    if ($hasMatchingChannelScoping -eq $false)
+    {
+        return $false
+    }
+
+    return $true
+}
+
+function Compare-VariableScopingProperty
+{
+    param(
+        $sourceVariable,
+        $destinationVariable,
+        $sourceData,
+        $destinationData,
+        $propertyName
+    )
+
+    $sourceHasPropertyScoping = $null -ne (Get-Member -InputObject $sourceVariable.Scope -Name $propertyName -MemberType Properties)
+    $destinationHasPropertyScoping = $null -ne (Get-Member -InputObject $destinationVariable.Scope -Name $propertyName -MemberType Properties)
+
+    if ($sourceHasPropertyScoping -ne $destinationHasPropertyScoping)
+    {  
+        Write-OctopusVerbose "The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.Environment), the two do not match"
+
+        return $false
+    }
+    
+    if ($sourceHasPropertyScoping -and $destinationHasPropertyScoping)
+    {
+        Write-OctopusVerbose "The source variable and destination variable are both scoped to $($propertyName)s, comparing the two scoping"
+
+        if ($sourceVariable.Scope.$propertyName.Length -ne $destinationVariable.Scope.$propertyName.Length)
+        {
+            Write-OctopusVerbose "The source variable and destination variable do not have the same $propertyName scoping length, they do not match"
+
+            return $false
+        }
+
+        foreach ($sourceEnvironmentId in $sourceVariable.Scope.$propertyName)
+        {
+            $matchingDestinationEnvironment = $destinationVariable.Scope.$propertyName | Where-Object {$_ -eq $sourceEnvironmentId}
+
+            if ($null -eq $matchingDestinationEnvironment)
+            {
+                Write-OctopusVerbose "The $propertyName id $destinationEnvironmentId cannot be found in the destination variable scope and they have already been converted over, so there should be a match, there is no way they match."
+                return $false
+            }
+        }
+
+        Write-OctopusVerbose "The source variable and destination variable $propertyName scoping matches"
+    }
+    else 
+    {
+        Write-OctopusVerbose "The source variable and destination variable are both not scoped to $($propertyName)s, moving on"
+    }
+
+    return $true
 }

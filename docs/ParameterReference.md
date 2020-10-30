@@ -4,4 +4,5 @@ This repository contains two entry scripts.
 
 - [CloneSpace.ps1](CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
 - [CloneSpaceProject.ps1](CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
+- [CloneLibraryVariableSet.ps1](docs/CloneLibraryVariableSetParameterReference.md) - To be used when you want to copy a library variable set in the same space or different spaces.
 - [ProjectSyncer.ps1](ProjectSyncerParameterReference.md) - Will keep child project's deployment and runbook process, variables, version settings, and channel version rules in sync in the same space.  This is a subset of the clonespace.ps1.  If you want to do the same across spaces, use CloneSpace.ps1.
