@@ -13,7 +13,6 @@ This example will clone a library variable in the same space in the same instanc
 Please refer to the [Parameter reference page](CloneLibraryVariableSetParameterReference.md) for more details on the parameters.
 
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `false` so any new values (specifically around scoping) are not added.  
 
 ```PowerShell
 CloneLibraryVariableSet.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -24,6 +23,5 @@ CloneLibraryVariableSet.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -DestinationSpaceName "Target - SQL Server" `
     -SourceVariableSetName "Notification" `
     -DestinationVariableSetName "Notification_New" `
-    -OverwriteExistingVariables "false" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "False" `    
+    -OverwriteExistingVariables "false"         
 ```

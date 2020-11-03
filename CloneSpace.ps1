@@ -25,8 +25,7 @@ param (
     $SpaceTeamsToClone, 
     $PackagesToClone,   
     $RunbooksToClone,
-    $OverwriteExistingVariables,
-    $AddAdditionalVariableValuesOnExistingVariableSets,
+    $OverwriteExistingVariables,    
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
     $CloneProjectRunbooks,
@@ -79,11 +78,6 @@ $ErrorActionPreference = "Stop"
 if ($null -eq $OverwriteExistingVariables)
 {
     $OverwriteExistingVariables = $false
-}
-
-if ($null -eq $AddAdditionalVariableValuesOnExistingVariableSets)
-{
-    $AddAdditionalVariableValuesOnExistingVariableSets = $false
 }
 
 if ($null -eq $OverwriteExistingCustomStepTemplates)
@@ -147,8 +141,7 @@ $CloneScriptOptions = @{
     LibraryVariableSetsToClone = $LibraryVariableSetsToClone;
     LifeCyclesToClone = $LifeCyclesToClone;
     ProjectsToClone = $ProjectsToClone;
-    OverwriteExistingVariables = $OverwriteExistingVariables;
-    AddAdditionalVariableValuesOnExistingVariableSets = $AddAdditionalVariableValuesOnExistingVariableSets;
+    OverwriteExistingVariables = $OverwriteExistingVariables;    
     OverwriteExistingCustomStepTemplates = $OverwriteExistingCustomStepTemplates;
     OverwriteExistingLifecyclesPhases = $OverwriteExistingLifecyclesPhases;
     TenantsToClone = $TenantsToClone;
@@ -203,14 +196,14 @@ Copy-OctopusTenantTags -sourceData $sourceData -destinationData $destinationData
 Copy-OctopusSpaceTeams -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusStepTemplates -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusInfrastructureAccounts -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
-Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusScriptModules -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusMachinePolicies -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusLifecycles -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusWorkers -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTargets -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
+Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusSpaceTeamUserRoles -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 

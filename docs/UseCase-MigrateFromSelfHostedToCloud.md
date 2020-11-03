@@ -26,7 +26,6 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 The other options are:
 - `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
 - `OverwriteExistingCustomStepTemplates` - Set to `true` so all step templates are cloned from the source instance.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `true` to add all variables.  
 - `OverwriteExistingLifecyclesPhases` - Set to `true` to keep the lifecycles in sync.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
@@ -54,8 +53,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TargetsToClone "all" `
     -WorkersToClone "all" `
     -SpaceTeamsToClone "all" `
-    -OverwriteExistingVariables "true" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "true" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
@@ -72,7 +70,6 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 The other options are:
 - `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
 - `OverwriteExistingCustomStepTemplates` - Set to `true` so all step templates are cloned from the source instance.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `true` to add all variables.  
 - `OverwriteExistingLifecyclesPhases` - Set to `true` to keep the lifecycles in sync.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
@@ -99,8 +96,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "all" `
-    -OverwriteExistingVariables "true" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "true" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
@@ -117,7 +113,6 @@ Please refer to the [Parameter reference page](CloneSpaceProjectParameterReferen
 
 - `OverwriteExistingVariables` - set to `true` to match your local instance.  Any new variable found will be added.
 - `OverwriteExistingCustomStepTemplates` - Set to `true` so all step templates are cloned from the source instance.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `true` to add all variables.  
 - `OverwriteExistingLifecyclesPhases` - Set to `true` to keep the lifecycles in sync.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
@@ -137,8 +132,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -WorkersToExclude $null
     -TargetsToExclude $null
     -TenantsToExclude $null
-    -OverwriteExistingVariables "true" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "true" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `

@@ -37,8 +37,7 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 
 The other options are:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
-- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `false` to skip new variables values found for the same variable name.  
+- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.  
 - `OverwriteExistingLifecyclesPhases` - Set to `false` as the two instances will have different phases.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
@@ -63,8 +62,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
     -PackagesToClone "Redgate.*" `    
-    -OverwriteExistingVariables "false" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "False" `
+    -OverwriteExistingVariables "false" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "false"
     -CloneProjectChannelRules "true" `
@@ -82,8 +80,7 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 
 The other options are:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
-- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `false` to skip variables values found for the same variable name.  
+- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.  
 - `OverwriteExistingLifecyclesPhases` - Set to `false` as the two instances will have different phases.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
 - `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
@@ -112,8 +109,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "Redgate.*" `
-    -OverwriteExistingVariables "false" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "False" `
+    -OverwriteExistingVariables "false" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true"
     -CloneProjectChannelRules "true" `

@@ -13,8 +13,7 @@ In this use case, you probably want to copy everything, but only include a handf
 Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 The other options are:
-- `OverwriteExistingVariables` - set to `True`, so variables are always overwritten (except for sensitive variables).
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `True` to add new variables values found for the same variable name.  
+- `OverwriteExistingVariables` - set to `True`, so variables are always overwritten (except for sensitive variables). 
 - `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.
 - `OverwriteExistingLifecyclesPhases` - Set to `True` since this is a full clone the overwrite existing lifecycle phases has been set to true as well.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
@@ -47,8 +46,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `  
     -PackagesToClone "Redgate.*,DBUp.*" ` 
-    -OverwriteExistingVariables "true" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "true" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
@@ -65,7 +63,6 @@ Please refer to the [Parameter reference page](CloneSpaceProjectParameterReferen
 
 The other options are:
 - `OverwriteExistingVariables` - set to `True`, so variables are always overwritten (except for sensitive variables).
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `True` to add new variables values found for the same variable name.  
 - `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.
 - `OverwriteExistingLifecyclesPhases` - Set to `True` since this is a full clone the overwrite existing lifecycle phases has been set to true as well.
 - `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
@@ -86,8 +83,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -WorkersToExclude $null
     -TargetsToExclude $null
     -TenantsToExclude $null
-    -OverwriteExistingVariables "true" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "true" `    
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `

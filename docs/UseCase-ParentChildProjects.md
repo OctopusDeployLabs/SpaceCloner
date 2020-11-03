@@ -14,8 +14,7 @@ This example is syncing the parent project in the same space.
 Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 Options:
-- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `True` to add new variables values found for the same variable name.  
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.  
 - `OverwriteExistingCustomStepTemplates` - Set to `false` as its the same space instance, and this makes no sense to rune.
 - `OverwriteExistingLifecyclesPhases` - Set to `false` as its the same space in the same instance, and this makes no sense to run.
 - `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to rune.
@@ -33,8 +32,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -DestinationSpaceName "New Space Name" `        
     -ParentProjectName "Redgate - Feature Branch Example" `
     -ChildProjectsToSync "Redgate - Child*" `   
-    -OverwriteExistingVariables "false" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "false" `    
     -OverwriteExistingCustomStepTemplates "false" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "false" `
@@ -51,8 +49,7 @@ This example is syncing the parent project in the same space.
 Please refer to the [Parameter reference page](ProjectSyncerParameterReference.md) for more details on the parameters.
 
 Options:
-- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.
-- `AddAdditionalVariableValuesOnExistingVariableSets` - set to `True` to add new variables values found for the same variable name.  
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.  
 - `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to rune.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
@@ -64,8 +61,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `         
     -ParentProjectName "Redgate - Feature Branch Example" `
     -ChildProjectsToSync "Redgate - Child*" `   
-    -OverwriteExistingVariables "false" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "true" `
+    -OverwriteExistingVariables "false" `    
     -CloneProjectChannelRules "false" `        
     -CloneProjectVersioningReleaseCreationSettings "false" `
     -CloneProjectRunbooks "true" `

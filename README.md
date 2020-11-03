@@ -131,19 +131,6 @@ The cloner defaults to leaving variables on the destination instance as-is.
 
 Some use cases can trip you up.  If you find variables aren't being cloned correctly (and they are not sensitive variables), the recommendation is to delete the variables you want cloned in the destination instance and let the default behavior take over.  The cloner does the best it can, but it cannot account for odd and/or random configurations.
 
-#### New scoped values
-On your source space you have the variable `Global.Environment.Abbr` and it has 4 unique values, one for each environment.
-
-![](img/source-space-more-values.png)
-
-On your destination space, you have the same variable set with the following values:
-
-![](img/destination-less-values.png)
-
-By default the cloner will leave the the destination as-is.  You have to add the parameter `AddAdditionalVariableValuesOnExistingVariableSets` and set it to `$true` to add that missing value.
-
-**The default for the paramter `AddAdditionalVariableValuesOnExistingVariableSets` is `$false`.**
-
 #### Existing Values
 On your source space you have the variable `Testing.Variable` and it is set to `Test`.  On the destination instance that same variable exists and it is set to `Super Test`.  By default the cloner will leave the value on the destination instance as `Super Test`.  To update that value to match the source you will have to set the parameter `OverwriteExistingVariables` to `$true`.  
 

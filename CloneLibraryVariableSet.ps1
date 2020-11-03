@@ -7,8 +7,7 @@ param (
     $DestinationSpaceName,  
     $SourceVariableSetName,
     $DestinationVariableSetName,
-    $OverwriteExistingVariables,
-    $AddAdditionalVariableValuesOnExistingVariableSets,
+    $OverwriteExistingVariables,    
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult        
 )
@@ -30,11 +29,6 @@ if ($null -eq $OverwriteExistingVariables)
     $OverwriteExistingVariables = $false
 }
 
-if ($null -eq $AddAdditionalVariableValuesOnExistingVariableSets)
-{
-    $AddAdditionalVariableValuesOnExistingVariableSets = $false
-}
-
 if ($null -eq $IgnoreVersionCheckResult)
 {
     $IgnoreVersionCheckResult = $false
@@ -46,8 +40,7 @@ if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
 }
 
 $CloneScriptOptions = @{
-    OverwriteExistingVariables = $OverwriteExistingVariables;
-    AddAdditionalVariableValuesOnExistingVariableSets = $AddAdditionalVariableValuesOnExistingVariableSets; 
+    OverwriteExistingVariables = $OverwriteExistingVariables;     
     LibraryVariableSetsToClone = $SourceVariableSetName;
     DestinationVariableSetName = $DestinationVariableSetName;   
 }

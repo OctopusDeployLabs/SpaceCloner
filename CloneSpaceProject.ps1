@@ -10,8 +10,7 @@ param (
     $WorkersToExclude,
     $TargetsToExclude,    
     $TenantsToExclude,    
-    $OverwriteExistingVariables,
-    $AddAdditionalVariableValuesOnExistingVariableSets,
+    $OverwriteExistingVariables,    
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
     $CloneProjectRunbooks,
@@ -62,11 +61,6 @@ if ($null -eq $CloneProjectDeploymentProcess)
 if ($null -eq $OverwriteExistingVariables)
 {
     $OverwriteExistingVariables = $false
-}
-
-if ($null -eq $AddAdditionalVariableValuesOnExistingVariableSets)
-{
-    $AddAdditionalVariableValuesOnExistingVariableSets = $false
 }
 
 if ($null -eq $OverwriteExistingCustomStepTemplates)
@@ -644,7 +638,6 @@ Write-OctopusSuccess "  -TargetsToClone $($cloneSpaceCommandLineOptions.TargetsT
 Write-OctopusSuccess "  -SpaceTeamsToClone $($cloneSpaceCommandLineOptions.SpaceTeamsToClone)"
 Write-OctopusSuccess "  -PackagesToClone $($cloneSpaceCommandLineOptions.PackagesToClone)"
 Write-OctopusSuccess "  -OverwriteExistingVariables $OverwriteExistingVariables"
-Write-OctopusSuccess "  -AddAdditionalVariableValuesOnExistingVariableSets $AddAdditionalVariableValuesOnExistingVariableSets"
 Write-OctopusSuccess "  -OverwriteExistingCustomStepTemplates $OverwriteExistingCustomStepTemplates"
 Write-OctopusSuccess "  -OverwriteExistingLifecyclesPhases $OverwriteExistingLifecyclesPhases"
 Write-OctopusSuccess "  -CloneProjectChannelRules $CloneProjectChannelRules"
@@ -679,8 +672,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -TargetsToClone "$($cloneSpaceCommandLineOptions.TargetsToClone)" `
     -SpaceTeamsToClone "$($cloneSpaceCommandLineOptions.SpaceTeamsToClone)" `
     -PackagesToClone "$($cloneSpaceCommandLineOptions.PackagesToClone)" `
-    -OverwriteExistingVariables "$OverwriteExistingVariables" `
-    -AddAdditionalVariableValuesOnExistingVariableSets "$AddAdditionalVariableValuesOnExistingVariableSets" `
+    -OverwriteExistingVariables "$OverwriteExistingVariables" `    
     -OverwriteExistingCustomStepTemplates "$OverwriteExistingCustomStepTemplates" `
     -OverwriteExistingLifecyclesPhases "$OverwriteExistingLifecyclesPhases" `
     -CloneProjectChannelRules "$CloneProjectChannelRules" `

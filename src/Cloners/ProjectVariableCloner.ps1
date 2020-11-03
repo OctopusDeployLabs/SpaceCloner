@@ -7,41 +7,15 @@ function Copy-OctopusProjectVariables
         $sourceProject,
         $sourceData,
         $destinationData,
-        $cloneScriptOptions,
-        $createdNewProject
+        $cloneScriptOptions
     )    
 
-    if ($createdNewProject -eq $true -or $cloneScriptOptions.OverwriteExistingVariables -eq $true)
-    {
-        $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $sourceProject -OctopusData $sourceData 
-        $destinationVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $destinationProject -OctopusData $destinationData 
+    $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $sourceProject -OctopusData $sourceData 
+    $destinationVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $destinationProject -OctopusData $destinationData 
 
-        $SourceProjectData = @{
-            ChannelList = $sourceChannelList;
-            RunbookList = @()
-            Project = $sourceProject    
-        }
+    Write-OctopusPostCloneCleanUp "*****************Starting variable clone for $($destinationProject.Name)*******************"
 
-        if ($sourceData.HasRunBooks -eq $true)
-        {
-            $SourceProjectData.RunbookList = Get-OctopusProjectRunbookList -project $sourceProject -OctopusData $sourceData
-        }
+    Copy-OctopusVariableSetValues -SourceVariableSetVariables $sourceVariableSetVariables -DestinationVariableSetVariables $destinationVariableSetVariables -SourceData $SourceData -DestinationData $DestinationData -CloneScriptOptions $cloneScriptOptions
 
-        $DestinationProjectData = @{
-            ChannelList = $destinationChannelList;
-            RunbookList = @();
-            Project = $destinationProject
-        }
-
-        if ($destinationData.HasRunBooks -eq $true)
-        {
-            $DestinationProjectData.RunbookList = Get-OctopusProjectRunbookList -project $destinationProject -OctopusData $DestinationData
-        }
-
-        Write-OctopusPostCloneCleanUp "*****************Starting variable clone for $($destinationProject.Name)*******************"
-
-        Copy-OctopusVariableSetValues -SourceVariableSetVariables $sourceVariableSetVariables -DestinationVariableSetVariables $destinationVariableSetVariables -SourceData $SourceData -DestinationData $DestinationData -SourceProjectData $SourceProjectData -DestinationProjectData $DestinationProjectData -CloneScriptOptions $cloneScriptOptions
-
-        Write-OctopusPostCloneCleanUp "*****************Ended variable clone for $($destinationProject.Name)**********************"
-    }
+    Write-OctopusPostCloneCleanUp "*****************Ended variable clone for $($destinationProject.Name)**********************"
 }

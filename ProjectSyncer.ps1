@@ -5,8 +5,7 @@ param (
     $ParentProjectName,
     $ChildProjectsToSync,
     $RunbooksToClone,
-    $OverwriteExistingVariables,
-    $AddAdditionalVariableValuesOnExistingVariableSets,    
+    $OverwriteExistingVariables,        
     $CloneProjectRunbooks,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
@@ -41,11 +40,6 @@ if ($null -eq $OverwriteExistingVariables)
     $OverwriteExistingVariables = $false
 }
 
-if ($null -eq $AddAdditionalVariableValuesOnExistingVariableSets)
-{
-    $AddAdditionalVariableValuesOnExistingVariableSets = $false
-}
-
 if ($null -eq $CloneProjectRunbooks)
 {
     $CloneProjectRunbooks = $true
@@ -72,8 +66,7 @@ if ($null -eq $RunbooksToClone)
 }
 
 $CloneScriptOptions = @{
-    OverwriteExistingVariables = $OverwriteExistingVariables;
-    AddAdditionalVariableValuesOnExistingVariableSets = $AddAdditionalVariableValuesOnExistingVariableSets;
+    OverwriteExistingVariables = $OverwriteExistingVariables;    
     CloneProjectRunbooks = $CloneProjectRunbooks;
     ChildProjectsToSync = $ChildProjectsToSync;
     ParentProjectName = $ParentProjectName;

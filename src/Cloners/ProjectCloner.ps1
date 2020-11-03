@@ -23,7 +23,7 @@ function Copy-OctopusProjects
     
     foreach($project in $filteredList)
     {
-        $createdNewProject = Copy-OctopusProjectSettings -sourceData $SourceData -destinationData $DestinationData -sourceProject $project               
+        Copy-OctopusProjectSettings -sourceData $SourceData -destinationData $DestinationData -sourceProject $project               
         
         Write-OctopusSuccess "Reloading destination projects"        
         
@@ -46,7 +46,7 @@ function Copy-OctopusProjects
             Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData            
         }
 
-        Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions -createdNewProject $createdNewProject        
+        Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions        
         Copy-OctopusProjectChannelRules -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData -cloneScriptOptions $CloneScriptOptions
         Copy-OctopusProjectReleaseVersioningSettings -sourceData $sourceData -sourceProject $project -sourceChannels $sourceChannels -destinationData $destinationData -destinationProject $destinationProject -destinationChannels $destinationChannels -CloneScriptOptions $CloneScriptOptions
         Copy-OctopusItemLogo -sourceItem $project -destinationItem $destinationProject -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
@@ -99,8 +99,6 @@ function Copy-OctopusProjectSettings
         $copyOfProject.AutoCreateRelease = $false
         
         Save-OctopusProject -Project $copyOfProject -DestinationData $destinationData        
-
-        return $true
     }
     else
     {            
@@ -120,8 +118,6 @@ function Copy-OctopusProjectSettings
         } 
 
         Save-OctopusProject -Project $matchingProject -DestinationData $destinationData        
-
-        return $false
     }    
 }
 
