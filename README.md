@@ -129,27 +129,20 @@ In other words, the clone team functionality will only assign existing users and
 
 The cloner defaults to leaving variables on the destination instance as-is.  
 
-Some use cases can trip you up.  If you find variables aren't being cloned correctly (and they are not sensitive variables), the recommendation is to delete the variables you want cloned in the destination instance and let the default behavior take over.  The cloner does the best it can, but it cannot account for odd and/or random configurations.
-
-#### Existing Values
 On your source space you have the variable `Testing.Variable` and it is set to `Test`.  On the destination instance that same variable exists and it is set to `Super Test`.  By default the cloner will leave the value on the destination instance as `Super Test`.  To update that value to match the source you will have to set the parameter `OverwriteExistingVariables` to `$true`.  
 
 **The default for the paramter `OverwriteExistingVariables` is `$false`.**
 
-#### Variable Ordering
+The space cloner will never overwrite a sensitive variable.  
 
-Consider this variable set with the variable `AWS.Region.Subnet`.  It has two values.  
+The space cloner matches variables by comparing:
+- Names
+- Sensitive Values vs Non Sensitive Values
+- Environment Scoping
+- Channel Scoping
+- Process Scoping
+- Machine Scoping
+- Step Scoping
+- Role Scoping
 
-![](img/variable-set-order.png)
-
-What is tricky is the variables are not stored together in the database.  Rather they are two separate entities.
-
-The first value is the first item returned in the variable set array.
-
-![](img/variable-set-values-part-1.png)
-
-The second value doesn't appear until the end of the variable set array.
-
-![](img/variable-set-values-part-2.png)  
-
-The cloner will match the variable by name, then by scoping.  
+If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
