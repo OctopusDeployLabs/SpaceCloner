@@ -31,6 +31,26 @@ function Get-OctopusItemById
     return $null    
 }
 
+function Convert-OctopusIdListToNameList
+{
+    param (
+        $idList,
+        $itemList
+    )
+
+    $NewNameList = @()
+    foreach ($id in $idList)
+    {
+        $matchingItem = Get-OctopusitemById -ItemList $itemList -ItemId $id
+        if ($null -ne $matchingItem)
+        {
+            $NewNameList += $matchingItem.Name
+        }
+    }
+
+    return $NewNameList
+}
+
 function Get-OctopusItemByPackageId
 {
     param (

@@ -7,11 +7,17 @@ The `CloneSpaceProject.ps1` is a new addition to this repository.  `CloneSpace.p
 
 ## ProjectSyncer.ps1
 
-The `ProjectSyncer.ps1` is a simplified version of the space cloner.  It allows you to keep projects in sync with one another in the same space.  This is useful when you have a template project and you make a modification to it and you want to update all the child projects.
+The `ProjectSyncer.ps1` script is a simplified version of the space cloner.  It allows you to keep projects in sync with one another in the same space.  This is useful when you have a template project and you make a modification to it and you want to update all the child projects.
 
 ## CloneSpace.ps1
 
-The `CloneSpace.ps1` is the workhorse of this repository.  It contains all the logic to perform the actual cloning.
+The `CloneSpace.ps1` script is the workhorse of this repository.  It contains all the logic to perform the actual cloning.
+
+## CloneTentacleInstance.ps1
+
+The `CloneTentacleInstance.ps1` is designed to be run on deployment targets or workers you wish to clone to the new instance.  You'd run the script on each deployment target.  What it will do is pull all the information about the tentacle from the source system, it will then create a new tentacle instance and register itself with with the destination instance using all the settings from the source.  For example, there is polling tentacle pointing to `https://local.octopusdemos.app` for the environment `Test` and the role `MyRole`.  Running this script I can create a clone of that tentacle, point that new tentacle to `https://localeap.octopusdemos.app` with the same environment `Test` and role `MyRole`.
+
+Because this is creating a new tentacle instance it **must** be run on the VM with the tentacle you wish to clone.  You can configure a runbook in Octopus to do this, or leverage the script console.  You cannot run this script on any computer like you can with the other scripts.
 
 ### What will it clone
 The script `CloneSpace.ps1` will clone the following:
@@ -153,7 +159,9 @@ Secondly, the clone script only supports a subset of all targets.  The targets s
 - Cloud Regions
 - Azure Web Apps
 
-The script cannot clone polling tentacles from one instance to another due to how polling tentacles work.  The polling tentacles won't know about the switch.  You will need to set up a new polling tentacle instance on the server. 
+The `CloneSpace.ps1` script cannot clone polling tentacles from one instance to another due to how polling tentacles work.  The polling tentacles won't know about the switch.  You will need to set up a new polling tentacle instance on the server. 
+
+Another option is to run the script `CloneTentacleInstance.ps1` on the VMs you wish to copy over to the destination instance.  This script works with both polling and listening tentacles.
 
 ## Teams and role scoping
 

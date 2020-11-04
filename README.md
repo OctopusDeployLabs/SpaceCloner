@@ -29,6 +29,7 @@ This script has been tested against the following versions of Octopus Deploy:
 - `2020.3.x`
 - `2020.4.x`
 - `2020.5.x`
+- `2020.6.x`
 
 It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` release of Octopus Deploy.
 
@@ -41,7 +42,8 @@ This repository contains multiple scripts:
 - [CloneSpace.ps1](docs/CloneSpaceParameterReference.md) - The script to clone a set of items from space to another.
 - [CloneSpaceProject.ps1](docs/CloneSpaceProjectParameterReference.md) - Will perform a reverse lookup and determine all the items it needs to clone for you.
 - [CloneLibraryVariableSet.ps1](docs/CloneLibraryVariableSetParameterReference.md) - To be used when you want to copy a library variable set in the same space or different spaces.
-- [ProjectSyncer.ps1](docs/ProjectSyncerParameterReference) - Will sync a parent project with 1 to N child projects in the same space on the same instance.
+- [ProjectSyncer.ps1](docs/ProjectSyncerParameterReference.md) - Will sync a parent project with 1 to N child projects in the same space on the same instance.
+- [CloneTentacleInstance.ps1](docs/CloneTentacleInstanceParameterReference.md) - Run this script on deployment targets or workers and it will create a cloned tentacle instance pointing to the destination
 
 The fastest way to get started is to run this command.  It will clone everything in a space for you.
 
