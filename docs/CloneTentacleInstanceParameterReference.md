@@ -2,6 +2,8 @@
 
 The script `CloneTentacleInstance.ps1` accepts the following parameters.
 
+**Please Note**: You must run `CloneTentacleInstance.ps1` as an administrator or sudo or it will not work.  It is calling the `Tentacle.exe` to make changes on your machine.
+
 ## Source Information
 - `SourceOctopusUrl` - the base URL of the source Octopus Server.  For example, https://samples.octopus.app.  This can be the same as the destination.
 - `SourceOctopusApiKey` - the API key to access the source Octopus Server.  Recommend using the API key of a [service account](https://octopus.com/docs/security/users-and-teams/service-accounts) user.  That service account user must have read permissions.
@@ -15,9 +17,7 @@ The script `CloneTentacleInstance.ps1` accepts the following parameters.
 
 ## Options
 
-- `TentacleInstallDirectory` - Where the tentacle MSI installed the tentacle.  Defaults to `C:\Program Files\Octopus Deploy\Tentacle`
+- `TentacleInstallDirectory` - Where the tentacle MSI installed the tentacle.  Defaults to `C:\Program Files\Octopus Deploy\Tentacle` for Windows and `/opt/octopus/tentacle` for Linux
 - `TentacleInstanceNameToCopy` - The name of the instance on the target to copy.  Defaults to `Tentacle`.
-- `PollingTentacle` - Indicates if the new tentacle is going to be a polling tentacle.  Setting to `False` will make this tentacle a listening tentacle.  Defaults to `True`.
-- `CloneTarget` - Indicates if the new tentacle is going to be a deployment target or worker.  Setting to `False` will make this tentacle a worker.  Defaults to `True`.
-- `TentaclePortNumber` - The port number the tentacle will use to connect to the Octopus Deploy instance.  When `PollingTentacle` is `True`, the default is `10943`.  hen `PollingTentacle` is `False`, the default is `10933`.
+- `ClonedTentacleType` - Indicates the type of tentacle that will be created.  Acceptable values are `AsIs` meaning whatever source is, copy it, `Polling`, meaning no matter what make it a polling tentacle and `Listening`, meaning no matter what make it a listening tentacle.
 - `ClonedInstanceName` - The name of the new tentacle instance.  Defaults to `ClonedInstance`.

@@ -41,3 +41,21 @@ Going to invoke POST https://code-aperture.octopus.app/api/Spaces-104/Environmen
 ```
 
 You can copy that body and URL into Postman to manipulate until it works for you.  Once you know the cause, you can update the script to make sure it doesn't happen again.
+
+## Stepping through code
+
+Create a script that will call the space cloner.  For example,
+
+```
+    Z:\Code.git\SpaceCloner_Labs\CloneTentacleInstance.ps1 `
+        -SourceOctopusUrl "https://myinstance.app" `
+        -SourceOctopusApiKey "API-KEY" `
+        -SourceSpaceName "Default"`
+        -DestinationOctopusUrl "https://myinstance.app" `
+        -DestinationOctopusApiKey "API-KEY" `
+        -DestinationSpaceName "Demo" `
+        -PollingTentacle $true `
+        -DestinationOctopusServerThumbprint "B86B3E73924F19E889642A261584593E57765875"
+```
+
+Open up the space cloner in Visual Studio code and hit the `F5` key and that will start debugging.  You can add break points and everything else you are used to.

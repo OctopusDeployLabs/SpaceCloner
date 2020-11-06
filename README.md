@@ -67,6 +67,7 @@ This script was written to cover the following use cases.
 - As a user, I have a set of "parent" projects.  I clone from that project when I need to create a new project.  However, when the process on the "parent" project is updated, I would like to [update the existing "child" projects](docs/UseCase-ParentChildProjects.md).
 - As a user, I would like to copy my projects from [self-hosted Octopus to Octopus Cloud](docs/UseCase-MigrateFromSelfHostedToCloud.md).
 - As a user, I would like to [create a copy an existing variable set in the same space](docs/UseCase-CopyLibraryVariableSet.md).
+- As a user, I would like to [copy existing tentacles to point to a new instance](docs/UseCase-CopyExistingTentacles.md)
 
 ## Possible but not recommended
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
