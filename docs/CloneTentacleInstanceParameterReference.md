@@ -19,5 +19,6 @@ The script `CloneTentacleInstance.ps1` accepts the following parameters.
 
 - `TentacleInstallDirectory` - Where the tentacle MSI installed the tentacle.  Defaults to `C:\Program Files\Octopus Deploy\Tentacle` for Windows and `/opt/octopus/tentacle` for Linux
 - `TentacleInstanceNameToCopy` - The name of the instance on the target to copy.  Defaults to `Tentacle`.
-- `ClonedTentacleType` - Indicates the type of tentacle that will be created.  Acceptable values are `AsIs` meaning whatever source is, copy it, `Polling`, meaning no matter what make it a polling tentacle and `Listening`, meaning no matter what make it a listening tentacle.
+- `ClonedTentacleType` - Indicates the type of tentacle that will be created.  Acceptable values are `AsIs` meaning whatever source is, copy it, `Polling`, meaning no matter what make it a polling tentacle and `Listening`, meaning no matter what make it a listening tentacle.  The default is `AsIs`.
 - `ClonedInstanceName` - The name of the new tentacle instance.  Defaults to `ClonedInstance`.
+- `WhatIf` - Set to `$true` if you want to see everything this script will do without it actually doing the work.  Set to `$false` to have it do the work.  Defaults to `$false`.
