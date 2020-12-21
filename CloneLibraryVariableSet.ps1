@@ -12,15 +12,15 @@ param (
     $SkipPausingWhenIgnoringVersionCheckResult        
 )
 
-. ($PSScriptRoot + ".\src\Core\Logging.ps1")
-. ($PSScriptRoot + ".\src\Core\Util.ps1")
+. (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
+. (Join-Path $PSScriptRoot "src" "Core" "Util.ps1")
 
-. ($PSScriptRoot + ".\src\DataAccess\OctopusDataAdapter.ps1")
-. ($PSScriptRoot + ".\src\DataAccess\OctopusDataFactory.ps1")
-. ($PSScriptRoot + ".\src\DataAccess\OctopusRepository.ps1")
+. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataAdapter.ps1")
+. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataFactory.ps1")
+. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusRepository.ps1")
 
-. ($PSScriptRoot + ".\src\Cloners\LibraryVariableSetCloner.ps1")
-. ($PSScriptRoot + ".\src\Cloners\VariableSetValuesCloner.ps1")
+. (Join-Path $PSScriptRoot "src" "Cloners" "LibraryVariableSetCloner.ps1")
+. (Join-Path $PSScriptRoot "src" "Cloners" "VariableSetValuesCloner.ps1")
 
 $ErrorActionPreference = "Stop"
 
