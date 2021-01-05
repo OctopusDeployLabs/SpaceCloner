@@ -9,6 +9,8 @@ There exists use cases where it makes sense to have the same VM registered in mu
 
 The script `CloneTentacleInstance.ps1` was designed to solve those use cases.  It will go through all the target and worker registrations for the tentacle and clone them for you.
 
+**Please Note**: You must run `CloneTentacleInstance.ps1` as an administrator or sudo or it will not work.  It is calling the `Tentacle.exe` to make changes on your machine.
+
 # Examples
 
 Below are some examples to help you run `CloneTentacleInstance.ps1`.

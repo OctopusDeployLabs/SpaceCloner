@@ -36,11 +36,54 @@ function Copy-OctopusLifecycles
         {            
             $phase.OptionalDeploymentTargets = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.OptionalDeploymentTargets)
             $phase.AutomaticDeploymentTargets = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.AutomaticDeploymentTargets)
+
+            $phase.ReleaseRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $phase.ReleaseRetentionPolicy -DestinationData $destinationData
+            $phase.TentacleRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $phase.TentacleRetentionPolicy -DestinationData $destinationData        
         }
+
+        $lifeCycleToClone.ReleaseRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.ReleaseRetentionPolicy -DestinationData $destinationData
+        $lifeCycleToClone.TentacleRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.TentacleRetentionPolicy -DestinationData $destinationData        
 
         Save-OctopusLifecycle -lifecycle $lifeCycleToClone -destinationData $DestinationData        
     }    
 
     Write-OctopusSuccess "Lifecycles successfully cloned, reloading destination list"    
     $destinationData.LifeCycleList = Get-OctopusLifeCycleList -OctopusData $DestinationData
+}
+
+function Test-OctopusLifeCycleRetentionPolicy
+{
+    param(
+        $retentionPolicy,
+        $DestinationData
+    )
+
+    if ($null -eq $retentionPolicy)
+    {
+        return $null
+    }
+
+    if ($DestinationData.OctopusUrl -notlike "*.octopus.app")
+    {
+        return $retentionPolicy
+    }
+
+    Write-OctopusVerbose "The destination URL is a cloud instance, verifying the retention policies meet the cloud rules"
+
+    if ($retentionPolicy.Unit -eq "Days" -and $retentionPolicy.QuantityToKeep -le 30 -and $retentionPolicy.QuantityToKeep -gt 0)
+    {
+        Write-OctopusVerbose "The retention policy meets requirements, leaving as is."
+
+        $retentionPolicy.ShouldKeepForever = $false
+
+        return $retentionPolicy
+    }
+    
+    Write-OctopusWarning "The retention policy doesn't meet requirements, setting to be 30 days."
+
+    $retentionPolicy.ShouldKeepForever = $false
+    $retentionPolicy.QuantityToKeep = 30
+    $retentionPolicy.Unit = "Days"        
+
+    return $retentionPolicy
 }

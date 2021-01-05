@@ -31,9 +31,11 @@ function Copy-OctopusTenants
             $tenant.ProjectEnvironments.PSObject.Properties | ForEach-Object {
                 Write-OctopusVerbose "Attempting to matching $($_.Name) with source"
                 $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $_.Name
+                Write-OctopusVerbose "The project id for $($_.Name) on the destination is $matchingProjectId"
 
                 Write-OctopusVerbose "Attempting to match the environment list with source"
                 $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $_.Value)
+                Write-OctopusVerbose "The matching environments are $scopedEnvironments"
 
                 if ($scopedEnvironments.Length -gt 0 -and $null -ne $matchingProjectId)
                 {
