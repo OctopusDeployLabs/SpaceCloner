@@ -13,7 +13,7 @@ function Get-OctopusUrl
             $EndPoint = $EndPoint.Substring($EndPoint.IndexOf("/api"))
         }
 
-        return "$OctopusUrl/$EndPoint"
+        return "$OctopusUrl$EndPoint"
     }
 
     if ([string]::IsNullOrWhiteSpace($SpaceId))
