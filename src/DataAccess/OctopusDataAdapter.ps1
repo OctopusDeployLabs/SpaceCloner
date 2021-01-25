@@ -6,6 +6,12 @@ function Get-OctopusUrl
         $OctopusUrl
     )
 
+    $octopusUrlToUse = $OctopusUrl
+    if ($OctopusUrl.EndsWith("/"))
+    {
+        $octopusUrlToUse = $OctopusUrl.Substring(0, $OctopusUrl.Length - 1)
+    }
+
     if ($EndPoint -match "/api")
     {
         if (!$EndPoint.StartsWith("/api"))
@@ -13,15 +19,15 @@ function Get-OctopusUrl
             $EndPoint = $EndPoint.Substring($EndPoint.IndexOf("/api"))
         }
 
-        return "$OctopusUrl/$EndPoint"
+        return "$octopusUrlToUse$EndPoint"
     }
 
     if ([string]::IsNullOrWhiteSpace($SpaceId))
     {
-        return "$OctopusUrl/api/$EndPoint"
+        return "$octopusUrlToUse/api/$EndPoint"
     }
 
-    return "$OctopusUrl/api/$spaceId/$EndPoint"
+    return "$octopusUrlToUse/api/$spaceId/$EndPoint"
 }
 
 function Invoke-OctopusApi
