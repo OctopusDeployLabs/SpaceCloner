@@ -29,8 +29,8 @@ function Get-OctopusApiResponseLogPath
 
 function Write-OctopusVerbose
 {
-    param($message)
-    
+    param($message) 
+       
     Add-Content -Value $message -Path $logPath    
 }
 

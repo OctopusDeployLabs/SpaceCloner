@@ -20,7 +20,19 @@ function Copy-OctopusWorkerPools
     }
 
     foreach ($workerPool in $filteredList)
-    {                              
+    {          
+        if ((Test-OctopusObjectHasProperty -objectToTest $workerPool -propertyName "WorkerPoolType") -eq $true -and $workerPool.WorkerPoolType -eq "DynamicWorkerPool")                    
+        {
+            Write-OctopusVerbose "The worker pool $($workerPool.Name) is a dynamic worker pool, cannot clone these.  Skipping."
+            continue
+        }
+
+        if ($DestinationData.OctopusUrl -like "*.octopus.app" -and $SourceData.OctopusUrl -notlike "*.octopus.app" -and $workerPool.IsDefault -eq $true)
+        {
+            Write-OctopusWarning "The source is self-hosted, the destination is Octopus Cloud, and the worker pool is the default.  Skipping."
+            continue
+        }
+
         Write-OctopusVerbose "Starting Clone of Worker Pool $($workerPool.Name)"
         
         $matchingItem = Get-OctopusItemByName -ItemName $workerPool.Name -ItemList $destinationData.WorkerPoolList

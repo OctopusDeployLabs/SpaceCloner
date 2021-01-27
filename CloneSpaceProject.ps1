@@ -31,8 +31,6 @@ $ErrorActionPreference = "Stop"
 . ($PSScriptRoot + ".\src\DataAccess\OctopusDataFactory.ps1")
 . ($PSScriptRoot + ".\src\DataAccess\OctopusRepository.ps1")
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
-
 if ($null -eq $CloneProjectRunbooks)
 {
     $CloneProjectRunbooks = $true
@@ -102,6 +100,11 @@ $cloneSpaceCommandLineOptions = @{
     RolesToClone = $null;
     PackagesToClone = $null;
 }
+
+Write-OctopusVerbose "The clone parameters sent in are:"
+Write-OctopusVerbose $($cloneSpaceCommandLineOptions | ConvertTo-Json -Depth 10)
+
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
 
 function Get-OctopusIsInExclusionList
 {
@@ -672,7 +675,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -TargetsToClone "$($cloneSpaceCommandLineOptions.TargetsToClone)" `
     -SpaceTeamsToClone "$($cloneSpaceCommandLineOptions.SpaceTeamsToClone)" `
     -PackagesToClone "$($cloneSpaceCommandLineOptions.PackagesToClone)" `
-    -OverwriteExistingVariables "$OverwriteExistingVariables" `    
+    -OverwriteExistingVariables "$OverwriteExistingVariables" `
     -OverwriteExistingCustomStepTemplates "$OverwriteExistingCustomStepTemplates" `
     -OverwriteExistingLifecyclesPhases "$OverwriteExistingLifecyclesPhases" `
     -CloneProjectChannelRules "$CloneProjectChannelRules" `

@@ -42,12 +42,18 @@ function Copy-OctopusWorkers
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $worker -SpaceId $destinationData.SpaceId -ClearIdValue $true    
 
-            $copyOfItemToClone.WorkerPoolIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdList $worker.WorkerPoolIds)
+            $copyOfItemToClone.WorkerPoolIds = @(Get-OctopusFilteredWorkerPoolIdList -sourceData $sourceData -destinationData $destinationData -worker $worker)
             $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $worker.MachinePolicyId
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
             $copyOfItemToClone.StatusSummary = ""
             $copyOfItemToClone.IsInProcess = $false
+
+            if ($copyOfItemToClone.WorkerPoolIds.Length -eq 0)
+            {
+                Write-OctopusWarning "The worker $($worker.Name) is tied to a pool that is not allowed to be cloned and there are no other pools for it.  Skipping the worker."
+                continue
+            }
 
             Save-OctopusWorker -worker $copyOfItemToClone -destinationData $destinationData            
         }
@@ -59,4 +65,29 @@ function Copy-OctopusWorkers
 
     Write-OctopusSuccess "Workers successfully cloned, reloading destination list"
     $destinationData.WorkerList = Get-OctopusWorkerList -OctopusData $DestinationData
+}
+
+function Get-OctopusFilteredWorkerPoolIdList
+{
+    param (
+        $sourceData,
+        $destinationData,
+        $worker)
+    
+    $workerPoolIdsToReturn = @()
+
+    foreach ($workerPoolId in $worker.WorkerPoolIds)
+    {
+        $workerPool = Get-OctopusItemById -itemList $sourceData.WorkerPoolList -itemId $workerPoolId
+        if ($DestinationData.OctopusUrl -like "*.octopus.app" -and $SourceData.OctopusUrl -notlike "*.octopus.app" -and $workerPool.IsDefault -eq $true)
+        {
+            Write-OctopusVerbose "The worker is assigned to the default worker pool, but we are going from self-hosted to the cloud.  This is not allowed.  Removing this worker pool reference"
+            continue
+        }
+
+        $destinationWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $workerPoolId            
+        $workerPoolIdsToReturn += $destinationWorkerPoolId
+    }
+
+    return $workerPoolIdsToReturn
 }

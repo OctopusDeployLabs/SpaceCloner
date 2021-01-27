@@ -45,6 +45,9 @@ $CloneScriptOptions = @{
     DestinationVariableSetName = $DestinationVariableSetName;   
 }
 
+Write-OctopusVerbose "The clone parameters sent in are:"
+Write-OctopusVerbose $($CloneScriptOptions | ConvertTo-Json -Depth 10)
+
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
 $destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName
 

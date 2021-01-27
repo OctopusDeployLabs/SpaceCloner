@@ -83,7 +83,7 @@ function Convert-SourceIdToDestinationId
     )
 
     $idValueSplit = $IdValue -split "-"
-    if ($idValueSplit.Length -le 2)
+    if ($idValueSplit.Length -le 2 -and $IdValue.Tolower().Trim() -ne "feeds-builtin" -and $IdValue.Tolower().Trim() -ne "feeds-builtin-releases")
     {
         if (($idValueSplit[1] -match "^[\d\.]+$") -eq $false)
         {
@@ -426,8 +426,25 @@ function Compare-OctopusVersions
 
         if ($IgnoreVersionCheckResult -eq $false)
         {
-            Write-OctopusCritical "Nothing good will come of this clone.  Please upgrade the source or destination to match and try again.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"    
-            Exit 1
+            if ($sourceData.MajorVersion -ne $destinationData.MajorVersion)
+            {
+                Write-OctopusCritical "The major versions do not match.  Attempting to clone between major versions is fairly risky.  Please upgrade the source or destination to match and try again.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"    
+                Exit 1
+            }
+
+            if ($sourceData.MajorVersion -eq $destinationData.MajorVersion -and $sourceData.MinorVersion -lt $destinationData.MinorVersion)
+            {
+                Write-OctopusCritical "The major versions match and the source data minor version is less than the destination data minor version.  You should be safe to run this clone.  However, by default this functionality is blocked.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"
+                exit 1
+            }
+
+            if ($sourceData.MajorVersion -eq $destinationData.MajorVersion -and $sourceData.MinorVersion -gt $destinationData.MinorVersion)
+            {
+                Write-OctopusCritical "The major versions match and the source data minor version is higher than the destination data minor version.  This is a bit more risky, but you should be safe to try.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"
+                exit 1
+            }
+
+            Write-OctopusCritical "The major and minor versions do not match, in general the cloner will work, however, you run the risk of something not cloning corectly.  You can ignore this warning by setting the argument IgnoreVersionCheckResult to $true"
         }
 
         Write-OctopusCritical "You have chosen to ignore that difference.  This run may work or it may not work."
