@@ -55,7 +55,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "Redgate.*" `
-    -OverwriteExistingVariables "false" `    
+    -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "false" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "true" `
@@ -91,7 +91,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -WorkersToExclude $null
     -TargetsToExclude $null
     -TenantsToExclude $null
-    -OverwriteExistingVariables "false" `    
+    -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "false" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "true" `
