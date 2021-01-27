@@ -29,10 +29,10 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `
     -DestinationOctopusUrl "https://instance1.yoursite.com" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "New Space Name" `        
+    -DestinationSpaceName "New Space Name" `
     -ParentProjectName "Redgate - Feature Branch Example" `
-    -ChildProjectsToSync "Redgate - Child*" `   
-    -OverwriteExistingVariables "false" `    
+    -ChildProjectsToSync "Redgate - Child*" `
+    -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "false" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "false" `
@@ -58,11 +58,11 @@ Options:
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceOctopusApiKey "SOME KEY" `
-    -SourceSpaceName "My Space Name" `         
+    -SourceSpaceName "My Space Name" `
     -ParentProjectName "Redgate - Feature Branch Example" `
-    -ChildProjectsToSync "Redgate - Child*" `   
-    -OverwriteExistingVariables "false" `    
-    -CloneProjectChannelRules "false" `        
+    -ChildProjectsToSync "Redgate - Child*" `  
+    -OverwriteExistingVariables "false" `
+    -CloneProjectChannelRules "false" `
     -CloneProjectVersioningReleaseCreationSettings "false" `
     -CloneProjectRunbooks "true" `
     -CloneProjectDeploymentProcess "true"
