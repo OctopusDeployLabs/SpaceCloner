@@ -56,7 +56,7 @@ In this example, the tentacle is being cloned for a new space from a self-hosted
     CloneTentacleInstance.ps1 `
         -SourceOctopusUrl "https://myinstance.com" `
         -SourceOctopusApiKey "API KEY" `
-        -SourceSpaceName "Default"`
+        -SourceSpaceName "Default" `
         -DestinationOctopusUrl "https://secondinstance" `
         -DestinationOctopusApiKey "API KEY" `
         -DestinationSpaceName "Demo" `

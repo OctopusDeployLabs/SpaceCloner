@@ -28,7 +28,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `
     -DestinationOctopusUrl "https://instance2.yoursite.com" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "My Space Name" `    
+    -DestinationSpaceName "My Space Name" `
     -EnvironmentsToClone "all" `
     -WorkerPoolsToClone "all" `
     -ProjectGroupsToClone "all" `
@@ -44,9 +44,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -WorkersToCLone "AWS*" `
     -TargetsToClone "AWS*" `
     -MachinePoliciesToClone "all" `
-    -SpaceTeamsToClone "all" `  
-    -PackagesToClone "Redgate.*,DBUp.*" ` 
-    -OverwriteExistingVariables "true" `    
+    -SpaceTeamsToClone "all" `
+    -PackagesToClone "Redgate.*,DBUp.*" `
+    -OverwriteExistingVariables "true" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
@@ -77,13 +77,13 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -SourceSpaceName "Target - SQL Server" `
     -DestinationOctopusUrl "https://samples.octopus.app" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "Redgate Space" `    
+    -DestinationSpaceName "Redgate Space" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
-    -EnvironmentsToExclude $null
-    -WorkersToExclude $null
-    -TargetsToExclude $null
-    -TenantsToExclude $null
-    -OverwriteExistingVariables "true" `    
+    -EnvironmentsToExclude $null `
+    -WorkersToExclude $null `
+    -TargetsToExclude $null `
+    -TenantsToExclude $null `
+    -OverwriteExistingVariables "true" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
