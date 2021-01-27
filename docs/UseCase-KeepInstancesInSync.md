@@ -51,20 +51,20 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `
     -DestinationOctopusUrl "https://instance2.yoursite.com" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpace Name "My Space Name" `    
+    -DestinationSpace Name "My Space Name" `
     -WorkerPoolsToClone "AWS*" `
     -ProjectGroupsToClone "all" `
-    -TenantTagsToClone "all" `    
-    -StepTemplatesToClone "all" `    
-    -ScriptModulesToClone "all" `    
+    -TenantTagsToClone "all" `
+    -StepTemplatesToClone "all" `
+    -ScriptModulesToClone "all" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
     -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
-    -PackagesToClone "Redgate.*" `    
-    -OverwriteExistingVariables "false" `    
+    -PackagesToClone "Redgate.*" `
+    -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "true" `
-    -OverwriteExistingLifecyclesPhases "false"
+    -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
@@ -94,7 +94,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -SourceSpaceName "My Space Name" `
     -DestinationOctopusUrl "https://instance2.yoursite.com" `
     -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "My Space Name" `  
+    -DestinationSpaceName "My Space Name" `
     -EnvironmentsToClone "all" `
     -WorkerPoolsToClone "all" `
     -ProjectGroupsToClone "all" `
@@ -109,9 +109,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "Redgate.*" `
-    -OverwriteExistingVariables "false" `    
+    -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "true" `
-    -OverwriteExistingLifecyclesPhases "true"
+    -OverwriteExistingLifecyclesPhases "true" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectRunbooks "true" `
