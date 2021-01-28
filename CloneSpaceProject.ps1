@@ -85,8 +85,8 @@ $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
     WorkerPoolsToClone = $null;
     ProjectGroupsToClone = $null;
-    TenantTagsToClone = $null;
-    ExternalFeedsToClone = $null;
+    TenantTagsToClone = "all";
+    ExternalFeedsToClone = "all";
     StepTemplatesToClone = $null;
     InfrastructureAccountsToClone = $null; 
     LibraryVariableSetsToClone = $null; 
@@ -100,9 +100,6 @@ $cloneSpaceCommandLineOptions = @{
     RolesToClone = $null;
     PackagesToClone = $null;
 }
-
-Write-OctopusVerbose "The clone parameters sent in are:"
-Write-OctopusVerbose $($cloneSpaceCommandLineOptions | ConvertTo-Json -Depth 10)
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
 
@@ -282,7 +279,7 @@ function Add-OctopusActionStepTemplateToCloneList
     }
 }
 
-function Add-OctopusExternalFeedsToCloneList
+function Add-OctopusPackagesToCloneList
 {
     param (
         $action,
@@ -294,12 +291,7 @@ function Add-OctopusExternalFeedsToCloneList
     {        
         $feed = Get-OctopusItemById -itemId $package.FeedId -ItemList $sourceData.FeedList               
 
-        if ($feed.FeedType -ne "BuiltIn" -and $feed.FeedType -ne "OctopusProjects")
-        {
-            Write-OctopusVerbose "Adding Feed for $($package.PackageId) to the list"
-            $cloneSpaceCommandLineOptions.ExternalFeedsToClone = Add-OctopusIdToCloneList -itemId $package.FeedId -itemType "Feed" -destinationList $cloneSpaceCommandLineOptions.ExternalFeedsToClone -sourceList $sourceData.FeedList -exclusionList @()            
-        }
-        elseif ($feed.FeedType -eq "BuiltIn")
+        if ($feed.FeedType -eq "BuiltIn")
         {
             Write-OctopusVerbose "Adding the package $($package.PackageId) to the clone list"
             $cloneSpaceCommandLineOptions.PackagesToClone = Add-OctopusPackageIdToCloneList -itemId $package.PackageId -itemType "Package" -destinationList $cloneSpaceCommandLineOptions.PackagesToClone -sourceList $sourceData.PackageList -exclusionList @()            
@@ -362,7 +354,7 @@ function Add-OctopusDeploymentProcessToCloneList
         foreach ($action in $step.Actions)
         {
             Add-OctopusActionSpaceTeamToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
-            Add-OctopusExternalFeedsToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
+            Add-OctopusPackagesToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
             Add-OctopusActionStepTemplateToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
             Add-OctopusActionEnvironmentsToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude
             Add-OctopusActionWorkerPoolIdToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
@@ -525,14 +517,7 @@ function Add-OctopusTenantsToCloneList
     {
         if ((Test-OctopusObjectHasProperty -objectToTest $tenant.ProjectEnvironments -propertyName $project.Id) -and $cloneSpaceCommandLineOptions.TenantList -notcontains $tenant.Name -and (Get-OctopusIsInExclusionList -exclusionList $tenantListToExclude -itemName $tenant.Name) -eq $false)
         {
-            $cloneSpaceCommandLineOptions.TenantsToClone = Add-OctopusNameToCloneList -ItemName $tenant.Name -destinationList $cloneSpaceCommandLineOptions.TenantsToClone
-
-            foreach ($tag in $tenant.TenantTags)
-            {
-                $tagDetails = $tag -split "/"
-
-                $cloneSpaceCommandLineOptions.TenantTagsToClone =  Add-OctopusNameToCloneList -ItemName $tagDetails[0] -destinationList $cloneSpaceCommandLineOptions.TenantTagsToClone                 
-            }
+            $cloneSpaceCommandLineOptions.TenantsToClone = Add-OctopusNameToCloneList -ItemName $tenant.Name -destinationList $cloneSpaceCommandLineOptions.TenantsToClone            
         }
     }
 }
