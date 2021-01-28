@@ -375,6 +375,7 @@ function Convert-OctopusProcessDeploymentStepId
         $sourceId
     )
 
+    Write-OctopusVerbose "Attempting to determine the destination action ID of the step source $sourceId"
     $sourceStepName = $null
     $sourceActionName = $null
 
@@ -384,6 +385,9 @@ function Convert-OctopusProcessDeploymentStepId
         {
             if ($action.Id -eq $sourceId)
             {
+                Write-OctopusVerbose "Found the $sourceId in the deployment process with the step name $($step.Name) and action name $($action.Name)"                
+                $sourceStepName = $step.Name
+                $sourceActionName = $action.Name
                 break
             }
         }
@@ -396,12 +400,16 @@ function Convert-OctopusProcessDeploymentStepId
     
     foreach ($step in $destinationProcess.Steps)
     {
-        if ($step.name -eq $sourceStepName)
+        Write-OctopusVerbose "Checking to see if $($step.Name) matches $sourceStepName"
+        if ($step.name.ToLower().Trim() -eq $sourceStepName.ToLower().Trim())
         {
+            Write-OctopusVerbose "The step names match, now loop through the actions"
             foreach($action in $step.Actions)
             {
-                if ($action.Name -eq $sourceActionName)
+                Write-OctopusVerbose "Checking to see if $($action.Name) matches $sourceActionName"
+                if ($action.Name.ToLower().Trim() -eq $sourceActionName.ToLower().Trim())
                 {
+                    Write-OctopusVerbose "The action names match, return $($action.Id)"
                     return $action.Id
                 }
             }
