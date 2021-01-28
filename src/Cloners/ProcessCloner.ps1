@@ -32,23 +32,29 @@ function Copy-OctopusDeploymentProcess
         $newStepActions = @()
         foreach ($action in $step.Actions)
         {
-            $matchingAction = Get-OctopusItemByName -ItemList $stepToAdd.Actions -ItemName $action.Name
+            $matchingAction = Get-OctopusItemByName -ItemList $matchingStep.Actions -ItemName $action.Name
+            $clonedStep = Copy-OctopusProcessStepAction -sourceAction $action -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData         
 
-            if ($null -eq $matchingAction -or $newStep -eq $true)
+            if ($null -ne $clonedStep)
             {
-                Write-OctopusVerbose "The action $($action.Name) doesn't exist for the step, adding that to the list"
-                $clonedStep = Copy-OctopusProcessStepAction -sourceAction $action -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData         
-
-                if ($null -ne $clonedStep)
+                if ($null -ne $matchingAction)
                 {
-                    $newStepActions += $clonedStep
+                    $clonedStep.Id = $matchingAction.Id
+                    foreach ($package in $clonedStep.Packages)    
+                    {
+                        foreach ($matchingActionPackage in $matchingAction.Packages)
+                        {
+                            if ($package.PackageId -eq $matchingActionPackage.PackageId)
+                            {
+                                $package.Id = $matchingActionPackage.Id
+                                break
+                            }
+                        }
+                    }
                 }
+
+                $newStepActions += $clonedStep                
             }            
-            else
-            {
-                Write-OctopusVerbose "The action $($action.Name) already exists for the step, adding existing item to list"
-                $newStepActions += Copy-OctopusObject -ItemToCopy $matchingAction -ClearIdValue $false -SpaceId $null
-            }
         }
 
         Write-OctopusVerbose "Looping through the destination step to make sure we didn't miss any actions"
