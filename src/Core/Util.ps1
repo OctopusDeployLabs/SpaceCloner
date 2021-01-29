@@ -398,10 +398,15 @@ function Convert-OctopusProcessDeploymentStepId
         }
     }
     
+    if ($null -eq $sourceStepName)
+    {
+        return $null
+    }
+
     foreach ($step in $destinationProcess.Steps)
     {
         Write-OctopusVerbose "Checking to see if $($step.Name) matches $sourceStepName"
-        if ($step.name.ToLower().Trim() -eq $sourceStepName.ToLower().Trim())
+        if ($step.Name.ToLower().Trim() -eq $sourceStepName.ToLower().Trim())
         {
             Write-OctopusVerbose "The step names match, now loop through the actions"
             foreach($action in $step.Actions)
@@ -491,4 +496,9 @@ function Convert-OctopusPackageList
         $package.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $package.FeedId
         $package.Id = $null
     }    
+}
+
+function Get-OctopusScriptActionTypes
+{
+    return @("Octopus.Script", "Octopus.AwsRunScript", "Octopus.AzurePowerShell", "Octopus.KubernetesRunScript" )
 }

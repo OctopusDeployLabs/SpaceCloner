@@ -4,6 +4,7 @@ function Copy-OctopusProcessStepAction
         $sourceAction,
         $sourceChannelList,
         $destinationChannelList,
+        $matchingAction,
         $sourceData,
         $destinationData
     )            
@@ -20,7 +21,9 @@ function Copy-OctopusProcessStepAction
     Convert-OctopusProcessActionManualIntervention -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData        
     Convert-OctopusPackageList -item $action -sourceData $sourceData -destinationData $destinationData 
-        
+    Convert-OctopusSinglePackageProprty -action $action -sourceData $sourceData -destinationData $destinationData
+    Convert-OctopusActionIdsForMatchingActionId -action $action -matchingAction $matchingAction
+
     return $action    
 }
 
@@ -132,5 +135,50 @@ function Convert-OctopusProcessActionFeedId
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId")
     {
         $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId'
+    }
+}
+
+function Convert-OctopusSinglePackageProprty
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData
+    )
+
+    $actionScriptTypes = Get-OctopusScriptActionTypes
+
+    if ($action.Packages.Count -eq 1 -and $actionScriptTypes -notcontains $action.ActionType)
+    {
+        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId" -propertyValue $action.Packages[0].FeedId
+        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.PackageId" -propertyValue $action.Packages[0].PackageId
+        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.DownloadOnTentacle" -propertyValue "False"
+    }
+}
+
+function Convert-OctopusActionIdsForMatchingActionId
+{
+    param(
+        $action,
+        $matchingAction
+    )
+
+    if ($null -ne $matchingAction)
+    {
+        Write-OctopusVerbose "The action $($action.Name) already exists, updating the Id"
+        $action.Id = $matchingAction.Id
+
+        Write-OctopusVerbose "Ensuring all the existing packages have Ids"
+        foreach ($package in $action.Packages)    
+        {
+            foreach ($matchingActionPackage in $matchingAction.Packages)
+            {
+                if ($package.PackageId -eq $matchingActionPackage.PackageId)
+                {
+                    $package.Id = $matchingActionPackage.Id
+                    break
+                }
+            }
+        }
     }
 }
