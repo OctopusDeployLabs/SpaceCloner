@@ -33,7 +33,11 @@ function Copy-OctopusTargets
             $copyOfItemToClone.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds)
             $copyOfItemToClone.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds)
 
-            $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId
+            if ((Test-OctopusObjectHasProperty -objectToTest $target -propertyName "MachinePolicyId") -eq $true -and $null -ne $target.MachinePolicyId)
+            {
+                $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId
+            }
+
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
             $copyOfItemToClone.StatusSummary = ""

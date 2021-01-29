@@ -69,15 +69,14 @@ function Invoke-OctopusApi
             {
                 Write-OctopusCritical "Unauthorized error returned from $url, please verify API key and try again"
             }
-            else
-            {
-                $result = $_.Exception.Response.GetResponseStream()
-                $reader = New-Object System.IO.StreamReader($result)
-                $reader.BaseStream.Position = 0
-                $reader.DiscardBufferedData()
-                $responseBody = $reader.ReadToEnd();
-                Write-OctopusVerbose -Message "Error calling $url $($_.Exception.Message) StatusCode: $($_.Exception.Response.StatusCode.value__ ) StatusDescription: $($_.Exception.Response.StatusDescription) $responseBody"
+            elseif ($_.ErrorDetails.Message)
+            {                
+                Write-OctopusVerbose -Message "Error calling $url StatusCode: $($_.Exception.Response) $($_.ErrorDetails.Message)"
             }            
+            else 
+            {
+                Write-OctopusVerbose $_.Exception
+            }
         }
         else
         {
