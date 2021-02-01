@@ -72,7 +72,7 @@ function Invoke-OctopusApi
 
         if ($newRetryCount -gt 4)
         {
-            Write-OctopusCritical "Timeout detected, max retries has been exceeded for this call.  Exiting."
+            Throw "Timeout detected, max retries has been exceeded for this call.  Exiting."
         }
         else 
         {
