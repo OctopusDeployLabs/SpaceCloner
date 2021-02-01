@@ -38,7 +38,8 @@ function Invoke-OctopusApi
         $apiKey,
         $method,
         $item,
-        $filePath
+        $filePath,
+        $retryCount
     )
 
     try
@@ -46,20 +47,38 @@ function Invoke-OctopusApi
         if ($null -ne $filePath)
         {
             Write-OctopusVerbose "Filepath $filePath parameter provided, saving output to the filepath from $url"
-            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -OutFile $filePath
+            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -OutFile $filePath -TimeoutSec 60
         }
 
         if ($null -eq $item)
         {
             Write-OctopusVerbose "No data to post or put, calling bog standard invoke-restmethod for $url"
-            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -ContentType 'application/json; charset=utf-8'
+            return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -ContentType 'application/json; charset=utf-8' -TimeoutSec 60
         }
 
         $body = $item | ConvertTo-Json -Depth 10
         Write-OctopusVerbose $body
 
         Write-OctopusVerbose "Invoking $method $url"
-        return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -Body $body -ContentType 'application/json; charset=utf-8'
+        return Invoke-RestMethod -Method $method -Uri $url -Headers @{"X-Octopus-ApiKey" = "$ApiKey" } -Body $body -ContentType 'application/json; charset=utf-8' -TimeoutSec 60
+    }
+    catch [System.TimeoutException]
+    {        
+        $newRetryCount = 1
+        if ($null -ne $retryCount)
+        {
+            $newRetryCount = $retryCount + 1
+        }
+
+        if ($newRetryCount -gt 4)
+        {
+            Write-OctopusCritical "Timeout detected, max retries has been exceeded for this call.  Exiting."
+        }
+        else 
+        {
+            Write-OctopusWarning "Timeout detected, going to retry this call for the $newRetryCount time."
+            Invoke-OctopusApi -url $url -apiKey $apiKey -method $method -item $item -filePath $filePath -retryCount $retryCount        
+        }
     }
     catch
     {
@@ -82,9 +101,9 @@ function Invoke-OctopusApi
         {
             Write-OctopusVerbose $_.Exception
         }
-    }
 
-    Throw "There was an error calling the Octopus API please check the log for more details"
+        Throw "There was an error calling the Octopus API please check the log for more details"
+    }    
 }
 
 Function Get-OctopusApiItemList
