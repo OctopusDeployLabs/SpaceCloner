@@ -68,6 +68,7 @@ param (
 . (Join-Path $PSScriptRoot "src" "Cloners" "TeamCloner.ps1")
 . (Join-Path $PSScriptRoot "src" "Cloners" "TeamUserRoleCloner.ps1")
 . (Join-Path $PSScriptRoot "src" "Cloners" "TenantCloner.ps1")
+. (Join-Path $PSScriptRoot "src" "Cloners" "TenantVariableCloner.ps1")
 . (Join-Path $PSScriptRoot "src" "Cloners" "TenantTagSetCloner.ps1")
 . (Join-Path $PSScriptRoot "src" "Cloners" "VariableSetValuesCloner.ps1")
 . (Join-Path $PSScriptRoot "src" "Cloners" "WorkerCloner.ps1")

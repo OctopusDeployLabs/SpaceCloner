@@ -321,6 +321,27 @@ function Get-OctopusItemLogo
     return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
 }
 
+function Get-OctopusTenantVariables
+{
+    param (
+        $octopusData,
+        $tenant
+    )
+
+    return Get-OctopusApi -EndPoint "tenants/$($tenant.Id)/variables" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
+}
+
+function Save-OctopusTenantVariables
+{
+    param (
+        $octopusData,
+        $tenant,
+        $tenantVariables
+    )
+
+    return Save-OctopusApiItem -Item $tenantVariables -Endpoint "tenants/$($tenant.Id)/variables" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -Method "PUT"       
+}
+
 function Save-OctopusItemLogo
 {
     param(

@@ -48,10 +48,12 @@ function Copy-OctopusTenants
             $destinationData.TenantList += $destinationTenant
 
             Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
+            Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $tenant -destinationTenant $destinationTenant        
         }
         else
         {
-            Write-OctopusVerbose "The tenant $($tenant.Name) already exists on the source, skipping."
+            Write-OctopusVerbose "The tenant $($tenant.Name) already exists on the destination, skipping."
+            Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $tenant -destinationTenant $matchingTenant        
         }
     }
 
