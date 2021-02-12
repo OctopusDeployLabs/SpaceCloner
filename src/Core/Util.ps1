@@ -502,3 +502,42 @@ function Get-OctopusScriptActionTypes
 {
     return @("Octopus.Script", "Octopus.AwsRunScript", "Octopus.AzurePowerShell", "Octopus.KubernetesRunScript" )
 }
+
+function Update-OctopusList
+{
+    param(
+        $itemList,
+        $itemToReplace
+    )
+
+    # $itemListCopy = Copy-OctopusObject -ItemToCopy $itemList
+
+    $indexOfItem = -1
+    $index = -1
+    Write-OctopusVerbose "Going to replace $($itemToReplace.Id) in list"
+    foreach ($item in $itemList)
+    {
+        $index += 1
+        Write-OctopusVerbose "Comparing $($itemToReplace.Id) with $($item.Id)"
+
+        if ($itemToReplace.Id -eq $item.Id)
+        {
+            Write-OctopusVerbose "Item matches"
+            $indexOfItem = $index
+            break
+        }
+    }
+
+    if ($indexOfItem -ge 0)
+    {
+        Write-OctopusVerbose "The item exists in the array, replacing it"
+        $itemList.Item($indexOfItem) = $itemToReplace
+    }
+    else
+    {
+        Write-OctopusVerbose "Unable to find matching id, adding it to list"    
+        $itemList += $itemToReplace
+    }
+
+    return $itemList
+}

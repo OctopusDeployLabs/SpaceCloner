@@ -56,12 +56,18 @@ function Copy-OctopusBuiltInPackages
         Write-OctopusVerbose "      Uploading the package $filePath to the destination"
         Save-OctopusPackage -octopusData $destinationData -fileContentToUpload $filePath
 
-        try {
-            Remove-Item $filePath    
-        }
-        catch {
-            Write-OctopusWarning "      Unable to remove the package $filePath"
-        }
+        $deleteTryAttempts = 0
+        While ($deleteTryAttempts -lt 5 -and (Test-Path $filePath))
+        {
+            try {
+                Remove-Item $filePath 
+            }
+            catch {
+                Write-OctopusWarning "      $($_.Exception.Message) This is the $($deleteTryAttempts + 1) time I've tried to delete this file.  Going to sleep and try again in 2 seconds."
+                Start-Sleep -Seconds 2
+                $deleteTryAttempts += 1
+            }
+        }       
 
         if ((Test-OctopusObjectHasProperty -objectToTest $package -propertyName "PackageVersionBuildInformation"))
         {

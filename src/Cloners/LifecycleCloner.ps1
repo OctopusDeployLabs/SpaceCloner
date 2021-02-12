@@ -44,11 +44,11 @@ function Copy-OctopusLifecycles
         $lifeCycleToClone.ReleaseRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.ReleaseRetentionPolicy -DestinationData $destinationData
         $lifeCycleToClone.TentacleRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.TentacleRetentionPolicy -DestinationData $destinationData        
 
-        Save-OctopusLifecycle -lifecycle $lifeCycleToClone -destinationData $DestinationData        
-    }    
+        $updatedLifecycle = Save-OctopusLifecycle -lifecycle $lifeCycleToClone -destinationData $DestinationData  
+        $destinationData.LifeCycleList = Update-OctopusList -itemList $destinationData.LifeCycleList -itemToReplace $updatedLifecycle
+    }
 
-    Write-OctopusSuccess "Lifecycles successfully cloned, reloading destination list"    
-    $destinationData.LifeCycleList = Get-OctopusLifeCycleList -OctopusData $DestinationData
+    Write-OctopusSuccess "Lifecycles successfully cloned"        
 }
 
 function Test-OctopusLifeCycleRetentionPolicy

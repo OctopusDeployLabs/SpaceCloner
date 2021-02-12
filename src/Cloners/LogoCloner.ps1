@@ -22,9 +22,11 @@ function Copy-OctopusItemLogo
         Write-OctopusVerbose "The item $($sourceItem.Name) has a logo to upload, uploading to destination"        
         Save-OctopusItemLogo -item $destinationItem -OctopusUrl $destinationData.OctopusUrl -ApiKey $destinationData.OctopusApiKey -fileContentToUpload $filePath
 
-        Write-OctopusVerbose "The temporary image for $($sourceItem.Name) has been deleted."
+        Start-Sleep -Seconds 2
+        
         try {
-            Remove-Item $filePath    
+            Remove-Item $filePath -Force   
+            Write-OctopusVerbose "The temporary image for $($sourceItem.Name) has been deleted."
         }
         catch {
             Write-OctopusWarning "Unable to remove the temporary image $filePath"

@@ -91,8 +91,12 @@ function Convert-OctopusProcessActionStepTemplate
                 }    
                 elseif ($controlType -eq "Sensitive")            
                 {
-                    Write-OctopusPostCloneCleanUp "Set $($parameter.Name) in $($action.Name) to Dummy Value"
-                    $action.Properties.$($parameter.Name) = "DUMMY VALUE"
+                    if ((Test-OctopusObjectHasProperty -objectToTest $action.Properties.$($parameter.Name) -propertyName "HasValue"))
+                    {
+                        Write-OctopusPostCloneCleanUp "Set $($parameter.Name) in $($action.Name) to Dummy Value"
+                        $action.Properties.$($parameter.Name).NewValue = "DUMMY VALUE"
+                        $action.Properties.$($parameter.Name).HasValue = $true
+                    }                    
                 }
             }            
         }

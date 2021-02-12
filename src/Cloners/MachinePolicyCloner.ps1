@@ -26,9 +26,9 @@ function Copy-OctopusMachinePolicies
             $machinePolicyToClone.Id = $matchingItem.Id
         }
 
-        Save-OctopusMachinePolicy -MachinePolicy $machinePolicyToClone -destinationData $DestinationData        
+        $updatedMachinePolicy = Save-OctopusMachinePolicy -MachinePolicy $machinePolicyToClone -destinationData $DestinationData 
+        $destinationData.MachinePolicyList = Update-OctopusList -itemList $destinationData.MachinePolicyList -itemToReplace $updatedMachinePolicy
     }    
 
-    Write-OctopusSuccess "Machine policies successfully cloned, reloading destination list"    
-    $destinationData.MachinePolicyList = Get-OctopusMachinePolicyList -OctopusData $DestinationData
+    Write-OctopusSuccess "Machine policies successfully cloned"        
 }

@@ -24,7 +24,9 @@ function Copy-OctopusStepTemplates
             Write-OctopusVerbose "The step template $($stepTemplate.Name) is a community step template and it hasn't been installed yet, installing"
             $destinationTemplate = Get-OctopusItemByName -ItemList $destinationData.CommunityActionTemplates -ItemName $stepTemplate.Name            
 
-            Save-OctopusCommunityStepTemplate -communityStepTemplate $destinationTemplate -destinationData $destinationData            
+            $destinationCommunityStep = Save-OctopusCommunityStepTemplate -communityStepTemplate $destinationTemplate -destinationData $destinationData            
+            
+            $destinationData.StepTemplates = Update-OctopusList -itemList $destinationData.StepTemplates -itemToReplace $destinationCommunityStep
         }        
         elseif ($null -eq $stepTemplate.CommunityActionTemplateId -and $null -ne $matchingItem -and $cloneScriptOptions.OverwriteExistingCustomStepTemplates -eq $false)
         {
@@ -45,9 +47,10 @@ function Copy-OctopusStepTemplates
             $destinationStepTemplate = Save-OctopusStepTemplate -StepTemplate $stepTemplateToClone -DestinationData $destinationData            
 
             Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
+
+            $destinationData.StepTemplates = Update-OctopusList -itemList $destinationData.StepTemplates -itemToReplace $destinationStepTemplate
         }        
     }
 
-    Write-OctopusSuccess "Step Templates successfully cloned, reloading destination list"
-    $destinationData.StepTemplates = Get-OctopusStepTemplateList -octopusData $destinationData
+    Write-OctopusSuccess "Step Templates successfully cloned"    
 }
