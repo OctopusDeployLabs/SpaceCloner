@@ -31,6 +31,7 @@ function Copy-OctopusScriptModules
             $copyscriptModule.VariableSetId = $null
             
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copyscriptModule -destinationData $destinationData
+            $destinationData.ScriptModuleList += $destinationVariableSet
         }
         else
         {
@@ -47,6 +48,5 @@ function Copy-OctopusScriptModules
         Write-OctopusPostCloneCleanUp "*****************Ending clone of script module $($scriptModule.Name)*******************"
     }
 
-    Write-OctopusSuccess "Script Modules successfully cloned, reloading destination list"    
-    $destinationData.ScriptModuleList = Get-OctopusScriptModuleList -OctopusData $DestinationData
+    Write-OctopusSuccess "Script Modules successfully cloned"        
 }

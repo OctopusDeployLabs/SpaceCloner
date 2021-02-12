@@ -55,8 +55,9 @@ function Copy-OctopusTenantTags
 
         $copyOfItemToClone.Tags = @($tags)  
 
-        Save-OctopusTenantTagSet -TenantTagSet $copyOfItemToClone -DestinationData $destinationData        
+        $newTenantTagSet = Save-OctopusTenantTagSet -TenantTagSet $copyOfItemToClone -DestinationData $destinationData        
+        $destinationData.TenantTagList += $newTenantTagSet
     }    
     
-    $destinationData.TenantTagList = Get-OctopusTenantTagSetList -OctopusData $DestinationData
+    Write-OctopusSuccess "Tenant Tags successfully cloned"
 }

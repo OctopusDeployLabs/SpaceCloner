@@ -45,7 +45,8 @@ function Copy-OctopusWorkerPools
 
             Add-PropertyIfMissing -objectToTest $copyOfItemToClone -propertyName "WorkerPoolType" -propertyValue "StaticWorkerPool"                  
 
-            Save-OctopusWorkerPool -workerPool $copyOfItemToClone -destinationData $destinationData            
+            $newOctopusWorker = Save-OctopusWorkerPool -workerPool $copyOfItemToClone -destinationData $destinationData            
+            $destinationData.WorkerPoolList += $newOctopusWorker
         }
         else 
         {
@@ -53,6 +54,5 @@ function Copy-OctopusWorkerPools
         }
     }    
 
-    Write-OctopusSuccess "Worker Pools successfully cloned, reloading destination list"
-    $destinationData.WorkerPoolList = Get-OctopusWorkerPoolList -OctopusData $DestinationData
+    Write-OctopusSuccess "Worker Pools successfully cloned"    
 }

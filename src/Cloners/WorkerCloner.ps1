@@ -55,7 +55,8 @@ function Copy-OctopusWorkers
                 continue
             }
 
-            Save-OctopusWorker -worker $copyOfItemToClone -destinationData $destinationData            
+            $newOctopusWorker = Save-OctopusWorker -worker $copyOfItemToClone -destinationData $destinationData            
+            $destinationData.WorkerList += $newOctopusWorker
         }
         else 
         {
@@ -63,8 +64,7 @@ function Copy-OctopusWorkers
         }
     }    
 
-    Write-OctopusSuccess "Workers successfully cloned, reloading destination list"
-    $destinationData.WorkerList = Get-OctopusWorkerList -OctopusData $DestinationData
+    Write-OctopusSuccess "Workers successfully cloned"    
 }
 
 function Get-OctopusFilteredWorkerPoolIdList

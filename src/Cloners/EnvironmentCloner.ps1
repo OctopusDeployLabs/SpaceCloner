@@ -25,7 +25,9 @@ function Copy-OctopusEnvironments
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $environment -SpaceId $destinationData.SpaceId -ClearIdValue $true    
 
-            Save-OctopusEnvironment -environment $copyOfItemToClone -DestinationData $destinationData            
+            $newEnvironment = Save-OctopusEnvironment -environment $copyOfItemToClone -DestinationData $destinationData            
+
+            $destinationData.EnvironmentList += $newEnvironment
         }
         else 
         {
@@ -33,6 +35,5 @@ function Copy-OctopusEnvironments
         }
     }    
 
-    Write-OctopusSuccess "Environments successfully cloned, reloading destination list"    
-    $destinationData.EnvironmentList = Get-OctopusEnvironmentList -OctopusData $DestinationData
+    Write-OctopusSuccess "Environments successfully cloned"        
 }

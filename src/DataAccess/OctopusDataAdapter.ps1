@@ -121,6 +121,11 @@ Function Get-OctopusApiItemList
 
     Write-OctopusVerbose "$url returned a list with $($results.Items.Length) item(s)"
 
+    if ($results.Items.Count -eq 0)
+    {
+        return @()
+    }
+
     return $results.Items
 }
 

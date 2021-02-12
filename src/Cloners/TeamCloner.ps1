@@ -41,7 +41,8 @@ function Copy-OctopusSpaceTeams
             $copyOfItemToClone.MemberUserIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.UserList -DestinationList $destinationData.UserList -IdList $team.MemberUserIds)            
             $copyOfItemToClone.ExternalSecurityGroups = @()            
 
-            Save-OctopusTeam -team $copyOfItemToClone -destinationData $destinationData            
+            $newOctopusTeam = Save-OctopusTeam -team $copyOfItemToClone -destinationData $destinationData            
+            $destinationData.TeamList += $newOctopusTeam
 
             Write-OctopusPostCloneCleanUp "Team $($team.Name) was created, external security groups were cleared."
         }
@@ -52,6 +53,5 @@ function Copy-OctopusSpaceTeams
     }    
     Write-OctopusPostCloneCleanUpHeader "*************End Teams******************"
 
-    Write-OctopusSuccess "Teams successfully cloned, reloading destination list"    
-    $destinationData.TeamList = Get-OctopusTeamList -OctopusData $DestinationData
+    Write-OctopusSuccess "Teams successfully cloned"        
 }

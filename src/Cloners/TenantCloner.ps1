@@ -44,7 +44,8 @@ function Copy-OctopusTenants
                 }
             }            
 
-            $destinationTenant = Save-OctopusTenant -Tenant $tenantToAdd -destinationData $destinationData           
+            $destinationTenant = Save-OctopusTenant -Tenant $tenantToAdd -destinationData $destinationData
+            $destinationData.TenantList += $destinationTenant
 
             Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
         }
@@ -54,6 +55,5 @@ function Copy-OctopusTenants
         }
     }
 
-    Write-OctopusSuccess "Tenants successfully cloned, reloading destination list"
-    $destinationData.TenantList = Get-OctopusTenantList -OctopusData $DestinationData
+    Write-OctopusSuccess "Tenants successfully cloned"    
 }

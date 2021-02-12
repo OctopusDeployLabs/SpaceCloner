@@ -25,7 +25,8 @@ function Copy-OctopusProjectGroups
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $projectGroup -SpaceId $destinationData.SpaceId -ClearIdValue $true                                          
 
-            Save-OctopusProjectGroup -ProjectGroup $copyOfItemToClone -DestinationData $destinationData            
+            $newProjectGroup = Save-OctopusProjectGroup -ProjectGroup $copyOfItemToClone -DestinationData $destinationData            
+            $destinationData.ProjectGroupList += $newProjectGroup
         }
         else 
         {
@@ -33,6 +34,5 @@ function Copy-OctopusProjectGroups
         }
     } 
     
-    Write-OctopusSuccess "Project Groups successfully cloned, reloading destination list"
-    $destinationData.ProjectGroupList = Get-ProjectGroupList -OctopusData $DestinationData
+    Write-OctopusSuccess "Project Groups successfully cloned"    
 }

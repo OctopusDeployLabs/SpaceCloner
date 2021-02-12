@@ -34,7 +34,8 @@ function Copy-OctopusInfrastructureAccounts
             Convert-OctopusSSHAccount -accountClone $accountClone 
             Convert-OctopusAccountDescription -accountClone $accountClone -sourceData $sourceData                   
 
-            Save-OctopusAccount -Account $accountClone -DestinationData $DestinationData            
+            $newInfrastructureAccount = Save-OctopusAccount -Account $accountClone -DestinationData $DestinationData            
+            $destinationData.InfrastructureAccounts += $newInfrastructureAccount
             Write-OctopusPostCloneCleanUp "Account $($account.Name) was created with dummy values."
         }
         else
@@ -44,8 +45,7 @@ function Copy-OctopusInfrastructureAccounts
     }
     Write-OctopusPostCloneCleanUpHeader "*************End Infrastructure Accounts*************"
 
-    Write-OctopusSuccess "Infrastructure Accounts successfully cloned, reloading destination list"    
-    $destinationData.InfrastructureAccounts = Get-OctopusInfrastructureAccountList -OctopusData $DestinationData
+    Write-OctopusSuccess "Infrastructure Accounts successfully cloned."         
 }
 
 function Convert-OctopusAWSAccountInformation

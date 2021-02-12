@@ -34,6 +34,7 @@ function Copy-OctopusLibraryVariableSets
             $copySourceVariableSet.Name = $destinationVariableSetName
 
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copySourceVariableSet -destinationData $destinationData
+            $destinationData.VariableSetList += $destinationVariableSet
         }
         else
         {
@@ -50,6 +51,5 @@ function Copy-OctopusLibraryVariableSets
         Write-OctopusPostCloneCleanUp "*****************Ending clone of variable set $($sourceVariableSet.Name)*******************"
     }
 
-    Write-OctopusSuccess "Library Variable Sets successfully cloned, reloading destination list"    
-    $destinationData.VariableSetList = Get-OctopusLibrarySetList -OctopusData $DestinationData
+    Write-OctopusSuccess "Library Variable Sets successfully cloned"        
 }

@@ -47,7 +47,8 @@ function Copy-OctopusTargets
             Convert-OctopusAzureWebAppTarget -target $copyOfItemToClone -sourceData $sourceData -destinationData $destinationData
             Convert-OctopusTargetTenantedDeploymentParticipation -target $copyOfItemToClone
 
-            Save-OctopusTarget -target $copyOfItemToClone -destinationdata $destinationData
+            $newOctopusTarget = Save-OctopusTarget -target $copyOfItemToClone -destinationdata $destinationData
+            $destinationData.TargetList += $newOctopusTarget
         }
         else
         {
@@ -55,8 +56,8 @@ function Copy-OctopusTargets
         }
     }
 
-    Write-OctopusSuccess "Targets successfully cloned, reloading destination list"
-    $destinationData.TargetList = Get-OctopusTargetList -OctopusData $DestinationData
+    Write-OctopusSuccess "Targets successfully cloned."
+    
 }
 
 function Get-OctopusTargetCanBeCloned
