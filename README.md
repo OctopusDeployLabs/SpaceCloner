@@ -1,10 +1,10 @@
 # Space Cloner
 PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
-# This cloning process is provided as is
+# The cloning process won't cover all use cases
 This script was developed internally for the Octopus Advisory Team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
 
-> **Note:** Owing to the "as is" nature of this script, **Octopus Deploy does not provide any support for this via our support channels.**
+> **Note:** if you have questions on how to use this script please reach out to advice@octopus.com
 
 This repository is [licensed](license) under the Apache license.  It is possible for the script to work for your use cases without modification.  However, it is impossible for us to write a script that matches every specific use case.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.  
 
