@@ -20,7 +20,7 @@ function Copy-OctopusItemLogo
         Get-OctopusItemLogo -item $sourceItem -OctopusUrl $SourceData.OctopusUrl -ApiKey $SourceData.OctopusApiKey -filepath $filePath
 
         Write-OctopusVerbose "The item $($sourceItem.Name) has a logo to upload, uploading to destination"        
-        Save-OctopusItemLogo -item $destinationItem -OctopusUrl $destinationData.OctopusUrl -ApiKey $destinationData.OctopusApiKey -fileContentToUpload $filePath
+        Save-OctopusItemLogo -item $destinationItem -OctopusUrl $destinationData.OctopusUrl -ApiKey $destinationData.OctopusApiKey -fileContentToUpload $filePath -whatIf $destinationData.WhatIf
 
         Start-Sleep -Seconds 2
         

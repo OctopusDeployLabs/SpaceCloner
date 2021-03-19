@@ -23,8 +23,7 @@ function Copy-OctopusProjectChannels
                 $cloneChannel.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $cloneChannel.LifeCycleId
             }
 
-            $cloneChannel.Rules = @()
-
+            $cloneChannel.Rules = @()            
             Write-OctopusVerbose "The channel $($channel.Name) does not exist for the project $($destinationProject.Name), creating one now.  Please note, I cannot create version rules, so those will be emptied out"
             Save-OctopusProjectChannel -projectChannel $cloneChannel -destinationData $destinationData            
         }        

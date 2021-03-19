@@ -1,16 +1,22 @@
 $currentDate = Get-Date
-$currentDateFormatted = $currentDate.ToString("yyyy_MM_dd_HH_mm")
+$currentDateFormatted = $currentDate.ToString("yyyy_MM_dd_HH_mm_ss")
 
-$logFolder = "$PSScriptRoot\..\..\logs\clonerun_$currentDateFormatted" 
+$logFolder = "$PSScriptRoot\..\..\"
+$logArchiveFolder = "$PSScriptRoot\..\..\logs\archive_$currentDateFormatted" 
 
-if ((Test-Path -Path $logFolder) -eq $false)
+$logPath = Join-Path $logFolder "Log.txt"
+$cleanupLogPath = Join-Path $logFolder "CleanUp.txt"
+$changeLog = Join-path $logFolder "ChangeLog.txt"
+
+if (Test-Path $logPath)
 {
-    New-Item -Path $logFolder -ItemType Directory
-}
+    if ((Test-Path -Path $logArchiveFolder) -eq $false)
+    {
+        New-Item -Path $logArchiveFolder -ItemType Directory
+    }
 
-$logPath = [System.IO.Path]::Combine($logFolder, "Log.txt")
-$cleanupLogPath = [System.IO.Path]::Combine($logFolder, "CleanUp.txt")
-$apiResponsesLogPath = [System.IO.Path]::Combine($logFolder, "ApiResponses.txt")
+    Get-ChildItem -Path "$logFolder\*.txt" | Move-Item -Destination $logArchiveFolder
+}
 
 function Get-OctopusCleanUpLogPath
 {
@@ -22,16 +28,51 @@ function Get-OctopusLogPath
     return $logPath
 }
 
-function Get-OctopusApiResponseLogPath
-{
-    return $apiResponsesLogPath
-}
-
 function Write-OctopusVerbose
 {
     param($message) 
        
     Add-Content -Value $message -Path $logPath    
+}
+
+function Write-OctopusChangeLog
+{
+    param ($message)
+
+    Add-Content -Value $message -Path $changeLog
+}
+
+function Write-OctopusChangeLogListDetails
+{
+    param (
+        $prefixSpaces,
+        $idList,        
+        $destinationList,
+        $listType
+    )
+
+    if ($null -eq $idList)
+    {
+        return
+    }
+
+    if ($idList.Count -eq 0)
+    {
+        return
+    }
+
+    Write-OctopusChangeLog "$prefixSpaces - $listType"
+
+    foreach ($id in $idList)
+    {
+        $item = Get-OctopusItemById -ItemList $destinationList -ItemId $id
+        if ($null -eq $item)
+        {
+            continue
+        }
+        
+        Write-OctopusChangeLog "$prefixSpaces    - $($item.Name)"
+    }
 }
 
 function Write-OctopusSuccess

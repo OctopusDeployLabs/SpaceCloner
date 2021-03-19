@@ -6,10 +6,12 @@ function Copy-OctopusTenantTags
         $cloneScriptOptions
     )
     
+    Write-OctopusChangeLog "Tenant Tags"
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantTagList -itemType "Tenant Tags" -filters $cloneScriptOptions.TenantTagsToClone
     
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Tenant Tags found to clone"
         return
     }
     
@@ -39,6 +41,7 @@ function Copy-OctopusTenantTags
 
         If ($null -ne $matchingItem)
         {            
+            Write-OctopusChangeLog " - Updating $($copyOfItemToClone.Name)"
             foreach ($tag in $matchingItem.Tags)
             {
                 $matchingTag = Get-OctopusItemByName -ItemName $tag.Name -ItemList $tagSet.Tags
@@ -47,16 +50,28 @@ function Copy-OctopusTenantTags
                 {
                     $tags += Copy-OctopusObject -ItemToCopy $tag -spaceId $null $clearIdValue $false
                 }
+                else
+                {
+                    Write-OctopusChangeLog "    - Adding tag $matchingTag"    
+                }
             }
 
             Write-OctopusVerbose "Overwriting $TagSet $($copyOfItemToClone.Name) with data from source."
             $copyOfItemToClone.Id = $matchingItem.Id            
+        }
+        else
+        {
+            Write-OctopusChangeLog " - Adding $($copyOfItemToClone.Name)" 
+            foreach ($tag in $tags)   
+            {
+                Write-OctopusChangeLog "    - Adding tag $tag"
+            }
         }                
 
         $copyOfItemToClone.Tags = @($tags)  
-
+        
         $newTenantTagSet = Save-OctopusTenantTagSet -TenantTagSet $copyOfItemToClone -DestinationData $destinationData        
-        $destinationData.TenantTagList += $newTenantTagSet
+        $destinationData.TenantTagList += $newTenantTagSet        
     }    
     
     Write-OctopusSuccess "Tenant Tags successfully cloned"

@@ -14,8 +14,11 @@ function Copy-OctopusWorkers
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.WorkerList -itemType "Worker List" -filters $cloneScriptOptions.WorkersToClone
 
+    Write-OctopusChangeLog "Workers"
+
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Workers found to clone"
         return
     }
 
@@ -30,6 +33,7 @@ function Copy-OctopusWorkers
 
         if ($worker.Endpoint.CommunicationStyle -eq "TentacleActive")
         {
+            Write-OctopusVerbose " - $($worker.Name) is unsupported tentacle type."
             Write-OctopusWarning "The worker $($worker.Name) is a polling tentacle, this script cannot clone polling tentacles, skipping."
             continue
         }
@@ -38,11 +42,15 @@ function Copy-OctopusWorkers
                 
         If ($null -eq $matchingItem)
         {            
-            Write-OctopusVerbose "Worker $($worker.Name) was not found in destination, creating new record."                                        
+            Write-OctopusVerbose "Worker $($worker.Name) was not found in destination, creating new record."   
+            Write-OctopusChangeLog " - Add $($worker.Name)"                                     
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $worker -SpaceId $destinationData.SpaceId -ClearIdValue $true    
 
             $copyOfItemToClone.WorkerPoolIds = @(Get-OctopusFilteredWorkerPoolIdList -sourceData $sourceData -destinationData $destinationData -worker $worker)
+
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Worker Pool Scoping" -idList $copyOfItemToClone.WorkerPoolIds -destinationList $DestinationData.WorkerPoolList            
+
             $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $worker.MachinePolicyId
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
@@ -60,7 +68,8 @@ function Copy-OctopusWorkers
         }
         else 
         {
-            Write-OctopusVerbose "Worker $($worker.Name) already exists in destination, skipping"    
+            Write-OctopusVerbose "Worker $($worker.Name) already exists in destination, skipping" 
+            Write-OctopusChangeLog " - $($worker.Name) already exists, skipping"   
         }
     }    
 

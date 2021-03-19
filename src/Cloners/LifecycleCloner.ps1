@@ -8,8 +8,10 @@ function Copy-OctopusLifecycles
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.LifeCycleList -itemType "Lifecycles" -filters $cloneScriptOptions.LifeCyclesToClone
 
+    Write-OctopusChangeLog "Lifecycles"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Lifecycles found to clone"
         return
     }
     
@@ -22,6 +24,7 @@ function Copy-OctopusLifecycles
         if ($null -ne $matchingItem -and $CloneScriptOptions.OverwriteExistingLifecyclesPhases -eq $false)             
         {
             Write-OctopusVerbose "Lifecycle already exists and you selected not to overwrite phases, skipping"
+            Write-OctopusChangeLog " - $($lifecycle.Name) already exists, option set to not overwrite, skipping"
             continue
         }        
 
@@ -30,12 +33,22 @@ function Copy-OctopusLifecycles
         if ($null -ne $matchingItem)
         {
             $lifeCycleToClone.Id = $matchingItem.Id
+            Write-OctopusChangeLog " - Updating $($lifecycle.Name)"
+        }
+        else
+        {
+            Write-OctopusChangeLog " - Add $($lifecycle.Name)"    
         }
 
         foreach ($phase in $lifeCycleToClone.Phases)
-        {            
+        {          
+            Write-OctopusChangeLog "    - Phase $($phase.Name)"
+
             $phase.OptionalDeploymentTargets = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.OptionalDeploymentTargets)
             $phase.AutomaticDeploymentTargets = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.AutomaticDeploymentTargets)
+
+            Write-OctopusChangeLogListDetails -prefixSpaces "       " -listType "Manual Deployment Environments" -idList $phase.OptionalDeploymentTargets -destinationList $DestinationData.EnvironmentList
+            Write-OctopusChangeLogListDetails -prefixSpaces "       " -listType "Automatic Deployment Environments" -idList $phase.AutomaticDeploymentTargets -destinationList $DestinationData.EnvironmentList
 
             $phase.ReleaseRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $phase.ReleaseRetentionPolicy -DestinationData $destinationData
             $phase.TentacleRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $phase.TentacleRetentionPolicy -DestinationData $destinationData        

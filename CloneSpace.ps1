@@ -34,7 +34,8 @@ param (
     $CloneProjectVersioningReleaseCreationSettings,
     $CloneProjectDeploymentProcess,
     $IgnoreVersionCheckResult,
-    $SkipPausingWhenIgnoringVersionCheckResult
+    $SkipPausingWhenIgnoringVersionCheckResult,
+    $WhatIf
 )
 
 . (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
@@ -130,6 +131,11 @@ if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
     $SkipPausingWhenIgnoringVersionCheckResult = $false
 }
 
+if ($null -eq $WhatIf)
+{
+    $WhatIf = $false
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -158,14 +164,14 @@ $CloneScriptOptions = @{
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
-    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;
+    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;    
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"
 Write-OctopusVerbose $($CloneScriptOptions | ConvertTo-Json -Depth 10)
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
-$destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
+$destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName -whatIf $whatIf
 
 Compare-OctopusVersions -SourceData $sourceData -DestinationData $destinationData -IgnoreVersionCheckResult $IgnoreVersionCheckResult -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult
 
@@ -190,11 +196,10 @@ if ($sourceData.OctopusUrl -eq $destinationData.OctopusUrl -and $SourceSpaceName
     }
 }
 
+Copy-OctopusEnvironments -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
+Copy-OctopusProjectGroups -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusTenantTags -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusBuiltInPackages -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
-Copy-OctopusEnvironments -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusProjectGroups -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusExternalFeeds -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusSpaceTeams -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusStepTemplates -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
@@ -202,6 +207,7 @@ Copy-OctopusInfrastructureAccounts -SourceData $sourceData -DestinationData $des
 Copy-OctopusScriptModules -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusMachinePolicies -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusLifecycles -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
+Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions

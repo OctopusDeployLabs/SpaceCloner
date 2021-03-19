@@ -9,8 +9,10 @@ function Copy-OctopusScriptModules
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.ScriptModuleList -itemType "Script Modules" -filters $cloneScriptOptions.ScriptModulesToClone
 
+    Write-OctopusChangeLog "Script Modules"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No script modules found"
         return
     }
 
@@ -27,15 +29,18 @@ function Copy-OctopusScriptModules
         if ($null -eq $destinationVariableSet)
         {
             Write-OctopusVerbose "Script Module Variable Set $($scriptModule.Name) was not found in destination, creating new base record."
+            Write-OctopusChangeLog " - Add $($scriptModule.Name) variable set"
+            
             $copyscriptModule = Copy-OctopusObject -ItemToCopy $scriptModule -ClearIdValue $true -SpaceId $destinationData.SpaceId                       
             $copyscriptModule.VariableSetId = $null
             
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copyscriptModule -destinationData $destinationData
-            $destinationData.ScriptModuleList += $destinationVariableSet
+            $destinationData.ScriptModuleList += $destinationVariableSet            
         }
         else
         {
             Write-OctopusVerbose "Script Module Variable Set $($scriptModule.Name) already exists in destination."
+            Write-OctopusChangeLog " - $($scriptModule.Name) already exits, skipping creation"
         }
         
         Write-OctopusVerbose "The script module variable set has been created, time to copy over the script module itself"

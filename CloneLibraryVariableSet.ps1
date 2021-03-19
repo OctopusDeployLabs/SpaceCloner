@@ -9,7 +9,8 @@ param (
     $DestinationVariableSetName,
     $OverwriteExistingVariables,    
     $IgnoreVersionCheckResult,
-    $SkipPausingWhenIgnoringVersionCheckResult        
+    $SkipPausingWhenIgnoringVersionCheckResult,
+    $WhatIf     
 )
 
 . (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
@@ -39,6 +40,12 @@ if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
     $SkipPausingWhenIgnoringVersionCheckResult = $false
 }
 
+if ($null -eq $WhatIf)
+{
+    $WhatIf = $false
+}
+
+
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;     
     LibraryVariableSetsToClone = $SourceVariableSetName;
@@ -48,8 +55,8 @@ $CloneScriptOptions = @{
 Write-OctopusVerbose "The clone parameters sent in are:"
 Write-OctopusVerbose $($CloneScriptOptions | ConvertTo-Json -Depth 10)
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
-$destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
+$destinationData = Get-OctopusData -octopusUrl $DestinationOctopusUrl -octopusApiKey $DestinationOctopusApiKey -spaceName $DestinationSpaceName -whatIf $whatIf
 
 Compare-OctopusVersions -SourceData $sourceData -DestinationData $destinationData -IgnoreVersionCheckResult $IgnoreVersionCheckResult -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult
 

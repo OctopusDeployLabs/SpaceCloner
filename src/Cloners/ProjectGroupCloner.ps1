@@ -7,9 +7,10 @@ function Copy-OctopusProjectGroups
     )
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.ProjectGroupList -itemType "Project Groups" -filters $cloneScriptOptions.ProjectGroupsToClone
-    
+    Write-OctopusChangeLog "Project Groups"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusVerbose " - No Project Groups found to clone"
         return
     }
     
@@ -21,7 +22,8 @@ function Copy-OctopusProjectGroups
 
         If ($null -eq $matchingItem)
         {
-            Write-OctopusVerbose "Project Group $($projectGroup.Name) was not found in destination, creating new record."  
+            Write-OctopusVerbose "Project Group $($projectGroup.Name) was not found in destination, creating new record."
+            Write-OctopusChangeLog " - Add $($projectGroup.Name)"  
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $projectGroup -SpaceId $destinationData.SpaceId -ClearIdValue $true                                          
 
@@ -30,6 +32,7 @@ function Copy-OctopusProjectGroups
         }
         else 
         {
+            Write-OctopusChangeLog " - $($projectGroup.Name) already exists, skipping"
             Write-OctopusVerbose "Project Group $($projectGroup.Name) already exists in destination, skipping"    
         }
     } 

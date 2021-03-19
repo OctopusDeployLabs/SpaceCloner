@@ -19,7 +19,8 @@ param (
     $CloneProjectVersioningReleaseCreationSettings,
     $CloneProjectDeploymentProcess,
     $IgnoreVersionCheckResult,
-    $SkipPausingWhenIgnoringVersionCheckResult  
+    $SkipPausingWhenIgnoringVersionCheckResult,
+    $WhatIf  
 )
 
 $ErrorActionPreference = "Stop"
@@ -81,6 +82,11 @@ if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
     $SkipPausingWhenIgnoringVersionCheckResult = $false
 }
 
+if ($null -eq $WhatIf)
+{
+    $WhatIf = $false
+}
+
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
     WorkerPoolsToClone = $null;
@@ -101,7 +107,7 @@ $cloneSpaceCommandLineOptions = @{
     PackagesToClone = $null;
 }
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
 
 function Get-OctopusIsInExclusionList
 {
@@ -634,6 +640,7 @@ Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $ClonePro
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
+Write-OctopusSuccess "  -WhatIf $WhatIf"
 
 $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
 & $cloneSpaceScript `
@@ -668,5 +675,6 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectVersioningReleaseCreationSettings "$CloneProjectVersioningReleaseCreationSettings" `
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
-    -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" 
+    -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
+    -WhatIf "$whatIf"
 

@@ -9,7 +9,8 @@ param (
     $CloneProjectRunbooks,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess    
+    $CloneProjectDeploymentProcess,
+    $WhatIf  
 )
 
 . (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
@@ -65,6 +66,12 @@ if ($null -eq $RunbooksToClone)
     $RunbooksToClone = "all"
 }
 
+if ($null -eq $WhatIf)
+{
+    $WhatIf = $false
+}
+
+
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;    
     CloneProjectRunbooks = $CloneProjectRunbooks;
@@ -79,7 +86,7 @@ $CloneScriptOptions = @{
 Write-OctopusVerbose "The clone parameters sent in are:"
 Write-OctopusVerbose $($CloneScriptOptions | ConvertTo-Json -Depth 10)
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatif $whatIf
 $destinationData = $sourceData
 
 Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions

@@ -8,8 +8,10 @@ function Copy-OctopusTargets
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.TargetList -itemType "target List" -filters $cloneScriptOptions.TargetsToClone
 
+    Write-OctopusChangeLog "Targets"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No targets found to clone"
         return
     }
 
@@ -19,6 +21,7 @@ function Copy-OctopusTargets
 
         if ((Get-OctopusTargetCanBeCloned -target $target) -eq $false)
         {
+            Write-OctopusChangeLog " - $($target.Name) is unsupported target type, skipping"
             continue
         }
 
@@ -27,6 +30,7 @@ function Copy-OctopusTargets
         If ($null -eq $matchingItem)
         {
             Write-OctopusVerbose "Target $($target.Name) was not found in destination, creating new record."
+            Write-OctopusChangeLog " - Add $($target.Name)"
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $target -SpaceId $destinationData.SpaceId -ClearIdValue $true
 
@@ -37,6 +41,9 @@ function Copy-OctopusTargets
             {
                 $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId
             }
+
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $copyOfItemToClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Tenant Scoping" -idList $copyOfItemToClone.TenantIds -destinationList $DestinationData.TenantList
 
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
@@ -53,6 +60,7 @@ function Copy-OctopusTargets
         else
         {
             Write-OctopusVerbose "Target $($target.Name) already exists in destination, skipping"
+            Write-OctopusChangeLog " - $($target.Name) already exists, skipping"
         }
     }
 

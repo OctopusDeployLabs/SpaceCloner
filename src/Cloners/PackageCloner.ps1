@@ -7,9 +7,16 @@ function Copy-OctopusBuiltInPackages
     )
 
     Write-OctopusSuccess "Starting package cloning to destination"
+    Write-OctopusChangeLog "Packages"
 
     $filteredSourceFeedPackages = Get-OctopusFilteredListByPackageId -itemList $SourceData.PackageList -itemType "Packages" -filters $cloneScriptOptions.PackagesToClone
         
+    if ($filteredSourceFeedPackages.length -eq 0)
+    {
+        Write-OctopusChangeLog " - No Packages found to clone"
+        return
+    }
+
     foreach ($package in $filteredSourceFeedPackages)
     {
         Write-OctopusVerbose "  Starting clone for package $($package.PackageId)"
@@ -23,16 +30,19 @@ function Copy-OctopusBuiltInPackages
             if ($package.Version -ne $matchingItem.Version)
             {
                 Write-OctopusVerbose "      The destination has $($package.Version) while the source has $($package.Version).  Copying this package over."
+                Write-OctopusChangeLog " - New $($package.PackageId).$($package.Version)"
                 $clonePackageToDestination = $true
             }
             else 
             {
-                Write-OctopusVerbose "      The destiantion already has this package version, skipping."    
+                Write-OctopusVerbose "      The destiantion already has this package version, skipping." 
+                Write-OctopusChangeLog " - $($package.PackageId).$($package.Version) already exists, skipping."   
             }
         }
         else 
         {
             Write-OctopusVerbose "      The destination does not have $($package.PackageId), copying the latest package over"
+            Write-OctopusChangeLog " - New $($package.PackageId).$($package.Version)"
             $clonePackageToDestination = $true
         }
 

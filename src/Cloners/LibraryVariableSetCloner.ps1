@@ -34,7 +34,7 @@ function Copy-OctopusLibraryVariableSets
             $copySourceVariableSet.Name = $destinationVariableSetName
 
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copySourceVariableSet -destinationData $destinationData
-            $destinationData.VariableSetList += $destinationVariableSet
+            $destinationData.VariableSetList += $destinationVariableSet            
         }
         else
         {

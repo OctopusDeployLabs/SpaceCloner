@@ -510,12 +510,12 @@ function Update-OctopusList
         $itemToReplace
     )
 
-    # $itemListCopy = Copy-OctopusObject -ItemToCopy $itemList
+    $itemArray = @($itemList)
 
     $indexOfItem = -1
     $index = -1
     Write-OctopusVerbose "Going to replace $($itemToReplace.Id) in list"
-    foreach ($item in $itemList)
+    foreach ($item in $itemArray)
     {
         $index += 1
         Write-OctopusVerbose "Comparing $($itemToReplace.Id) with $($item.Id)"
@@ -531,13 +531,13 @@ function Update-OctopusList
     if ($indexOfItem -ge 0)
     {
         Write-OctopusVerbose "The item exists in the array, replacing it"
-        $itemList.Item($indexOfItem) = $itemToReplace
+        $itemArray.Item($indexOfItem) = $itemToReplace
     }
     else
     {
         Write-OctopusVerbose "Unable to find matching id, adding it to list"    
-        $itemList += $itemToReplace
+        $itemArray += $itemToReplace
     }
 
-    return $itemList
+    return $itemArray
 }
