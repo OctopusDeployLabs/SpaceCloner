@@ -49,6 +49,11 @@ Function Get-OctopusVariableSetVariables
         $octopusData
     )
     
+    if ($variableSet.Id -notlike "LibraryVariableSets*" -and $variableSet.Id -notlike "projects*")
+    {
+        return New-OctopusFakeLibraryVariableSetValues -owner $variableSet -octopusData $octopusData
+    }
+
     return Get-OctopusApi -EndPoint $variableSet.Links.Variables -ApiKey $octopusData.OctopusApiKey -SpaceId $null -OctopusUrl $octopusData.OctopusUrl 
 }
 
@@ -242,6 +247,11 @@ function Get-OctopusProjectChannelList
         $octopusData
     )
 
+    if ($project.Id -notlike "Projects*")
+    {
+        return New-OctopusFakeProjectChannelList -project $project
+    }
+
     return Get-OctopusApiItemList -EndPoint "projects/$($project.Id)/channels" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
 }
 
@@ -251,6 +261,17 @@ function Get-OctopusProjectDeploymentProcess
         $project,
         $octopusData
     )
+
+    $projectId = $project.Id
+    if ($null -ne $octopusData.ProjectProcesses.$projectId)
+    {
+        return $octopusData.ProjectProcesses.$projectId
+    }
+
+    if ($projectId -notlike "Projects*")
+    {
+        return New-OctopusFakeProjectDeploymentOrRunbookProcess -project $project
+    }
 
     return Get-OctopusApi -EndPoint $project.Links.DeploymentProcess -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
@@ -262,6 +283,17 @@ function Get-OctopusProjectRunbookList
         $octopusData
     )
 
+    $projectId = $project.Id
+    if ($null -ne $octopusData.ProjectRunbooks.$projectId)
+    {
+        return $octopusData.ProjectRunbooks.$projectId
+    }
+
+    if ($projectId -notlike "Projects*")
+    {
+        return @()
+    }
+
     return Get-OctopusApiItemList -EndPoint "projects/$($project.Id)/runbooks" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
 }
 
@@ -271,6 +303,11 @@ function Get-OctopusRunbookProcess
         $runbook,
         $octopusData
     )
+
+    if ($runbook -notlike "Runbook*")
+    {
+        return New-OctopusFakeProjectDeploymentOrRunbookProcess -project $runbook
+    }
 
     return Get-OctopusApi -EndPoint $runbook.Links.RunbookProcesses -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
@@ -327,12 +364,13 @@ function Save-OctopusItemLogo
         $item,
         $octopusUrl,
         $apiKey,
-        $fileContentToUpload
+        $fileContentToUpload,
+        $whatIf
     )
 
     $url = Get-OctopusUrl -EndPoint $item.Links.Logo -SpaceId $null -OctopusUrl $OctopusUrl
 
-    return Save-OctopusBlobData -url $url -apiKey $apiKey -fileContentToUpload $fileContentToUpload    
+    return Save-OctopusBlobData -url $url -apiKey $apiKey -fileContentToUpload $fileContentToUpload -whatIf $whatIf   
 }
 
 function Save-OctopusPackage
@@ -344,7 +382,7 @@ function Save-OctopusPackage
 
     $url = Get-OctopusUrl -EndPoint "packages/raw?replace=false" -SpaceId $octopusData.SpaceId -OctopusUrl $OctopusData.OctopusUrl
 
-    return Save-OctopusBlobData -url $url -apiKey $octopusData.OctopusApiKey -fileContentToUpload $fileContentToUpload
+    return Save-OctopusBlobData -url $url -apiKey $octopusData.OctopusApiKey -fileContentToUpload $fileContentToUpload -whatIf $octopusData.WhatIf
 }
 
 function Save-OctopusBuildInformation
@@ -354,7 +392,7 @@ function Save-OctopusBuildInformation
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $buildInformation -Endpoint "build-information" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $buildInformation -Endpoint "build-information" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf       
 }
 
 function Save-OctopusAccount
@@ -364,7 +402,7 @@ function Save-OctopusAccount
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $account -Endpoint "accounts" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $account -Endpoint "accounts" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusEnvironment
@@ -374,7 +412,7 @@ function Save-OctopusEnvironment
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $environment -Endpoint "Environments" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $environment -Endpoint "Environments" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusExternalFeed
@@ -384,7 +422,7 @@ function Save-OctopusExternalFeed
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $externalFeed -Endpoint "Feeds" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $externalFeed -Endpoint "Feeds" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusLifecycle
@@ -394,7 +432,7 @@ function Save-OctopusLifecycle
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $lifecycle -Endpoint "lifecycles" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $lifecycle -Endpoint "lifecycles" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusMachinePolicy
@@ -404,7 +442,7 @@ function Save-OctopusMachinePolicy
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $machinePolicy -Endpoint "machinepolicies" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $machinePolicy -Endpoint "machinepolicies" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusProjectChannel
@@ -414,7 +452,7 @@ function Save-OctopusProjectChannel
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $projectChannel -Endpoint "channels" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $projectChannel -Endpoint "channels" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf         
 }
 
 function Save-OctopusProject
@@ -424,7 +462,7 @@ function Save-OctopusProject
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $project -Endpoint "projects" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $project -Endpoint "projects" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusProjectDeploymentProcess
@@ -434,7 +472,7 @@ function Save-OctopusProjectDeploymentProcess
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $deploymentProcess -Endpoint "deploymentprocesses" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $deploymentProcess -Endpoint "deploymentprocesses" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf 
 }
 
 function Save-OctopusProjectGroup
@@ -444,7 +482,7 @@ function Save-OctopusProjectGroup
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $projectGroup -Endpoint "projectgroups" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $projectGroup -Endpoint "projectgroups" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf          
 }
 
 function Save-OctopusProjectRunbook
@@ -454,7 +492,7 @@ function Save-OctopusProjectRunbook
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $runbook -Endpoint "runbooks" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $runbook -Endpoint "runbooks" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf           
 }
 
 function Save-OctopusProjectRunbookProcess
@@ -464,7 +502,7 @@ function Save-OctopusProjectRunbookProcess
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $runbookProcess -Endpoint "runbookProcesses" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $runbookProcess -Endpoint "runbookProcesses" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf          
 }
 
 function Save-OctopusStepTemplate
@@ -474,7 +512,7 @@ function Save-OctopusStepTemplate
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $stepTemplate -Endpoint "actiontemplates" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $stepTemplate -Endpoint "actiontemplates" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf        
 }
 
 function Save-OctopusTarget
@@ -484,7 +522,7 @@ function Save-OctopusTarget
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $target -Endpoint "machines" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $target -Endpoint "machines" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusTeam
@@ -494,7 +532,7 @@ function Save-OctopusTeam
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $team -Endpoint "teams" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null            
+    return Save-OctopusApiItem -Item $team -Endpoint "teams" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null -whatIf $destinationData.WhatIf          
 }
 
 function Save-OctopusTeamScopedRoles
@@ -504,7 +542,7 @@ function Save-OctopusTeamScopedRoles
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $teamScopedUserRoles -Endpoint "scopeduserroles" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null            
+    return Save-OctopusApiItem -Item $teamScopedUserRoles -Endpoint "scopeduserroles" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusTenant
@@ -514,7 +552,7 @@ function Save-OctopusTenant
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $tenant -Endpoint "tenants" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $tenant -Endpoint "tenants" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf           
 }
 
 function Save-OctopusTenantTagSet
@@ -524,7 +562,7 @@ function Save-OctopusTenantTagSet
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $tenantTagSet -Endpoint "TagSets" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $tenantTagSet -Endpoint "TagSets" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusWorker
@@ -534,7 +572,7 @@ function Save-OctopusWorker
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $worker -Endpoint "Workers" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $worker -Endpoint "Workers" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusWorkerPool
@@ -544,7 +582,7 @@ function Save-OctopusWorkerPool
         $destinationData
     )
 
-    return Save-OctopusApiItem -Item $workerPool -Endpoint "workerpools" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId            
+    return Save-OctopusApiItem -Item $workerPool -Endpoint "workerpools" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf           
 }
 
 function Save-OctopusVariableSet
@@ -554,7 +592,7 @@ function Save-OctopusVariableSet
         $destinationData
     )
 
-    return Save-OctopusApi -EndPoint "libraryvariablesets" -ApiKey $destinationData.OctopusApiKey -Method POST -Item $libraryVariableSet -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId
+    return Save-OctopusApi -EndPoint "libraryvariablesets" -ApiKey $destinationData.OctopusApiKey -Method POST -Item $libraryVariableSet -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusVariableSetVariables
@@ -564,7 +602,7 @@ function Save-OctopusVariableSetVariables
         $destinationData
     )
 
-    return Save-OctopusApi -EndPoint $libraryVariableSetVariables.Links.Self -ApiKey $destinationData.OctopusApiKey -Method "PUT" -Item $DestinationVariableSetVariables -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null
+    return Save-OctopusApi -EndPoint $libraryVariableSetVariables.Links.Self -ApiKey $destinationData.OctopusApiKey -Method "PUT" -Item $DestinationVariableSetVariables -OctopusUrl $DestinationData.OctopusUrl -SpaceId $null -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusCommunityStepTemplate
@@ -574,5 +612,5 @@ function Save-OctopusCommunityStepTemplate
         $destinationData
     )
 
-    return Save-OctopusApi -OctopusUrl $destinationData.OctopusUrl -SpaceId $null -EndPoint "/communityactiontemplates/$($communityStepTemplate.Id)/installation/$($destinationData.SpaceId)" -ApiKey $destinationData.OctopusApiKey -Method POST
+    return Save-OctopusApi -OctopusUrl $destinationData.OctopusUrl -SpaceId $null -EndPoint "/communityactiontemplates/$($communityStepTemplate.Id)/installation/$($destinationData.SpaceId)" -ApiKey $destinationData.OctopusApiKey -Method POST -whatIf $destinationData.WhatIf
 }

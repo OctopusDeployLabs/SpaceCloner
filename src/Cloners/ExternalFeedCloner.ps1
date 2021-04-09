@@ -7,9 +7,10 @@ function Copy-OctopusExternalFeeds
     )
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.FeedList -itemType "Feeds" -filters $cloneScriptOptions.ExternalFeedsToClone    
-    
+    Write-OctopusChangeLog "External Feeds"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No external feeds found to clone matching the filters"
         return
     }
 
@@ -30,12 +31,15 @@ function Copy-OctopusExternalFeeds
                 Throw "Unable to clone $($feed.Name) because it is an AWS Elastic Container Registry.  When it is created Octopus will test the AWS credentials.  As this is making API calls, I do not have access to said credentials.  Without this feed the remainder of your clone will most likely fail.  Please create the external feed on the destination and try again.  Exiting."
             }
 
+            Write-OctopusChangeLog " - Add $($feed.Name)"
+
             $newExternalFeed = Save-OctopusExternalFeed -ExternalFeed $copyOfItemToClone -DestinationData $destinationData            
             $destinationData.FeedList += $newExternalFeed
         }
         else 
         {
             Write-OctopusVerbose "External Feed $($feed.Name) already exists, skipping."
+            Write-OctopusChangeLog " - $($feed.Name) already exists, skipping"
         }
     }
         

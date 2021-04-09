@@ -9,29 +9,31 @@ param (
     $CloneProjectRunbooks,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess    
+    $CloneProjectDeploymentProcess,
+    $WhatIf  
 )
 
-. (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
-. (Join-Path $PSScriptRoot "src" "Core" "Util.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataAdapter.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataFactory.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusRepository.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "Cloners" "ActionCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "LibraryVariableSetCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "LogoCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ParentProjectTemplateSyncer.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProcessCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectChannelCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectChannelRuleCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectDeploymentProcessCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectGroupCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectRunbookCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectVariableCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "VariableSetValuesCloner.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ActionCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LibraryVariableSetCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LogoCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ParentProjectTemplateSyncer.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProcessCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectChannelCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectChannelRuleCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectDeploymentProcessCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectGroupCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectRunbookCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectVariableCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "VariableSetValuesCloner.ps1"))
 
 $ErrorActionPreference = "Stop"
 
@@ -65,6 +67,12 @@ if ($null -eq $RunbooksToClone)
     $RunbooksToClone = "all"
 }
 
+if ($null -eq $WhatIf)
+{
+    $WhatIf = $false
+}
+
+
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;    
     CloneProjectRunbooks = $CloneProjectRunbooks;
@@ -79,7 +87,7 @@ $CloneScriptOptions = @{
 Write-OctopusVerbose "The clone parameters sent in are:"
 Write-OctopusVerbose $($CloneScriptOptions | ConvertTo-Json -Depth 10)
 
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatif $whatIf
 $destinationData = $sourceData
 
 Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions

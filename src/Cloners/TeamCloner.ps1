@@ -11,11 +11,14 @@ function Copy-OctopusSpaceTeams
         Write-OctopusWarning "The destination does not support spaces, therefore it does not support the new team structure, exiting team cloning"
         return
     }
+
+    Write-OctopusChangeLog "Teams"
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.TeamList -itemType "Space Teams" -filters $cloneScriptOptions.SpaceTeamsToClone        
     
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Teams found to clone matching the filters"
         return
     }
 
@@ -34,12 +37,15 @@ function Copy-OctopusSpaceTeams
 
         If ($null -eq $matchingItem)
         {
-            Write-OctopusVerbose "Team $($team.Name) was not found in destination, creating new record."                    
+            Write-OctopusVerbose "Team $($team.Name) was not found in destination, creating new record."  
+            Write-OctopusChangeLog " - Add $($team.Name)"                  
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $team -SpaceId $destinationData.SpaceId -ClearIdValue $true  
             
             $copyOfItemToClone.MemberUserIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.UserList -DestinationList $destinationData.UserList -IdList $team.MemberUserIds)            
-            $copyOfItemToClone.ExternalSecurityGroups = @()            
+            $copyOfItemToClone.ExternalSecurityGroups = @() 
+            
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Members" -idList $copyOfItemToClone.MemberUserIds -destinationList $DestinationData.UserList            
 
             $newOctopusTeam = Save-OctopusTeam -team $copyOfItemToClone -destinationData $destinationData            
             $destinationData.TeamList += $newOctopusTeam
@@ -48,7 +54,8 @@ function Copy-OctopusSpaceTeams
         }
         else 
         {
-            Write-OctopusVerbose "Team $($team.Name) already exists in destination, skipping"    
+            Write-OctopusVerbose "Team $($team.Name) already exists in destination, skipping" 
+            Write-OctopusChangeLog " - $($team.Name) already exists, skipping"   
         }
     }    
     Write-OctopusPostCloneCleanUpHeader "*************End Teams******************"

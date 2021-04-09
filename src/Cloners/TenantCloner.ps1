@@ -8,8 +8,10 @@ function Copy-OctopusTenants
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantList -itemType "Tenants" -filters $cloneScriptOptions.TenantsToClone
 
+    Write-OctopusChangeLog "Tenants"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No tenants found to clone matching the filters"
         return
     }
     
@@ -22,6 +24,8 @@ function Copy-OctopusTenants
         if ($null -eq $matchingTenant)
         {
             Write-OctopusVerbose "The tenant $($tenant.Name) doesn't exist on the source, copying over."
+            Write-OctopusChangeLog " - Add $($tenant.Name)"
+
             $tenantToAdd = Copy-OctopusObject -ItemToCopy $tenant -ClearIdValue $true -SpaceId $destinationData.SpaceId
             $tenantToAdd.Id = $null
             $tenantToAdd.SpaceId = $destinationData.SpaceId
@@ -52,6 +56,7 @@ function Copy-OctopusTenants
         else
         {
             Write-OctopusVerbose "The tenant $($tenant.Name) already exists on the source, skipping."
+            Write-OctopusChangeLog " - $($tenant.Name) already exists, skipping"
         }
     }
 

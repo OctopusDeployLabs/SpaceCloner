@@ -8,8 +8,10 @@ function Copy-OctopusInfrastructureAccounts
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.InfrastructureAccounts -itemType "Infrastructure Accounts" -filters $cloneScriptOptions.InfrastructureAccountsToClone
 
+    Write-OctopusChangeLog "Infrastructure Accounts"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No accounts found to clone matching the filters"
         return
     }
 
@@ -21,6 +23,7 @@ function Copy-OctopusInfrastructureAccounts
         if ($null -eq $matchingAccount)
         {
             Write-OctopusVerbose "The account $($account.Name) does not exist.  Creating it."
+            Write-OctopusChangeLog " - Add $($account.Name)"
 
             $accountClone = Copy-OctopusObject -ItemToCopy $account -ClearIdValue $true -SpaceId $DestinationData.SpaceId
 
@@ -32,7 +35,10 @@ function Copy-OctopusInfrastructureAccounts
             Convert-OctopusTokenAccount -accountClone $accountClone                                
             Convert-OctopusAccountTenantedDeploymentParticipation -accountClone $accountClone   
             Convert-OctopusSSHAccount -accountClone $accountClone 
-            Convert-OctopusAccountDescription -accountClone $accountClone -sourceData $sourceData                   
+            Convert-OctopusAccountDescription -accountClone $accountClone -sourceData $sourceData   
+            
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $accountClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList
+            Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Tenant Scoping" -idList $accountClone.TenantIds -destinationList $DestinationData.TenantList
 
             $newInfrastructureAccount = Save-OctopusAccount -Account $accountClone -DestinationData $DestinationData            
             $destinationData.InfrastructureAccounts += $newInfrastructureAccount
@@ -41,6 +47,7 @@ function Copy-OctopusInfrastructureAccounts
         else
         {
             Write-OctopusVerbose "The account $($account.Name) already exists.  Skipping it."
+            Write-OctopusChangeLog " - $($account.Name) already exists, skipping"
         }
     }
     Write-OctopusPostCloneCleanUpHeader "*************End Infrastructure Accounts*************"

@@ -15,7 +15,10 @@ function Copy-OctopusProjectVariables
 
     Write-OctopusPostCloneCleanUp "*****************Starting variable clone for $($destinationProject.Name)*******************"
 
-    Copy-OctopusVariableSetValues -SourceVariableSetVariables $sourceVariableSetVariables -DestinationVariableSetVariables $destinationVariableSetVariables -SourceData $SourceData -DestinationData $DestinationData -CloneScriptOptions $cloneScriptOptions
+    $projectVariables = Copy-OctopusVariableSetValues -SourceVariableSetVariables $sourceVariableSetVariables -DestinationVariableSetVariables $destinationVariableSetVariables -SourceData $SourceData -DestinationData $DestinationData -CloneScriptOptions $cloneScriptOptions
 
     Write-OctopusPostCloneCleanUp "*****************Ended variable clone for $($destinationProject.Name)**********************"
+
+    $projectId = $destinationProject.Id
+    $destinationData.ProjectVariableSets.$projectId = $projectVariables
 }
