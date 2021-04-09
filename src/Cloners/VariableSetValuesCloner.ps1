@@ -9,6 +9,7 @@ function Copy-OctopusVariableSetValues
         $CloneScriptOptions
     )      
     
+    Write-OctopusChangeLog "    - Variables"
     foreach ($octopusVariable in $sourceVariableSetVariables.Variables)
     {                             
         $variableName = $octopusVariable.Name        
@@ -86,20 +87,29 @@ function Copy-OctopusVariableSetValues
         if ($foundIndex -eq -1)
         {
             Write-OctopusVerbose "New variable $variableName with unique scoping has been found.  Adding to list."
+            Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable
             $DestinationVariableSetVariables.Variables += $octopusVariable
         }
         elseif ($CloneScriptOptions.OverwriteExistingVariables -eq $false)
         {
             Write-OctopusVerbose "The variable $variableName already exists on the host and you elected to only copy over new items, skipping this one."
+            Write-OctopusChangeLog "      - $variableName already exists with scope, skipping"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable
         }                                         
         elseif ($foundIndex -gt -1 -and $DestinationVariableSetVariables.Variables[$foundIndex].IsSensitive -eq $true)
         {
-            Write-OctopusVerbose "The variable $variableName with matching scoping is sensitive on he destination, leaving as is on the destination."
+            Write-OctopusVerbose "The variable $variableName with matching scoping is sensitive on the destination, leaving as is on the destination."
+            Write-OctopusChangeLog "      - $variableName already exists with scope and is a sensitive variable, skipping"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable
         }
         elseif ($foundIndex -gt -1)
         {
             $DestinationVariableSetVariables.Variables[$foundIndex].Value = $octopusVariable.Value
             $DestinationVariableSetVariables.Variables[$foundIndex].Scope = $octopusVariable.Scope
+
+            Write-OctopusChangeLog "      - Update $variableName with value $($octopusVariable.Value)"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable
 
             if ($octopusVariable.Value -eq "Dummy Value")         
             {                
@@ -108,7 +118,8 @@ function Copy-OctopusVariableSetValues
         }        
     }
 
-    Save-OctopusVariableSetVariables -libraryVariableSetVariables $DestinationVariableSetVariables -destinationData $DestinationData    
+    $variableSetValues = Save-OctopusVariableSetVariables -libraryVariableSetVariables $DestinationVariableSetVariables -destinationData $DestinationData    
+    
 }
 
 function Compare-OctopusVariables
@@ -235,4 +246,41 @@ function Compare-VariableScopingProperty
     }
 
     return $true
+}
+
+function Write-OctopusVariableScopeToChangeLog
+{
+    param (
+        $octopusVariable
+    )
+
+    if ($null -ne $octopusVariable.Scope.Environment -and $octopusVariable.Scope.Environment.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Environment Scope: $($octopusVariable.Scope.Environment)"
+    }
+    
+    if ($null -ne $octopusVariable.Scope.ProcessOwner -and $octopusVariable.Scope.ProcessOwner.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Process Owner Scope: $($octopusVariable.Scope.ProcessOwner)"
+    }
+
+    if ($null -ne $octopusVariable.Scope.Channel -and $octopusVariable.Scope.Channel.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Channel Scope: $($octopusVariable.Scope.Channel)"
+    }
+
+    if ($null -ne $octopusVariable.Scope.Action -and $octopusVariable.Scope.Action.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Action Scope: $($octopusVariable.Scope.Action)"
+    }
+
+    if ($null -ne $octopusVariable.Scope.Role -and $octopusVariable.Scope.Role.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Role Scope: $($octopusVariable.Scope.Role)"
+    }
+
+    if ($null -ne $octopusVariable.Scope.Machine -and $octopusVariable.Scope.Machine.Length -gt 0)
+    {
+        Write-OctopusChangeLog "        - Machine Scope: $($octopusVariable.Scope.Machine)"    
+    }
 }

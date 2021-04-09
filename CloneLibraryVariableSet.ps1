@@ -13,15 +13,16 @@ param (
     $WhatIf     
 )
 
-. (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
-. (Join-Path $PSScriptRoot "src" "Core" "Util.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataAdapter.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataFactory.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusRepository.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "Cloners" "LibraryVariableSetCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "VariableSetValuesCloner.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LibraryVariableSetCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "VariableSetValuesCloner.ps1"))
 
 $ErrorActionPreference = "Stop"
 

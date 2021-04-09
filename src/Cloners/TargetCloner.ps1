@@ -6,12 +6,12 @@ function Copy-OctopusTargets
         $cloneScriptOptions
     )
 
-    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TargetList -itemType "target List" -filters $cloneScriptOptions.TargetsToClone
+    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TargetList -itemType "Target List" -filters $cloneScriptOptions.TargetsToClone
 
     Write-OctopusChangeLog "Targets"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No targets found to clone"
+        Write-OctopusChangeLog " - No targets found to clone matching the filters"
         return
     }
 

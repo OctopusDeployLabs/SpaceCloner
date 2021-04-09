@@ -38,41 +38,42 @@ param (
     $WhatIf
 )
 
-. (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
-. (Join-Path $PSScriptRoot "src" "Core" "Util.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataAdapter.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataFactory.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusRepository.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "Cloners" "AccountCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ActionCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "EnvironmentCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ExternalFeedCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "LibraryVariableSetCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "LifecycleCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "LogoCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "MachinePolicyCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "PackageCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ParentProjectTemplateSyncer.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProcessCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectChannelCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectChannelRuleCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectDeploymentProcessCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectGroupCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectRunbookCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ProjectVariableCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "ScriptModuleCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "StepTemplateCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "TargetCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "TeamCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "TeamUserRoleCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "TenantCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "TenantTagSetCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "VariableSetValuesCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "WorkerCloner.ps1")
-. (Join-Path $PSScriptRoot "src" "Cloners" "WorkerPoolCloner.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "AccountCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ActionCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "EnvironmentCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ExternalFeedCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LibraryVariableSetCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LifecycleCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LogoCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "MachinePolicyCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "PackageCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ParentProjectTemplateSyncer.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProcessCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectChannelCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectChannelRuleCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectDeploymentProcessCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectGroupCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectRunbookCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ProjectVariableCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ScriptModuleCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "StepTemplateCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TargetCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TeamCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TeamUserRoleCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TenantCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TenantTagSetCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "VariableSetValuesCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "WorkerCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "WorkerPoolCloner.ps1"))
 
 $ErrorActionPreference = "Stop"
 
@@ -208,11 +209,11 @@ Copy-OctopusScriptModules -SourceData $sourceData -destinationData $destinationD
 Copy-OctopusMachinePolicies -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusLifecycles -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusWorkers -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTargets -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
+Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusSpaceTeamUserRoles -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 

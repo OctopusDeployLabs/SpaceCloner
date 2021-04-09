@@ -11,7 +11,7 @@ function Copy-OctopusInfrastructureAccounts
     Write-OctopusChangeLog "Infrastructure Accounts"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No accounts found to clone"
+        Write-OctopusChangeLog " - No accounts found to clone matching the filters"
         return
     }
 

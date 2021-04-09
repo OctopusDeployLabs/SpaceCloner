@@ -10,7 +10,7 @@ function Copy-OctopusProjectGroups
     Write-OctopusChangeLog "Project Groups"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusVerbose " - No Project Groups found to clone"
+        Write-OctopusVerbose " - No Project Groups found to clone matching the filters"
         return
     }
     

@@ -18,7 +18,7 @@ function Copy-OctopusSpaceTeams
     
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No Teams found to clone"
+        Write-OctopusChangeLog " - No Teams found to clone matching the filters"
         return
     }
 

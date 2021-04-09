@@ -11,7 +11,7 @@ function Copy-OctopusEnvironments
 
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No Environments found to clone"
+        Write-OctopusChangeLog " - No Environments found to clone matching the filters"
         return
     }    
 

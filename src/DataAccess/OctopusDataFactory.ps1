@@ -113,5 +113,11 @@ function Get-OctopusData
     Write-OctopusSuccess "Getting Certificates for $spaceName in $OctopusUrl"
     $octopusData.CertificateList = @(Get-OctopusCertificateList -octopusData $octopusData)
 
+    $octopusData.ProjectRunbooks = @{}
+    $octopusData.ProjectChannels = @{}
+    $octopusData.ProjectProcesses = @{}
+    $octopusData.ProjectVariableSets = @{}
+    $octopusData.LibraryVariableSets = @{}
+
     return $octopusData
 }

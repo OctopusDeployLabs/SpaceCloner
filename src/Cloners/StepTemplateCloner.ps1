@@ -11,7 +11,7 @@ function Copy-OctopusStepTemplates
     Write-OctopusChangeLog "Step Templates"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No step templates found to clone"
+        Write-OctopusChangeLog " - No step templates found to clone matching the filters"
         return
     }
     

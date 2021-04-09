@@ -10,7 +10,7 @@ function Copy-OctopusExternalFeeds
     Write-OctopusChangeLog "External Feeds"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No external feeds found"
+        Write-OctopusChangeLog " - No external feeds found to clone matching the filters"
         return
     }
 

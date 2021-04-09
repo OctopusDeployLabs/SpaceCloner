@@ -11,7 +11,7 @@ function Copy-OctopusMachinePolicies
     Write-OctopusChangeLog "Machine Policies"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No machine policies found to clone"
+        Write-OctopusChangeLog " - No machine policies found to clone matching the filters"
         return
     }
     

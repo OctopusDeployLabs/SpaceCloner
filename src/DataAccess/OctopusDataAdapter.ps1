@@ -245,7 +245,7 @@ function Save-OctopusBlobData
     $content = New-Object System.Net.Http.MultipartFormDataContent
     $content.Add($streamContent)
 
-    $httpClient.PostAsync($url, $content).Result    
+    $result = $httpClient.PostAsync($url, $content).Result    
 
     $streamContent.Dispose()
 

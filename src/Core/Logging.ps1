@@ -4,9 +4,9 @@ $currentDateFormatted = $currentDate.ToString("yyyy_MM_dd_HH_mm_ss")
 $logFolder = "$PSScriptRoot\..\..\"
 $logArchiveFolder = "$PSScriptRoot\..\..\logs\archive_$currentDateFormatted" 
 
-$logPath = Join-Path $logFolder "Log.txt"
-$cleanupLogPath = Join-Path $logFolder "CleanUp.txt"
-$changeLog = Join-path $logFolder "ChangeLog.txt"
+$logPath = [System.IO.Path]::Combine($logFolder, "Log.txt")
+$cleanupLogPath = [System.IO.Path]::Combine($logFolder, "CleanUp.txt")
+$changeLog = [System.IO.Path]::Combine($logFolder, "ChangeLog.txt")
 
 if (Test-Path $logPath)
 {

@@ -49,14 +49,9 @@ Function Get-OctopusVariableSetVariables
         $octopusData
     )
     
-    if ($variableSet.Id -notlike "LibraryVariableSets*")
+    if ($variableSet.Id -notlike "LibraryVariableSets*" -and $variableSet.Id -notlike "projects*")
     {
-        return @{
-            Id = (New-Guid).ToString();
-            OwnerId = $variableSet.Id;
-            Version = 1;
-            Variables = @()
-        }
+        return New-OctopusFakeLibraryVariableSetValues -owner $variableSet -octopusData $octopusData
     }
 
     return Get-OctopusApi -EndPoint $variableSet.Links.Variables -ApiKey $octopusData.OctopusApiKey -SpaceId $null -OctopusUrl $octopusData.OctopusUrl 
@@ -252,6 +247,11 @@ function Get-OctopusProjectChannelList
         $octopusData
     )
 
+    if ($project.Id -notlike "Projects*")
+    {
+        return New-OctopusFakeProjectChannelList -project $project
+    }
+
     return Get-OctopusApiItemList -EndPoint "projects/$($project.Id)/channels" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
 }
 
@@ -261,6 +261,17 @@ function Get-OctopusProjectDeploymentProcess
         $project,
         $octopusData
     )
+
+    $projectId = $project.Id
+    if ($null -ne $octopusData.ProjectProcesses.$projectId)
+    {
+        return $octopusData.ProjectProcesses.$projectId
+    }
+
+    if ($projectId -notlike "Projects*")
+    {
+        return New-OctopusFakeProjectDeploymentOrRunbookProcess -project $project
+    }
 
     return Get-OctopusApi -EndPoint $project.Links.DeploymentProcess -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
@@ -272,6 +283,17 @@ function Get-OctopusProjectRunbookList
         $octopusData
     )
 
+    $projectId = $project.Id
+    if ($null -ne $octopusData.ProjectRunbooks.$projectId)
+    {
+        return $octopusData.ProjectRunbooks.$projectId
+    }
+
+    if ($projectId -notlike "Projects*")
+    {
+        return @()
+    }
+
     return Get-OctopusApiItemList -EndPoint "projects/$($project.Id)/runbooks" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
 }
 
@@ -281,6 +303,11 @@ function Get-OctopusRunbookProcess
         $runbook,
         $octopusData
     )
+
+    if ($runbook -notlike "Runbook*")
+    {
+        return New-OctopusFakeProjectDeploymentOrRunbookProcess -project $runbook
+    }
 
     return Get-OctopusApi -EndPoint $runbook.Links.RunbookProcesses -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }

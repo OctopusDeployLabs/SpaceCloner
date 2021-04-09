@@ -9,8 +9,10 @@ function Copy-OctopusLibraryVariableSets
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.VariableSetList -itemType "Library Variable Sets" -filters $cloneScriptOptions.LibraryVariableSetsToClone
 
+    Write-OctopusChangeLog "Library Variable Sets"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Library Variable Sets found to clone matching the filters"
         return
     }
     
@@ -29,6 +31,7 @@ function Copy-OctopusLibraryVariableSets
         if ($null -eq $destinationVariableSet)
         {
             Write-OctopusVerbose "Variable Set $($sourceVariableSet.Name) was not found in destination, creating new base record."
+            Write-OctopusChangeLog " - Add $($sourceVariableSet.Name)"
             $copySourceVariableSet = Copy-OctopusObject -ItemToCopy $sourceVariableSet -ClearIdValue $true -SpaceId $destinationData.SpaceId                       
             $copySourceVariableSet.VariableSetId = $null
             $copySourceVariableSet.Name = $destinationVariableSetName
@@ -39,6 +42,7 @@ function Copy-OctopusLibraryVariableSets
         else
         {
             Write-OctopusVerbose "Variable Set $($sourceVariableSet.Name) already exists in destination."
+            Write-OctopusChangeLog " - $($sourceVariableSet.Name) already exists, checking variables"
         }
 
         Write-OctopusVerbose "The variable set has been created, time to copy over the variables themselves"

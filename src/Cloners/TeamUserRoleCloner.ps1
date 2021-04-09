@@ -26,7 +26,7 @@ function Copy-OctopusSpaceTeamUserRoles
     
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No team/role scopings were found to clone."
+        Write-OctopusChangeLog " - No team/role scopings found to clone matching the filters"
         return
     }    
 

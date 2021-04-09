@@ -11,7 +11,7 @@ function Copy-OctopusTenants
     Write-OctopusChangeLog "Tenants"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No tenants found to clone."
+        Write-OctopusChangeLog " - No tenants found to clone matching the filters"
         return
     }
     

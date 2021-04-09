@@ -13,7 +13,7 @@ function Copy-OctopusBuiltInPackages
         
     if ($filteredSourceFeedPackages.length -eq 0)
     {
-        Write-OctopusChangeLog " - No Packages found to clone"
+        Write-OctopusChangeLog " - No Packages found to clone matching the filters"
         return
     }
 
@@ -60,6 +60,11 @@ function Copy-OctopusBuiltInPackages
             Remove-Item $filePath
         }
 
+        if ($DestinationData.WhatIf -eq $true)
+        {
+            continue
+        }
+        
         Write-OctopusVerbose "      Downloading the package to $filePath"
         Get-OctopusPackage -package $package -octopusData $SourceData -filePath $filePath
 

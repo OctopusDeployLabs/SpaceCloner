@@ -15,12 +15,13 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-. (Join-Path $PSScriptRoot "src" "Core" "Logging.ps1")
-. (Join-Path $PSScriptRoot "src" "Core" "Util.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
 
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataAdapter.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusDataFactory.ps1")
-. (Join-Path $PSScriptRoot "src" "DataAccess" "OctopusRepository.ps1")
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
 if ($null -eq $DestinationOctopusServerThumbprint)
 {
@@ -489,7 +490,7 @@ function New-SanitizedRegistrationName
         $name
     )
 
-    $sanitizedRegistrationName = $name.Replace(" ", "")
+    $sanitizedRegistrationName = $name.Replace(", ", "")
     $sanitizedRegistrationName = $sanitizedRegistrationName.Replace("\\", "")
     $sanitizedRegistrationName = $sanitizedRegistrationName.Replace("/", "")
 

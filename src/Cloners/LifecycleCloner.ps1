@@ -11,7 +11,7 @@ function Copy-OctopusLifecycles
     Write-OctopusChangeLog "Lifecycles"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No Lifecycles found to clone"
+        Write-OctopusChangeLog " - No Lifecycles found to clone matching the filters"
         return
     }
     

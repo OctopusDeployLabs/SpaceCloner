@@ -18,7 +18,7 @@ function Copy-OctopusWorkers
 
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No Workers found to clone"
+        Write-OctopusChangeLog " - No Workers found to clone matching the filters"
         return
     }
 

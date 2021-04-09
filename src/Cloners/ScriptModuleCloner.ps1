@@ -12,7 +12,7 @@ function Copy-OctopusScriptModules
     Write-OctopusChangeLog "Script Modules"
     if ($filteredList.length -eq 0)
     {
-        Write-OctopusChangeLog " - No script modules found"
+        Write-OctopusChangeLog " - No script modules found to clone matching the filters"
         return
     }
 
