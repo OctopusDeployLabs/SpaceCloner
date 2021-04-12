@@ -11,18 +11,29 @@ function Copy-OctopusProcessStepAction
 
     $action = Copy-OctopusObject -ItemToCopy $sourceAction -ClearIdValue $true -SpaceId $null   
 
-    $action.Environments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments)
+    Write-OctopusChangeLog "          - ActionType: $($action.ActionType)"
+    Write-OctopusChangeLog "          - IsDisabled: $($action.IsDisabled)"
+    Write-OctopusChangeLog "          - IsRequired: $($action.IsRequired)"
+    Write-OctopusChangeLog "          - Run Condition: $($action.Condition)"
+
+    $action.Environments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments)    
+    Write-OctopusChangeLogListDetails -idList $action.Environments -destinationList $DestinationData.EnvironmentList -listType "Environments" -prefixSpaces "         "
     $action.ExcludedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments)
+    Write-OctopusChangeLogListDetails -idList $action.ExcludedEnvironments -destinationList $DestinationData.EnvironmentList -listType "Excluded Environments" -prefixSpaces "         "    
     $action.Channels = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels)
+    Write-OctopusChangeLogListDetails -idList $action.Channels -destinationList $destinationChannelList -listType "Channels" -prefixSpaces "         "
+    Write-OctopusChangeLogListDetails -idList $action.TenantTags -destinationList $DestinationData.EnvironmentList -listType "Tenant Tags" -prefixSpaces "         " -skipNameConversion $true    
     
     Convert-OctopusProcessActionWorkerPoolId -action $action -sourceData $sourceData -destinationData $destinationData                
     Convert-OctopusProcessActionExecutionContainerFeedId -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionStepTemplate -action $action -sourceData $sourceData -destinationData $destinationData
     Convert-OctopusProcessActionManualIntervention -action $action -sourceData $sourceData -destinationData $destinationData
-    Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData        
-    Convert-OctopusPackageList -item $action -sourceData $sourceData -destinationData $destinationData 
+    Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData  
+    Convert-OctopusPackageList -item $action -sourceData $sourceData -destinationData $destinationData          
     Convert-OctopusSinglePackageProprty -action $action -sourceData $sourceData -destinationData $destinationData
-    Convert-OctopusActionIdsForMatchingActionId -action $action -matchingAction $matchingAction
+    Convert-OctopusActionIdsForMatchingActionId -action $action -matchingAction $matchingAction       
+    
+    Write-OctopusPackagesToChangeLog -action $action -destinationData $destinationData
 
     return $action    
 }
@@ -39,7 +50,8 @@ function Convert-OctopusProcessActionWorkerPoolId
     {
         if ($null -ne $action.WorkerPoolId)
         {
-            $action.WorkerPoolId = Convert-SourceIdToDestinationId -SourceList $SourceData.WorkerPoolList -DestinationList $DestinationData.WorkerPoolList -IdValue $action.WorkerPoolId                             
+            $action.WorkerPoolId = Convert-SourceIdToDestinationId -SourceList $SourceData.WorkerPoolList -DestinationList $DestinationData.WorkerPoolList -IdValue $action.WorkerPoolId                                         
+            Write-OctopusChangeLogListDetails -idList @($action.WorkerPoolId) -destinationList $DestinationData.WorkerPoolList -listType "Worker Pool Id" -prefixSpaces "         "
         }
     }
 }
@@ -57,6 +69,7 @@ function Convert-OctopusProcessActionExecutionContainerFeedId
         if ($null -ne $action.Container.FeedId)
         {
             $action.Container.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Container.FeedId            
+            Write-OctopusChangeLogListDetails -idList @($action.Container.Image) -destinationList $DestinationData.FeedList -listType "Container Image Feed" -prefixSpaces "         " -skipNameConversion $true            
         }
     }
 }
@@ -70,8 +83,14 @@ function Convert-OctopusProcessActionStepTemplate
     )
 
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Template.Id")
-    {                                        
+    {      
         $action.Properties.'Octopus.Action.Template.Id' = Convert-SourceIdToDestinationId -SourceList $sourceData.StepTemplates -DestinationList $destinationData.StepTemplates -IdValue $action.Properties.'Octopus.Action.Template.Id' 
+
+        if ($null -ne $action.Properties.'Octopus.Action.Template.Id')                                  
+        {            
+            Write-OctopusChangeLogListDetails -idList @($action.Properties.'Octopus.Action.Template.Id') -destinationList $DestinationData.StepTemplates -listType "Step Template" -prefixSpaces "         "
+        }
+        
         $stepTemplate = Get-OctopusItemById -ItemList $destinationData.StepTemplates -ItemId $action.Properties.'Octopus.Action.Template.Id'
         $action.Properties.'Octopus.Action.Template.Version' = $stepTemplate.Version
 
@@ -124,7 +143,9 @@ function Convert-OctopusProcessActionManualIntervention
         else
         {
             $action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' = ($manualInterventionDestinationTeamIds -join ",")
-        }        
+        } 
+                        
+        Write-OctopusChangeLogListDetails -idList $manualInterventionDestinationTeamIds -destinationList $DestinationData.TeamList -listType "Manual Intervention Teams" -prefixSpaces "         "
     }
 }
 
@@ -138,7 +159,10 @@ function Convert-OctopusProcessActionFeedId
 
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId")
     {
-        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId'
+        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId'        
+        Write-OctopusChangeLogListDetails -idList @($action.Properties.'Octopus.Action.Package.FeedId') -destinationList $DestinationData.FeedList -listType "Package Feed" -prefixSpaces "         "
+        $packageId = $action.Properties.'Octopus.Action.Package.PackageId'
+        Write-OctopusChangeLog "            - $packageId"
     }
 }
 
@@ -185,4 +209,24 @@ function Convert-OctopusActionIdsForMatchingActionId
             }
         }
     }
+}
+
+function Write-OctopusPackagesToChangeLog
+{
+    param (
+        $action,
+        $destinationData
+    )
+
+    if ($action.Packages.Length -eq 0)
+    {
+        return
+    }
+
+    Write-OctopusChangeLog "          - Packages"
+    foreach ($package in $action.Packages)
+    {        
+        $feed = Get-OctopusItemById -itemId $package.FeedId -itemList $destinationData.FeedList
+        Write-OctopusChangeLog "            - $($package.PackageId) from $($feed.Name)"
+    }    
 }

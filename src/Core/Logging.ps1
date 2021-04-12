@@ -48,7 +48,8 @@ function Write-OctopusChangeLogListDetails
         $prefixSpaces,
         $idList,        
         $destinationList,
-        $listType
+        $listType,
+        $skipNameConversion
     )
 
     if ($null -eq $idList)
@@ -65,13 +66,20 @@ function Write-OctopusChangeLogListDetails
 
     foreach ($id in $idList)
     {
-        $item = Get-OctopusItemById -ItemList $destinationList -ItemId $id
-        if ($null -eq $item)
+        if ($skipNameConversion)
         {
-            continue
+            Write-OctopusChangeLog "$prefixSpaces    - $id"    
         }
-        
-        Write-OctopusChangeLog "$prefixSpaces    - $($item.Name)"
+        else
+        {
+            $item = Get-OctopusItemById -ItemList $destinationList -ItemId $id
+            if ($null -eq $item)
+            {
+                continue
+            }
+            
+            Write-OctopusChangeLog "$prefixSpaces    - $($item.Name)"
+        }        
     }
 }
 

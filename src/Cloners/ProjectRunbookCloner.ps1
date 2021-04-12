@@ -60,7 +60,7 @@ function Copy-OctopusProjectRunbooks
         $destinationRunbookProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceRunbookProcess.Steps -destinationDeploymentProcessSteps $destinationRunbookProcess.Steps)
         Write-OctopusPostCloneCleanUp "*****************End Sync for runbook process $($runbook.Name)********************"        
             
-        Save-OctopusProjectRunbookProcess -RunbookProcess $destinationRunbookProcess -DestinationData $destinationData        
+        $updatedRunbookProcess = Save-OctopusProjectRunbookProcess -RunbookProcess $destinationRunbookProcess -DestinationData $destinationData        
     }
 
     $projectId = $destinationProject.Id

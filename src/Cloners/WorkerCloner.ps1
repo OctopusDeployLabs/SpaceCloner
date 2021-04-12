@@ -22,7 +22,7 @@ function Copy-OctopusWorkers
         return
     }
 
-    if ($sourceData.OctopusUrl -ne $destinationData.OctopusUrl)
+    if ($sourceData.OctopusUrl -ne $destinationData.OctopusUrl -and $destinationData.WhatIf -eq $false)
     {
         Write-OctopusCritical "You are cloning workers from one instance to another, the server thumbprints will not be accepted by the workers until you run Tentacle.exe configure --trust='your server thumbprint'"
     }

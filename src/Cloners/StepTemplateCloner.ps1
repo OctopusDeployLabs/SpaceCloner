@@ -30,6 +30,11 @@ function Copy-OctopusStepTemplates
 
             $destinationCommunityStep = Save-OctopusCommunityStepTemplate -communityStepTemplate $destinationTemplate -destinationData $destinationData            
             
+            if ($null -eq $destinationCommunityStep)
+            {
+                $destinationCommunityStep = $destinationTemplate
+            }
+
             $destinationData.StepTemplates = Update-OctopusList -itemList $destinationData.StepTemplates -itemToReplace $destinationCommunityStep
         }        
         elseif ($null -eq $stepTemplate.CommunityActionTemplateId -and $null -ne $matchingItem -and $cloneScriptOptions.OverwriteExistingCustomStepTemplates -eq $false)
