@@ -304,7 +304,7 @@ function Get-OctopusRunbookProcess
         $octopusData
     )
 
-    if ($runbook -notlike "Runbook*")
+    if ($runbook.Id -notlike "Runbook*")
     {
         return New-OctopusFakeProjectDeploymentOrRunbookProcess -project $runbook
     }
