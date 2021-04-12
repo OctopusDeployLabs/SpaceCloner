@@ -30,6 +30,7 @@ This script has been tested against the following versions of Octopus Deploy:
 - `2020.4.x`
 - `2020.5.x`
 - `2020.6.x`
+- `2021.1.x`
 
 It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` release of Octopus Deploy.
 
@@ -57,6 +58,12 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -ProjectsToClone "all"
 ```
 **Note**: The destination space should be created before running the clone scripts. 
+
+# What If Mode
+
+It can be scary to run a random script off the internet.  All the scripts in this repository include a `WhatIf` switch.  Set that switch to `$true` and the scripts will do everything up to the point of making changes to your destination.
+
+All the changes the script will do (or has done) is saved to the `ChangeLog.txt` file in the root directory.
 
 # Use cases
 This script was written to cover the following use cases.

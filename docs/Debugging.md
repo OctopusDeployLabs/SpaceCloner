@@ -4,8 +4,9 @@ All runs generate two fresh logs.  All information written to the host is writte
 
 - CleanUpLog -> A log of items indicating what you will need to clean up
 - Log -> The verbose log of the clone
+- ChangeLog -> A summary of all the changes the space cloner will do (when in what if mode) or has done (when in write mode)
 
-The logs will be placed in the logs\[date of run] folder.  The script will create that folder automatically.
+The logs will be placed in the root folder.  Each time the space cloner runs it will copy the logs in the root folder to `logs\archive_[date of run]` folder and start fresh.
 
 # Debugging
 
