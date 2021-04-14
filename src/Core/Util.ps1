@@ -173,12 +173,23 @@ function Add-PropertyIfMissing
     param(
         $objectToTest,
         $propertyName,
-        $propertyValue)
+        $propertyValue,
+        $overwriteIfExists)
     
     if ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false)
     {            
         $objectToTest | Add-Member -MemberType NoteProperty -Name $propertyName -Value $propertyValue
+
+        return $true
     }
+    elseif ($null -ne $overwriteIfExists -and $overwriteIfExists -eq $true -and ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false))
+    {
+        $objectToTest.$propertyName = $propertyValue
+
+        return $false
+    }
+
+    return $null
 }
 
 function Copy-OctopusObject

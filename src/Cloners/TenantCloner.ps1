@@ -39,7 +39,7 @@ function Copy-OctopusTenants
         }
         else
         {
-            Write-OctopusVerbose "The tenant $($tenant.Name) already exists on the source, skipping."
+            Write-OctopusVerbose "Updating $($tenant.Name) projects"
             Write-OctopusChangeLog " - Update $($tenant.Name) projects"
 
             $projectFilteredList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ProjectsToClone
@@ -54,7 +54,7 @@ function Copy-OctopusTenants
                 }
                 
                 Write-OctopusVerbose "Attempting to matching $sourceProjectId with source"
-		$matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
+		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
                 Write-OctopusVerbose "The project id for $sourceProjectId on the destination is $matchingProjectId"
 
                 $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId)
@@ -66,7 +66,7 @@ function Copy-OctopusTenants
             $updatedTenant = Save-OctopusTenant -Tenant $tenantToUpdate -destinationData $destinationData
             $destinationData.TenantList = Update-OctopusList -itemList $destinationData.TenantList -itemToReplace $updatedTenant
 	    
-	    Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $tenant -destinationTenant $matchingTenant
+	        Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $tenant -destinationTenant $matchingTenant
         }
     }
 
