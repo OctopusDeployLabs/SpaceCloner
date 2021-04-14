@@ -8,8 +8,10 @@ function Copy-OctopusMachinePolicies
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.MachinePolicyList -itemType "Machine Policies" -filters $cloneScriptOptions.MachinePoliciesToClone
 
+    Write-OctopusChangeLog "Machine Policies"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No machine policies found to clone matching the filters"
         return
     }
     
@@ -24,8 +26,13 @@ function Copy-OctopusMachinePolicies
         if ($null -ne $matchingItem)
         {
             $machinePolicyToClone.Id = $matchingItem.Id
+            Write-OctopusChangeLog " - Update $($machinePolicy.Name)"
         }
-
+        else
+        {
+            Write-OctopusChangeLog " - Add $($machinePolicy.Name)"    
+        }
+        
         $updatedMachinePolicy = Save-OctopusMachinePolicy -MachinePolicy $machinePolicyToClone -destinationData $DestinationData 
         $destinationData.MachinePolicyList = Update-OctopusList -itemList $destinationData.MachinePolicyList -itemToReplace $updatedMachinePolicy
     }    

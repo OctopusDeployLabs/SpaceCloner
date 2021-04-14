@@ -19,7 +19,7 @@ The `CloneTentacleInstance.ps1` is designed to be run on deployment targets or w
 
 Because this is creating a new tentacle instance it **must** be run on the VM with the tentacle you wish to clone.  You can configure a runbook in Octopus to do this, or leverage the script console.  You cannot run this script on any computer like you can with the other scripts.
 
-### What will it clone
+## What will it clone
 The script `CloneSpace.ps1` will clone the following:
 
 - Accounts

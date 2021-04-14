@@ -14,17 +14,17 @@ function Copy-OctopusDeploymentProcess
     foreach($step in $sourceDeploymentProcessSteps)
     {
         $matchingStep = Get-OctopusItemByName -ItemList $destinationDeploymentProcessSteps -ItemName $step.Name
-        
-        $newStep = $false
+                
         if ($null -eq $matchingStep)
         {
             Write-OctopusVerbose "The step $($step.Name) was not found, cloning from source and removing id"            
-            $stepToAdd = Copy-OctopusObject -ItemToCopy $step -ClearIdValue $true -SpaceId $null            
-            $newStep = $true
+            Write-OctopusChangeLog "      - Adding step $($step.Name)"
+            $stepToAdd = Copy-OctopusObject -ItemToCopy $step -ClearIdValue $true -SpaceId $null                        
         }
         else
         {
             Write-OctopusVerbose "Matching step $($step.Name) found, using that existing step"
+            Write-OctopusChangeLog "      - Updating step $($step.Name)"
             $stepToAdd = Copy-OctopusObject -ItemToCopy $matchingStep -ClearIdValue $false -SpaceId $null
         }
 
@@ -34,6 +34,15 @@ function Copy-OctopusDeploymentProcess
         {
             $matchingAction = Get-OctopusItemByName -ItemList $matchingStep.Actions -ItemName $action.Name
             $clonedStep = Copy-OctopusProcessStepAction -sourceAction $action -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -matchingAction $matchingAction
+
+            if ($null -ne $matchingAction)
+            {
+                Write-OctopusChangeLog "        - Updating action $($action.Name)"
+            }
+            else 
+            {
+                Write-OctopusChangeLog "        - Adding action $($action.Name)"
+            }
 
             if ($null -ne $clonedStep)
             {                
@@ -48,7 +57,8 @@ function Copy-OctopusDeploymentProcess
 
             if ($null -eq $matchingAction)
             {
-                Write-OctopusVerbose "The action $($action.Name) didn't exist at the source, adding that back to the destination list"
+                Write-OctopusVerbose "The action $($action.Name) didn't exist at the source, adding that back to the destination list"  
+                Write-OctopusChangeLog "        - $($action.Name) exists on destination, but not on the source, leaving as is"              
                 $newStepActions += Copy-OctopusObject -ItemToCopy $action -ClearIdValue $false -SpaceId $null
             }
         }
@@ -69,6 +79,7 @@ function Copy-OctopusDeploymentProcess
         if ($null -eq $matchingStep)
         {
             Write-OctopusVerbose "The step $($step.Name) didn't exist in the source, adding that back to the destiantion list"
+            Write-OctopusChangeLog "      - $($step.Name) exists on destination, but not on source, leaving alone"
             $newDeploymentProcessSteps += Copy-OctopusObject -ItemToCopy $step -ClearIdValue $false -SpaceId $null
         }
     }

@@ -14,8 +14,10 @@ function Copy-OctopusProjects
 
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ProjectsToClone
 
+    Write-OctopusChangeLog "Projects"
     if ($filteredList.length -eq 0)
     {
+        Write-OctopusChangeLog " - No Projects found to clone matching the filters"
         return
     }
     
@@ -23,19 +25,12 @@ function Copy-OctopusProjects
     
     foreach($project in $filteredList)
     {
-        Copy-OctopusProjectSettings -sourceData $SourceData -destinationData $DestinationData -sourceProject $project               
-        
-        Write-OctopusSuccess "Reloading destination projects"        
-        
-        $destinationData.ProjectList = Get-OctopusProjectList -OctopusData $DestinationData
-
-        $destinationProject = Get-OctopusItemByName -ItemList $DestinationData.ProjectList -ItemName $project.Name
+        $destinationProject = Copy-OctopusProjectSettings -sourceData $SourceData -destinationData $DestinationData -sourceProject $project                       
 
         $sourceChannels = Get-OctopusProjectChannelList -project $project -octopusData $sourceData
         $destinationChannels = Get-OctopusProjectChannelList -project $destinationProject -OctopusData $DestinationData
-        Copy-OctopusProjectChannels -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData
-        $destinationChannels = Get-OctopusProjectChannelList -project $destinationProject -OctopusData $DestinationData
-
+        $destinationChannels = Copy-OctopusProjectChannels -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData
+        
         if ($CloneScriptOptions.CloneProjectDeploymentProcess -eq $true)
         {
             Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -sourceProject $project -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
@@ -48,7 +43,7 @@ function Copy-OctopusProjects
 
         Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions        
         Copy-OctopusProjectChannelRules -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData -cloneScriptOptions $CloneScriptOptions
-        Copy-OctopusProjectReleaseVersioningSettings -sourceData $sourceData -sourceProject $project -sourceChannels $sourceChannels -destinationData $destinationData -destinationProject $destinationProject -destinationChannels $destinationChannels -CloneScriptOptions $CloneScriptOptions
+        $destinationProject = Copy-OctopusProjectReleaseVersioningSettings -sourceData $sourceData -sourceProject $project -sourceChannels $sourceChannels -destinationData $destinationData -destinationProject $destinationProject -destinationChannels $destinationChannels -CloneScriptOptions $CloneScriptOptions
         Copy-OctopusItemLogo -sourceItem $project -destinationItem $destinationProject -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
     }
 
@@ -68,6 +63,7 @@ function Copy-OctopusProjectSettings
     if ($null -eq $matchingProject)
     {            
         $copyOfProject = Copy-OctopusObject -ItemToCopy $sourceProject -ClearIdValue $true -SpaceId $destinationData.SpaceId
+        Write-OctopusChangeLog " - Add $($sourceProject.Name)"
         
         $copyOfProject.DeploymentProcessId = $null
         $copyOfProject.VariableSetId = $null
@@ -98,12 +94,16 @@ function Copy-OctopusProjectSettings
         $copyOfProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId = $null
         $copyOfProject.AutoCreateRelease = $false
         
-        Save-OctopusProject -Project $copyOfProject -DestinationData $destinationData        
+        $returnProject = Save-OctopusProject -Project $copyOfProject -DestinationData $destinationData        
+        $destinationData.ProjectList = Update-OctopusList -itemList $destinationData.ProjectList -itemToReplace $returnProject
+
+        return $returnProject
     }
     else
     {            
         $matchingProject.Description = $sourceProject.Description    
         
+        Write-OctopusChangeLog " - Update $($sourceProject.Name)"
         $VariableSetIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $sourceProject.IncludedLibraryVariableSetIds)
         $scriptModuleIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $sourceProject.IncludedLibraryVariableSetIds)
 
@@ -117,7 +117,10 @@ function Copy-OctopusProjectSettings
             }
         } 
 
-        Save-OctopusProject -Project $matchingProject -DestinationData $destinationData        
+        $updatedProject = Save-OctopusProject -Project $matchingProject -DestinationData $destinationData               
+        $destinationData.ProjectList = Update-OctopusList -itemList $destinationData.ProjectList -itemToReplace $updatedProject
+
+        return $updatedProject
     }    
 }
 
@@ -145,20 +148,23 @@ function Copy-OctopusProjectReleaseVersioningSettings
 
     if ($null -eq $sourceProject.VersioningStrategy.DonorPackage.Template)
     {
-        Write-OctopusVerbose "The project $($project.Name) has the release versioning based on a package."
+        Write-OctopusVerbose "The project $($project.Name) has the release versioning based on a package."        
         $destinationProject.VersioningStrategy = Copy-OctopusObject -ItemToCopy $sourceProject.VersioningStrategy -ClearIdValue $false -SpaceId $null
         $destinationProject.VersioningStrategy.DonorPackageStepId = Convert-OctopusProcessDeploymentStepId -sourceProcess $sourceDeploymentProcess -destinationProcess $destinationDeploymentProcess -sourceId $sourceProject.VersioningStrategy.DonorPackageStepId
+        Write-OctopusChangeLog "    - Set versioning strategy to a package"
     }
     else
     {
-        $destinationProject.VersioningStrategy.Template = "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.NextPatch}"
+        $destinationProject.VersioningStrategy.Template = $sourceProject.VersioningStrategy.Template
         $destinationProject.VersioningStrategy.DonorPackage = $null
         $destinationProject.VersioningStrategy.DonorPackageStepId = $null
+        Write-OctopusChangeLog "    - Set versioning strategy to template $($destinationProject.VersioningStrategy.Template)"
     }
 
     if ($null -ne $sourceProject.ReleaseCreationStrategy.ChannelId)
     {
         Write-OctopusVerbose "The project $($project.Name) has automatic release creation set."
+        Write-OctopusChangeLog "    - Turn On Automatic Release Creation"
         $destinationProject.ReleaseCreationStrategy = Copy-OctopusObject -ItemToCopy $sourceProject.ReleaseCreationStrategy -ClearIdValue $false -SpaceId $null
         $destinationProject.ReleaseCreationStrategy.ChannelId = Convert-SourceIdToDestinationId -SourceList $sourceChannels -DestinationList $destinationChannels -IdValue $sourceProject.ReleaseCreationStrategy.ChannelId
         $destinationProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId = Convert-OctopusProcessDeploymentStepId -sourceProcess $sourceDeploymentProcess -destinationProcess $destinationDeploymentProcess -sourceId $sourceProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId
@@ -170,10 +176,13 @@ function Copy-OctopusProjectReleaseVersioningSettings
         $destinationProject.ReleaseCreationStrategy.ReleaseCreationPackage = $null
         $destinationProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId = $null
         $destinationProject.AutoCreateRelease = $false    
+        Write-OctopusChangeLog "    - Turn Off Automatic Release Creation"
     }
-
     
-    Save-OctopusProject -Project $destinationProject -DestinationData $destinationData
+    $updatedProject = Save-OctopusProject -Project $destinationProject -DestinationData $destinationData
+    $destinationData.ProjectList = Update-OctopusList -itemList $destinationData.ProjectList -itemToReplace $updatedProject
 
     Write-OctopusSuccess "Finished cloning release versioning settings for project $($project.Name)"
+
+    return $updatedProject
 }

@@ -13,9 +13,13 @@ function Copy-OctopusProjectDeploymentProcess
     $sourceDeploymentProcess = Get-OctopusProjectDeploymentProcess -project $sourceProject -OctopusData $sourceData
     $destinationDeploymentProcess = Get-OctopusProjectDeploymentProcess -project $destinationProject -OctopusData $DestinationData
     
+    Write-OctopusChangeLog "    - Deployment Process"
     Write-OctopusPostCloneCleanUp "*****************Starting sync of deployment process for $($destinationProject.Name)***************"
     $destinationDeploymentProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceDeploymentProcess.Steps -destinationDeploymentProcessSteps $destinationDeploymentProcess.Steps)
     Write-OctopusPostCloneCleanUp "*****************Ending sync of deployment process for $($destinationProject.Name)*****************"
 
-    Save-OctopusProjectDeploymentProcess -DeploymentProcess $destinationDeploymentProcess -DestinationData $destinationData    
+    $destinationDeploymentProcess = Save-OctopusProjectDeploymentProcess -DeploymentProcess $destinationDeploymentProcess -DestinationData $destinationData    
+
+    $projectId = $destinationProject.Id
+    $destinationData.ProjectProcesses.$projectId = $destinationDeploymentProcess
 }

@@ -153,8 +153,26 @@ Function Save-OctopusApi
         $Method,
         $Item,
         $SpaceId,
-        $OctopusUrl
+        $OctopusUrl,
+        $whatIf
     )
+
+    if ($null -ne $whatIf -and $whatIf -eq $true)
+    {
+        Write-OctopusVerbose "What if set to true, skipping $method to $endPoint and just returning the item"
+        
+        if ($null -eq $Item)
+        {
+            return $null
+        }
+        
+        if ($null -eq $Item.Id)
+        {
+            $Item.Id = (New-Guid).ToString()
+        }
+
+        return $item
+    }
 
     $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl
 
@@ -170,7 +188,8 @@ function Save-OctopusApiItem
         $Endpoint,
         $ApiKey,
         $SpaceId,
-        $OctopusUrl
+        $OctopusUrl,
+        $WhatIf
     )
 
     $method = "POST"
@@ -182,7 +201,7 @@ function Save-OctopusApiItem
         $endPoint = "$endPoint/$($Item.Id)"
     }
 
-    $results = Save-OctopusApi -EndPoint $Endpoint $method $method -Item $Item -ApiKey $ApiKey -OctopusUrl $OctopusUrl -SpaceId $SpaceId
+    $results = Save-OctopusApi -EndPoint $Endpoint $method $method -Item $Item -ApiKey $ApiKey -OctopusUrl $OctopusUrl -SpaceId $SpaceId -WhatIf $WhatIf
 
     Write-OctopusVerbose $results
 
@@ -194,8 +213,14 @@ function Save-OctopusBlobData
     param(
         $url,
         $apiKey,
-        $fileContentToUpload
+        $fileContentToUpload,
+        $whatIf
     )    
+
+    if ($null -ne $whatIf -and $whatIf -eq $true)
+    {
+        return
+    }
 
     Write-OctopusVerbose "Uploading data to $url"
 
@@ -220,7 +245,7 @@ function Save-OctopusBlobData
     $content = New-Object System.Net.Http.MultipartFormDataContent
     $content.Add($streamContent)
 
-    $httpClient.PostAsync($url, $content).Result    
+    $result = $httpClient.PostAsync($url, $content).Result    
 
     $streamContent.Dispose()
 

@@ -1,10 +1,10 @@
 # Space Cloner
 PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
-# This cloning process is provided as is
+# The cloning process won't cover all use cases
 This script was developed internally for the Octopus Advisory Team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
 
-> **Note:** Owing to the "as is" nature of this script, **Octopus Deploy does not provide any support for this via our support channels.**
+> **Note:** if you have questions on how to use this script please reach out to advice@octopus.com
 
 This repository is [licensed](license) under the Apache license.  It is possible for the script to work for your use cases without modification.  However, it is impossible for us to write a script that matches every specific use case.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.  
 
@@ -30,6 +30,7 @@ This script has been tested against the following versions of Octopus Deploy:
 - `2020.4.x`
 - `2020.5.x`
 - `2020.6.x`
+- `2021.1.x`
 
 It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` release of Octopus Deploy.
 
@@ -57,6 +58,12 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -ProjectsToClone "all"
 ```
 **Note**: The destination space should be created before running the clone scripts. 
+
+# What If Mode
+
+It can be scary to run a random script off the internet.  All the scripts in this repository include a `WhatIf` switch.  Set that switch to `$true` and the scripts will do everything up to the point of making changes to your destination.
+
+All the changes the script will do (or has done) is saved to the `ChangeLog.txt` file in the root directory.
 
 # Use cases
 This script was written to cover the following use cases.
