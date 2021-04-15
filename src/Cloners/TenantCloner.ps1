@@ -40,7 +40,7 @@ function Copy-OctopusTenants
         else
         {
             Write-OctopusVerbose "Updating $($tenant.Name) projects"
-            Write-OctopusChangeLog " - Update $($tenant.Name) projects"
+            Write-OctopusChangeLog " - Update $($tenant.Name)"
 
             $projectFilteredList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ProjectsToClone
             $tenantToUpdate = Copy-OctopusObject -itemToCopy $matchingTenant -clearIdValue $false -spaceId $destinationData.SpaceId

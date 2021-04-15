@@ -12,7 +12,9 @@ function Copy-OctopusTenantVariables
     $destinationTenantVariables = Get-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant
 
     $destinationTenantVariables.ProjectVariables = @(Copy-OctopusTenantProjectVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables)
-    $destinationTenantVariables.LibraryVariableSets = @(Copy-OctopusTenantLibraryVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables)
+    $destinationTenantVariables.LibraryVariables = @(Copy-OctopusTenantLibraryVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables)
+
+    $updatedVariables = Save-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant -tenantVariables $destinationTenantVariables     
 
     Write-OctopusSuccess "Tenant $($sourceTenant.Name) variables successfully cloned"    
 }
@@ -92,7 +94,7 @@ function Copy-OctopusTenantProjectVariables
                         Write-OctopusPostCloneCleanUp "The variable $($projectTemplateVariable.Label) is a sensitive variable, value set to 'Dummy Value' for $($sourceTenant.Name) in environment $destinationEnvironmentId"
                     }
                 }
-                elseif ($controlType -match "*Account")
+                elseif ($controlType -match ".*Account")
                 {
                     $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id)
                     $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Variables.$($destinationEnvironmentId) -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
@@ -183,7 +185,7 @@ function Copy-OctopusTenantLibraryVariables
                     Write-OctopusPostCloneCleanUp "The variable $($projectTemplateVariable.Label) is a sensitive variable, value set to 'Dummy Value' for $($sourceTenant.Name) in environment $destinationEnvironmentId"
                 }
             }
-            elseif ($controlType -match "*Account")
+            elseif ($controlType -match ".*Account")
             {
                 $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
                 $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
