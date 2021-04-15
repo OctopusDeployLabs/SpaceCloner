@@ -203,8 +203,13 @@ function Convert-OctopusActionIdsForMatchingActionId
             {
                 if ($package.PackageId -eq $matchingActionPackage.PackageId)
                 {
-                    $package.Id = $matchingActionPackage.Id
-                    break
+                    $packageHasNameProperty = Test-OctopusObjectHasProperty -objectToTest $package -propertyName "Name"
+
+                    if ($packageHasNameProperty -eq $false -or ($packageHasNameProperty -eq $true -and $package.Name -eq $matchingActionPackage.Name))
+                    {
+                        $package.Id = $matchingActionPackage.Id
+                        break
+                    }                                        
                 }
             }
         }
