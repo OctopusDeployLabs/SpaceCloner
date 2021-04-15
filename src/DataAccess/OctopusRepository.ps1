@@ -358,6 +358,32 @@ function Get-OctopusItemLogo
     return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
 }
 
+function Get-OctopusTenantVariables
+{
+    param (
+        $octopusData,
+        $tenant
+    )
+
+    if ($tenant.Id -notlike "Tenant*")
+    {
+        return New-OctopusFakeTenantVariables -project $runbook
+    }
+
+    return Get-OctopusApi -EndPoint "tenants/$($tenant.Id)/variables" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $octopusData.SpaceId
+}
+
+function Save-OctopusTenantVariables
+{
+    param (
+        $octopusData,
+        $tenant,
+        $tenantVariables
+    )
+
+    return Save-OctopusApiItem -Item $tenantVariables -Endpoint "tenants/$($tenant.Id)/variables" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -Method "PUT" -whatIf $octopusData.WhatIf       
+}
+
 function Save-OctopusItemLogo
 {
     param(
@@ -592,7 +618,7 @@ function Save-OctopusVariableSet
         $destinationData
     )
 
-    return Save-OctopusApi -EndPoint "libraryvariablesets" -ApiKey $destinationData.OctopusApiKey -Method POST -Item $libraryVariableSet -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
+    return Save-OctopusApiItem -EndPoint "libraryvariablesets" -ApiKey $destinationData.OctopusApiKey -Method POST -Item $libraryVariableSet -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf
 }
 
 function Save-OctopusVariableSetVariables

@@ -41,7 +41,8 @@ The script `CloneSpace.ps1` will clone the following:
 - Script Modules
 - Step Templates (both community and custom step templates)
 - Teams
-- Tenants (no tenant variables)
+- Tenants
+- Tenant Variables
 - Tenant Tags
 - Targets (no polling tentacles)
 - Worker Pools
@@ -54,15 +55,12 @@ The script `CloneSpace.ps1` will not clone the following items:
 - User Roles
 - Users
 - External Auth Providers
-- Tenant Variables
 - Server Settings (folders, SMTP, JIRA, etc)
 - Certificates
 
 This script assumes the user for the destination has `Space manager` rights.  Some of those items, users, roles, and creating spaces, cannot be copied over because the space manager does not have permissions to do so.
 
 Several of those items cannot be copied because the space cloner uses Octopus API.  It doesn't hit the database directly.  Creating a release would create a snapshot, and doing a deployment would do an actual deployment.  Those items would occur when you ran the script, not when they actually occurred on the source space.
-
-Tenant variables were excluded mostly due to how they are returned from the API.  Honestly, it looked like a bit of a maintenance nightmare.
 
 ## The Space Has to Exist
 The space on the source and destination must exist prior to running the script.  The script will fail if the destination space doesn't exist.  It doesn't create a space for you.
@@ -74,7 +72,7 @@ This script was designed to be run multiple times with the same parameters.  It 
 - Environments (match by name)
 - Feeds (match by name)
 - Infrastructure Accounts (match by name)
-- Library Variable variables (see below)
+- Library Variable variables and Tenant variables (see below)
 - Packages (match by package name and version)
 - Project Items
     - Channels (match by name)
@@ -85,7 +83,7 @@ This script was designed to be run multiple times with the same parameters.  It 
 - Workers (match by name)
 - Teams (match by name)
 - Targets (match by name)
-- Tenants (match by name)
+- Tenants (match by name) -> it will add missing projects to the tenant
 
 ### Variable Matching
 

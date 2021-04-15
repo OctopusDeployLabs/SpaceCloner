@@ -30,6 +30,21 @@ function New-OctopusFakeLibraryVariableSetValues
     return $variableSetVariables
 }
 
+function New-OctopusFakeTenantVariables
+{
+    param (
+        $tenant
+    )
+
+    return @{
+        TenantId = $tenant.Id
+        TenantName = $tenant.Name
+        ProjectVariables = @{}
+        LibraryVariables = @{}
+        SpaceId = $null
+    }
+}
+
 function New-OctopusFakeProjectDeploymentOrRunbookProcess
 {
     param (

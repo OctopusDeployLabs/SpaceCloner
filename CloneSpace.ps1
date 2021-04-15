@@ -35,6 +35,7 @@ param (
     $CloneProjectDeploymentProcess,
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
+    $CloneTenantVariables,
     $WhatIf
 )
 
@@ -70,6 +71,7 @@ param (
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TeamCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TeamUserRoleCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TenantCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TenantVariableCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "TenantTagSetCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "VariableSetValuesCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "WorkerCloner.ps1"))
@@ -137,6 +139,11 @@ if ($null -eq $WhatIf)
     $WhatIf = $false
 }
 
+if ($null -eq $CloneTenantVariables)
+{
+    $CloneTenantVariables = $false
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -165,7 +172,8 @@ $CloneScriptOptions = @{
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
-    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;    
+    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess; 
+    CloneTenantVariables = $CloneTenantVariables;   
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"
@@ -209,14 +217,16 @@ Copy-OctopusScriptModules -SourceData $sourceData -destinationData $destinationD
 Copy-OctopusMachinePolicies -SourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusLifecycles -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationData -cloneScriptOptions $CloneScriptOptions
-Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -firstRun $true
 Copy-OctopusWorkers -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTargets -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 # Repeating tenant clone to get all the project assignments
-Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+
+Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -firstRun $false
+Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions 
 Copy-OctopusSpaceTeamUserRoles -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 
 $logPath = Get-OctopusLogPath

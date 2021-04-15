@@ -20,6 +20,7 @@ param (
     $CloneProjectDeploymentProcess,
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
+    $CloneTenantVariables,
     $WhatIf  
 )
 
@@ -86,6 +87,11 @@ if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
 if ($null -eq $WhatIf)
 {
     $WhatIf = $false
+}
+
+if ($null -eq $CloneTenantVariables)
+{
+    $CloneTenantVariables = $false
 }
 
 $cloneSpaceCommandLineOptions = @{
@@ -641,6 +647,7 @@ Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $ClonePro
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
+Write-OctopusSuccess "  -CloneTenantVariables $CloneTenantVariables"
 Write-OctopusSuccess "  -WhatIf $WhatIf"
 
 $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
@@ -677,5 +684,6 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
     -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
+    -CloneTenantVariables "$CloneTenantVariables" `
     -WhatIf "$whatIf"
 

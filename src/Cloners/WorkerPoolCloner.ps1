@@ -46,7 +46,7 @@ function Copy-OctopusWorkerPools
             
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $workerpool -SpaceId $destinationData.SpaceId -ClearIdValue $true    
 
-            Add-PropertyIfMissing -objectToTest $copyOfItemToClone -propertyName "WorkerPoolType" -propertyValue "StaticWorkerPool"                  
+            $added = Add-PropertyIfMissing -objectToTest $copyOfItemToClone -propertyName "WorkerPoolType" -propertyValue "StaticWorkerPool"                  
 
             $newOctopusWorker = Save-OctopusWorkerPool -workerPool $copyOfItemToClone -destinationData $destinationData            
             $destinationData.WorkerPoolList += $newOctopusWorker

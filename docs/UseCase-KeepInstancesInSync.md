@@ -44,6 +44,7 @@ The other options are:
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+- `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -69,6 +70,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
+    -CloneTenantVariables "true" `
     -CloneProjectDeploymentProcess "true"
 ```
 
@@ -87,6 +89,7 @@ The other options are:
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+- `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -115,6 +118,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectRunbooks "true" `
+    -CloneTenantVariables "true" `
     -CloneProjectDeploymentProcess "true"
 ```
 

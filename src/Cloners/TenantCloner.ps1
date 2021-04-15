@@ -3,7 +3,8 @@ function Copy-OctopusTenants
     param(
         $sourceData,
         $destinationData,
-        $CloneScriptOptions
+        $CloneScriptOptions,
+        $firstRun       
     )
     
     $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantList -itemType "Tenants" -filters $cloneScriptOptions.TenantsToClone
@@ -34,12 +35,12 @@ function Copy-OctopusTenants
             $destinationTenant = Save-OctopusTenant -Tenant $tenantToAdd -destinationData $destinationData
             $destinationData.TenantList += $destinationTenant
 
-            Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
+            Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions            
         }
-        else
+        elseif ($firstRun -eq $false)
         {
-            Write-OctopusVerbose "Update $($tenant.Name) projects"
-            Write-OctopusChangeLog " - Update $($tenant.Name) projects"
+            Write-OctopusVerbose "Updating $($tenant.Name) projects"
+            Write-OctopusChangeLog " - Update $($tenant.Name)"
 
             $projectFilteredList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneScriptOptions.ProjectsToClone
             $tenantToUpdate = Copy-OctopusObject -itemToCopy $matchingTenant -clearIdValue $false -spaceId $destinationData.SpaceId
@@ -53,17 +54,17 @@ function Copy-OctopusTenants
                 }
                 
                 Write-OctopusVerbose "Attempting to matching $sourceProjectId with source"
-                $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
+		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
                 Write-OctopusVerbose "The project id for $sourceProjectId on the destination is $matchingProjectId"
 
                 $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId)
 
-                Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments)
+                $added = Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments)
                 $tenantToUpdate.ProjectEnvironments.$matchingProjectId = @($scopedEnvironments)
             }
 
             $updatedTenant = Save-OctopusTenant -Tenant $tenantToUpdate -destinationData $destinationData
-            $destinationData.TenantList = Update-OctopusList -itemList $destinationData.TenantList -itemToReplace $updatedTenant
+            $destinationData.TenantList = Update-OctopusList -itemList $destinationData.TenantList -itemToReplace $updatedTenant		        
         }
     }
 
