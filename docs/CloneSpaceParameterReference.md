@@ -37,7 +37,7 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 - `SpaceTeamsToClone` - The list of teams specific to the space to clone.  Will not clone system teams.  Version 2019 or higher required. The default is `$null`, nothing will be cloned.
 - `StepTemplatesToClone` - The list of step templates to clone.  The default is `$null`, nothing will be cloned.
 - `TargetsToClone` - The list of targets to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned.
-- `TenantsToClone` - The list of tenants to clone.  Please note, this will not clone tenant variables. The default is `$null`, nothing will be cloned.
+- `TenantsToClone` - The list of tenants to clone.  The default is `$null`, nothing will be cloned.
 - `TenantTagsToClone` - The list of tenant tags to clone.  The default is `$null`, nothing will be cloned.
 - `WorkerPoolsToClone` - The list of worker pools to clone.  The default is `$null`, nothing will be cloned.
 - `WorkersToClone` - The list of workers to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned.        
@@ -52,7 +52,7 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 
 - `OverwriteExistingCustomStepTemplates` - Indicates if existing custom step templates (not community step templates) should be overwritten.  Useful when you make a change to a step template, you want to move over to another instance.  Defaults to `false`.
 - `OverwriteExistingLifecyclesPhases` - Indicates you want to overwrite the phases on existing lifecycles.  This is useful when you have an updated lifecycle you want to be applied another space/instance.  You will want to leave this to false if the destination lifecycle has different phases.  The default is `false`.
-- `OverwriteExistingVariables` - Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.
+- `OverwriteExistingVariables` - Indicates if all existing variables (except sensitive variables) should be overwritten.  This setting is applied to to project variables, library variable sets, and tenant variables.  The default is `false`.
 - `CloneProjectChannelRules` - Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
 - `CloneProjectDeploymentProcess` - Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks` - Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The default is `true`.

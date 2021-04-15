@@ -63,7 +63,14 @@ function Copy-OctopusDeploymentProcess
             }
         }
         
-        $stepToAdd.Actions = @($newStepActions)
+        $stepToAdd.Actions = @()
+        foreach ($newStepAction in $newStepActions)
+        {
+            if ($null -ne $newStepAction)
+            {
+                $stepToAdd.Actions += $newStepAction
+            }
+        }              
 
         if ($stepToAdd.Actions.Length -gt 0)
         {

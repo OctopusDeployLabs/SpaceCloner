@@ -3,20 +3,40 @@ function Copy-OctopusTenantVariables
     param(
         $sourceData,
         $destinationData,
-        $CloneScriptOptions,
-        $sourceTenant,
-        $destinationTenant
+        $CloneScriptOptions        
     )
+
+    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantList -itemType "Tenants" -filters $cloneScriptOptions.TenantsToClone
+
+    Write-OctopusChangeLog "Tenant Variables"
+    if ($filteredList.length -eq 0)
+    {
+        Write-OctopusChangeLog " - No tenants found to clone matching the filters"
+        return
+    }
     
-    $sourceTenantVariables = Get-OctopusTenantVariables -octopusData $sourceData -tenant $sourceTenant
-    $destinationTenantVariables = Get-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant
+    foreach($sourceTenant in $filteredList)
+    {
+        $destinationTenant = Get-OctopusItemByName -ItemName $sourceTenant.Name -ItemList $destinationData.TenantList
 
-    $destinationTenantVariables.ProjectVariables = @(Copy-OctopusTenantProjectVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables)
-    $destinationTenantVariables.LibraryVariables = @(Copy-OctopusTenantLibraryVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables)
+        if ($null -eq $destinationTenant)
+        {
+            Write-OctopusChangeLog " - $($sourceTenant.Name) not found unable to clone variables"
+            continue
+        }
 
-    $updatedVariables = Save-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant -tenantVariables $destinationTenantVariables     
+        Write-OctopusChangeLog " - Updating $($sourceTenant.Name)"
 
-    Write-OctopusSuccess "Tenant $($sourceTenant.Name) variables successfully cloned"    
+        $sourceTenantVariables = Get-OctopusTenantVariables -octopusData $sourceData -tenant $sourceTenant
+        $destinationTenantVariables = Get-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant
+
+        $destinationTenantVariables.ProjectVariables = Copy-OctopusTenantProjectVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables
+        $destinationTenantVariables.LibraryVariables = Copy-OctopusTenantLibraryVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -sourceTenant $sourceTenant -destinationTenant $destinationTenant -sourceTenantVariables $sourceTenantVariables -destinationTenantVariables $destinationTenantVariables
+
+        $updatedVariables = Save-OctopusTenantVariables -octopusData $destinationData -tenant $destinationTenant -tenantVariables $destinationTenantVariables     
+
+        Write-OctopusSuccess "Tenant $($sourceTenant.Name) variables successfully cloned"    
+    }        
 }
 
 function Copy-OctopusTenantProjectVariables
@@ -64,7 +84,8 @@ function Copy-OctopusTenantProjectVariables
         foreach ($projectTemplateVariable in $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Templates)
         {
             Write-OctopusVerbose "Looping through each environment assigned to $($sourceTenantVariableProject.Name) to see if $($projectTemplateVariable.Id) has a value."
-            $destinationVariableTemplateId = Get-OctopusItemByName -ItemList $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Templates -ItemName $projectTemplateVariable.Name
+            $destinationVariableTemplate = Get-OctopusItemByName -ItemList $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Templates -ItemName $projectTemplateVariable.Name
+            $destinationVariableTemplateId = $destinationVariableTemplate.Id
             Write-OctopusVerbose "The destination id of the variable template is $destinationVariableTemplateId"
             
             foreach ($sourceEnvironmentId in $sourceTenant.ProjectEnvironments.$($sourceTenantVariableProject.Name))
@@ -73,12 +94,30 @@ function Copy-OctopusTenantProjectVariables
                 $destinationEnvironmentId = Convert-SourceIdToDestinationId -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdValue $sourceEnvironmentId
                 $destinationEnvironment = Get-OctopusItemById -ItemId $destinationEnvironmentId -ItemList $destinationData.EnvironmentList
 
-                if ((Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId) -propertyName $($projectTemplateVariable.Id)) -eq $false)
+                $sourceHasValue = Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId) -propertyName $($projectTemplateVariable.Id)
+                $destinationHasValue = Test-OctopusObjectHasProperty -objectToTest $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Variables.$($destinationEnvironmentId) -propertyName $($destinationVariableTemplateId)
+
+                if ($sourceHasValue -eq $false -and $destinationHasValue -eq $false)
                 {
                     Write-OctopusVerbose "The source tenant is using the default value on the source, moving onto the next variable"
-                    Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name)"
+                    Write-OctopusChangeLog "       - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because it is using the default value"
                     continue
-                }                                                
+                }
+                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $true) 
+                {
+                    Write-OctopusVerbose "The source tenant is using the default value on the source, but the destination is not and overwrite variables is true, Resetting to default value"
+                    Write-OctopusChangeLog "       - Resetting $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to default"
+
+                    $destinationTenantVariables.ProjectVariables.$($matchingProjectId.Name).Variables.$($destinationEnvironmentId).PSObject.Properties.Remove($destinationVariableTemplateId)
+
+                    continue
+                }
+                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $false) 
+                {
+                    Write-OctopusVerbose "The source doesn't have a value but the destination does, overwrite is set to false, so leaving as is"
+                    Write-OctopusChangeLog "       - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because overwrite is set to false (would reset to default)"
+                    continue
+                }
                 
                 Write-OctopusVerbose "The destination environment id is $destinationEnvironmentId"
                 
@@ -117,21 +156,22 @@ function Copy-OctopusTenantProjectVariables
                 
                 if ($null -eq $added)
                 {
-                    Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name)"
+                    Write-OctopusChangeLog "       - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name)"
                 }
                 elseif ($false -eq $added)
                 {
-                    Write-OctopusChangeLog "     - Updated $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to $newValue"
+                    Write-OctopusChangeLog "       - Updated $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to $newValue"
                 }
-                else {
-                    Write-OctopusChangeLog "     - Added $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to $newValue"
+                else
+                {
+                    Write-OctopusChangeLog "       - Added $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to $newValue"
                 }
                 
             }
         }     
     }
 
-    return @($destinationTenantVariables.ProjectVariables)
+    return $destinationTenantVariables.ProjectVariables
 }
 
 function Copy-OctopusTenantLibraryVariables
@@ -151,34 +191,56 @@ function Copy-OctopusTenantLibraryVariables
     foreach ($sourceTenantLibraryVariable in $sourceTenantLibraryVariableList)
     {
         Write-OctopusVerbose "Attempting to match library variable set Id $($sourceTenantLibraryVariable.Name) with destination Id"
-        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name
+        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name        
+        $libraryVariableSet = Get-OctopusItemById -ItemList $sourceData.VariableSetList -ItemId $sourceTenantLibraryVariable.Name
         Write-OctopusVerbose "The library variable set id for $($sourceTenantLibraryVariable.Name) on the destination is $matchingVariableSetId"    
 
-        if ($destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Templates.Length -eq 0)
+        if ($destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Templates.Length -eq 0)
         {
-            Write-OctopusVerbose "The project $matchingVariableSetId doesn't have any variable templates, moving onto the next project."
+            Write-OctopusVerbose "The library variable set $matchingVariableSetId doesn't have any variable templates, moving onto the next project."
             continue
-        }           
+        }    
+        
+        Write-OctopusChangeLog "   - Library Variable Set $($libraryVariableSet.Name)"
         
         Write-OctopusVerbose "The project $matchingVariableSetId has project templates, starting the clone for each environment"
-        foreach ($projectTemplateVariable in $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Templates)
+        foreach ($projectTemplateVariable in $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Templates)
         {
             Write-OctopusVerbose "Looping through each environment assigned to $($sourceTenantLibraryVariable.Name) to see if $($projectTemplateVariable.Id) has a value."
-            $destinationVariableTemplateId = Get-OctopusItemByName -ItemList $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Templates -ItemName $projectTemplateVariable.Name
+            $destinationVariableTemplate = Get-OctopusItemByName -ItemList $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Templates -ItemName $projectTemplateVariable.Name
+            $destinationVariableTemplateId = $destinationVariableTemplate.Id
             Write-OctopusVerbose "The destination id of the variable template is $destinationVariableTemplateId"
             
-            if ((Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables -propertyName $($projectTemplateVariable.Id)) -eq $false)
+            $sourceHasValue = Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables -propertyName $($projectTemplateVariable.Id)
+            $destinationHasValue = Test-OctopusObjectHasProperty -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId
+
+            if ($sourceHasValue -eq $false -and $destinationHasValue -eq $false)
             {
                 Write-OctopusVerbose "The source tenant is using the default value on the source, moving onto the next variable"
+                Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because it is using the default value"
                 continue
-            }                                
+            }
+            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $true) 
+            {
+                Write-OctopusVerbose "The source tenant is using the default value on the source, but the destination is not and overwrite variables is true, Resetting to default value"
+                Write-OctopusChangeLog "     - Resetting $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to default"
+
+                $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables.PSObject.Properties.Remove($destinationVariableTemplateId)
+                continue
+            }
+            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $false) 
+            {
+                Write-OctopusVerbose "The source doesn't have a value but the destination does, overwrite is set to false, so leaving as is"
+                Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) because overwrite is set to false (would reset to default)"
+                continue
+            }                             
             
             $controlType = $projectTemplateVariable.DisplaySettings.'Octopus.ControlType'
             
             if ($controlType -eq "Sensitive")
             {     
                 $newValue = "DUMMY VALUE"
-                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $false
+                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $false
 
                 if ($added)
                 {
@@ -187,28 +249,39 @@ function Copy-OctopusTenantLibraryVariables
             }
             elseif ($controlType -match ".*Account")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
-                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             elseif ($controlType -eq "Certificate")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
-                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             elseif ($controlType -eq "WorkerPool")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
-                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             else
             {
-                $newValue = $sourceTenantVariables.LibraryVariableSets.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
-                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariableSets.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
+                $newValue = $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             } 
             
-            
+            if ($null -eq $added)
+            {
+                Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label)"
+            }
+            elseif ($false -eq $added)
+            {
+                Write-OctopusChangeLog "     - Updated $($projectTemplateVariable.Label) to $newValue"
+            }
+            else
+            {
+                Write-OctopusChangeLog "     - Added $($projectTemplateVariable.Label) to $newValue"
+            }
         }     
     }
 
-    return @($destinationTenantVariables.LibraryVariableSets)
+    return $destinationTenantVariables.LibraryVariables
 }
