@@ -59,7 +59,7 @@ function Copy-OctopusTenants
 
                 $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId)
 
-                Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments)
+                $added = Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments)
                 $tenantToUpdate.ProjectEnvironments.$matchingProjectId = @($scopedEnvironments)
             }
 

@@ -178,9 +178,9 @@ function Convert-OctopusSinglePackageProprty
 
     if ($action.Packages.Count -eq 1 -and $actionScriptTypes -notcontains $action.ActionType)
     {
-        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId" -propertyValue $action.Packages[0].FeedId
-        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.PackageId" -propertyValue $action.Packages[0].PackageId
-        Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.DownloadOnTentacle" -propertyValue "False"
+        $added = Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId" -propertyValue $action.Packages[0].FeedId
+        $added = Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.PackageId" -propertyValue $action.Packages[0].PackageId
+        $added = Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.Package.DownloadOnTentacle" -propertyValue "False"
     }
 }
 

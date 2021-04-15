@@ -1,5 +1,6 @@
 $currentDate = Get-Date
 $currentDateFormatted = $currentDate.ToString("yyyy_MM_dd_HH_mm_ss")
+$clonerVersion = "2.1.0"
 
 $logFolder = "$PSScriptRoot\..\..\"
 $logArchiveFolder = "$PSScriptRoot\..\..\logs\archive_$currentDateFormatted" 
@@ -120,3 +121,5 @@ function Write-OctopusPostCloneCleanUpHeader
 
     Add-Content -Value $message -Path $cleanupLogPath
 }
+
+Write-OctopusSuccess "Using version $clonerVersion of the cloner."

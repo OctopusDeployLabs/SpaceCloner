@@ -35,6 +35,7 @@ param (
     $CloneProjectDeploymentProcess,
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
+    $CloneTenantVariables,
     $WhatIf
 )
 
@@ -138,6 +139,11 @@ if ($null -eq $WhatIf)
     $WhatIf = $false
 }
 
+if ($null -eq $CloneTenantVariables)
+{
+    $CloneTenantVariables = $false
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -166,7 +172,8 @@ $CloneScriptOptions = @{
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
-    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;    
+    CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess; 
+    CloneTenantVariables = $CloneTenantVariables;   
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"

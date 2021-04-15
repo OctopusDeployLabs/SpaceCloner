@@ -6,9 +6,17 @@ function Copy-OctopusTenantVariables
         $CloneScriptOptions        
     )
 
-    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantList -itemType "Tenants" -filters $cloneScriptOptions.TenantsToClone
-
     Write-OctopusChangeLog "Tenant Variables"
+
+    if ($cloneScriptOptions.CloneTenantVariables -eq $false)
+    {
+        Write-OctopusWarning "Clone tenant variables script option is not turned on, skipping"
+        Write-OctopusChangeLog " - Clone tenant variables is not enabled, skipping"
+        return
+    }
+
+    $filteredList = Get-OctopusFilteredList -itemList $sourceData.TenantList -itemType "Tenants" -filters $cloneScriptOptions.TenantsToClone
+    
     if ($filteredList.length -eq 0)
     {
         Write-OctopusChangeLog " - No tenants found to clone matching the filters"
