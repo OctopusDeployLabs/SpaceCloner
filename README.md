@@ -12,7 +12,7 @@ As such, we encourage you to fork it, test it out on an empty space or empty ins
 
 ## Issues and Feature Requests
 
-Issues, bugs, and feature requests are accepted.  We will do our best to accomodate you, however, this tool was written for specific use cases in mind and it might not match your specific use case.  You are free to fork the repository and fix any issues or add any features you think is useful.
+Issues, bugs, and feature requests are accepted.  Please create an issue in this repo and we will address it when we can.  We will do our best to accomodate your request, however, this tool was written for specific use cases in mind and it might not match your specific use case.  It is licensed under the [apache](license) license, you are free to fork the repository and fix any issues or add any features you think is useful.
 
 The Customer Solutions Team at Octopus Deploy plans on keeping this tool up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
 
