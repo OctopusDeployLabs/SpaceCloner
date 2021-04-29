@@ -12,9 +12,9 @@ As such, we encourage you to fork it, test it out on an empty space or empty ins
 
 ## Issues and Feature Requests
 
-Issues, bugs, and feature requests will not be accepted.  As stated earlier, this repository is [licensed](license) under the Apache license.  You are free to fork the repository and fix any issues or add any features you think is useful.
+Issues, bugs, and feature requests are accepted.  Please create an issue in this repo and we will address it when we can.  We will do our best to accomodate your request, however, this tool was written for specific use cases in mind and it might not match your specific use case.  It is licensed under the [apache](license) license, you are free to fork the repository and fix any issues or add any features you think is useful.
 
-The Octopus Advisory Team plans on keeping this script up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
+The Customer Solutions Team at Octopus Deploy plans on keeping this tool up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
 
 ## Pull Requests
 
@@ -32,9 +32,9 @@ This script has been tested against the following versions of Octopus Deploy:
 - `2020.6.x`
 - `2021.1.x`
 
-It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` release of Octopus Deploy.
+It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` or higher release of Octopus Deploy.
 
-The source instance and the destination instance **must** be running the same major/minor (2020.1, 2020.2) release.  The script will check the version of the source instance and destination instance to ensure this rule is met.
+The source instance and the destination instance **must** be running the same major/minor (2020.1, 2020.2) release.  The script will check the version of the source instance and destination instance to ensure this rule is met.  It is possible to override that requirement by setting the `IgnoreVersionCheckResult` to `$true`, however you run the risk of something not working or cloning correctly.
 
 # Just Get Me Going!
 
@@ -61,7 +61,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
 
 # What If Mode
 
-It can be scary to run a random script off the internet.  All the scripts in this repository include a `WhatIf` switch.  Set that switch to `$true` and the scripts will do everything up to the point of making changes to your destination.
+It can be scary to run a random script off the internet.  All the scripts in this repository include a `WhatIf` parameter.  Set that parameter to `$true` and the scripts will do everything up to the point of making changes to your destination.
 
 All the changes the script will do (or has done) is saved to the `ChangeLog.txt` file in the root directory.
 
@@ -79,7 +79,7 @@ This script was written to cover the following use cases.
 ## Possible but not recommended
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
 
-# How the space cloner workers
+# How the space cloner works
 Please see the [how it works page](docs/HowItWorks.md).
 
 # Sensitive variables
