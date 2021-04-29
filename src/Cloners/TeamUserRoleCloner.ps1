@@ -72,7 +72,7 @@ function Copy-OctopusSpaceTeamUserRoles
 
             if ($null -ne $copyOfItemToClone.UserRoleId)
             {
-                Write-OctopusChangeLog " - $($team.Name) adding $(copyOfItemToClone.UserRoleId)"
+                Write-OctopusChangeLog " - $($team.Name) adding $($copyOfItemToClone.UserRoleId)"
 
                 $copyOfItemToClone.TeamId = $matchingItem.Id
                 $copyOfItemToClone.ProjectIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdList $role.ProjectIds) 

@@ -45,6 +45,18 @@ function New-OctopusFakeTenantVariables
     }
 }
 
+function New-FakeUserRoleScoping
+{
+    return @{
+        ItemType = "ScopedUserRole"
+        TotalResults = 0
+        ItemsPerPage = 30
+        NumberOfPages = 1
+        LastPageNumber = 0
+        Items = @()
+    }
+}
+
 function New-OctopusFakeProjectDeploymentOrRunbookProcess
 {
     param (

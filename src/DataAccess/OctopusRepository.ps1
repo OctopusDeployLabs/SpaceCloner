@@ -319,6 +319,11 @@ function Get-OctopusTeamScopedUserRoleList
         $octopusData           
     )
 
+    if ($team.Id -notlike "Team*")
+    {
+        return New-FakeUserRoleScoping
+    }
+
     return Get-OctopusApiItemList -EndPoint "teams/$($team.Id)/scopeduserroles?skip=0&take=1000" -ApiKey $octopusData.OctopusApiKey -OctopusUrl $octopusData.OctopusUrl -SpaceId $null
 }
 
