@@ -79,7 +79,7 @@ This script was written to cover the following use cases.
 ## Possible but not recommended
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
 
-# How the space cloner workers
+# How the space cloner works
 Please see the [how it works page](docs/HowItWorks.md).
 
 # Sensitive variables
