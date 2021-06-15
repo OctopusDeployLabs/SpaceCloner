@@ -10,6 +10,7 @@ param (
     $TentacleInstanceNameToCopy,      
     $ClonedTentacleType,
     $ClonedInstanceName,
+    $ClonedListeningPort,
     $WhatIf
 )
 
@@ -513,7 +514,15 @@ $clonedTentaclesAreListening = Get-ClonedTentacleIsListening -existingTentacle $
 if ($clonedTentaclesAreListening)
 {    
     Write-OctopusSuccess "The cloned tentacle will be a listening tentacle, this script will create one new instance and do multiple registrations of that instance"
-    $tentacleListenPort = Get-OctopusListeningPortNumber -tentacleExe $tentacleExe
+    if ($null -ne $ClonedListeningPort)
+    {
+        $tentacleListenPort = $ClonedListeningPort
+    }
+    else
+    {
+        $tentacleListenPort = Get-OctopusListeningPortNumber -tentacleExe $tentacleExe    
+    }
+    
     $tentacleDirectory = Get-TentacleDirectories -ClonedInstanceName $ClonedInstanceName
     $Hostname = Get-ServerHostNameForListeningTentacleRegistration -targetRegistrationList $targetRegistrationList -workerRegistrationList $workerRegistrationList -DestinationOctopusUrl $DestinationOctopusUrl
 
