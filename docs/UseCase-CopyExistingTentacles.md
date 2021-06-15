@@ -1,7 +1,7 @@
 # Use Case: Point a Tentacle to Two Octopus Deploy Instances
 A tentacle establishes a two-way trust with an Octopus Deploy server by exchanging certificate thumbprints.  This is a security feature to ensure a tentacle won't accept commands from servers it doesn't trust, nor with the server accept connections from tentacles it doesn't trust.  
 
-There exists use cases where it makes sense to have the same VM registered in multiple spaces or instances.
+There exists a number of use cases where it makes sense to have the same VM registered in multiple spaces or instances.
 
 - Breaking up a large space into several smaller spaces.  Each space has a unique tentancle registration.
 - Wanting to set up a test Octopus Deploy instance but reuse the same Development VMs.  Each instance has a unique tentacle registration.
