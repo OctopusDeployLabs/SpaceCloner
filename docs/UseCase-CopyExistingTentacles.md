@@ -13,7 +13,7 @@ The script `CloneTentacleInstance.ps1` was designed to solve those use cases.  I
 
 When this script is finished you will have multiple tentacle instances running on your machine.  If you open up the tentacle manager you will see multiple instances when you click the instance name in the top right corner.
 
-![](img/multi-tentacle-instances.png)
+![](../img/multi-tentacle-instances.png)
 
 **Please Note**: As this is creating multiple tentacle instances this could have an impact on your license.  Our de-duplication logic sees each hostname/portnumber combo as a unique tentacle instance.  If you run this script multiple times you could see your target count increasing on your license. 
 
