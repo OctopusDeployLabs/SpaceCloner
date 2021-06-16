@@ -63,3 +63,47 @@ In this example, the tentacle is being cloned for a new space from a self-hosted
         -DestinationOctopusServerThumbprint "THUMBPRINT" `
         -ClonedTentacleType "Listening"
 ```
+
+## Clone an instance using Octopus Deploy script console
+
+In this example, Octopus Deploy will download a specific version of the tentacle cloner onto your local instance and run it.  This is useful if you need to clone a tentacle to a new instance and you don't want to set up an entire runbook.
+
+```PowerShell
+    $SourceOctopusUrl = "https://myinstance.com" 
+    $SourceOctopusApiKey = "API KEY" 
+    $SourceSpaceName = "Default"
+    $DestinationOctopusUrl = "https://myotherinstance.com" 
+    $DestinationOctopusApiKey = "API KEY" 
+    $DestinationSpaceName = "Default" 
+    $DestinationOctopusServerThumbprint = "THUMBPRINT"
+    $ClonedTentacleType = "AsIs"
+    $ClonedListeningPort = "10934"
+    $WhatIf = $true
+    $spaceClonerVersion = "2.1.2"
+
+    $currentLocation = Get-Location
+    $downloadFileName = "$currentLocation\$spaceClonerVersion.zip"
+
+    Write-Host "Downloading file from GitHub"
+    Invoke-RestMethod -Method "GET" -Uri "https://github.com/OctopusDeployLabs/SpaceCloner/archive/refs/tags/v$spaceClonerVersion.zip" -OutFile $downloadFileName -TimeoutSec 60
+    Write-Host "Download was succssful"
+
+    Write-Host "Starting to extract zip file"
+    Expand-Archive -Path $downloadFileName -DestinationPath $currentLocation
+    Write-Host "Extract was complete"
+
+    Set-Location "$currentLocation\SpaceCloner-$spaceClonerVersion\"
+    .\CloneTentacleInstance.ps1 `
+            -SourceOctopusUrl $SourceOctopusUrl `
+            -SourceOctopusApiKey $SourceOctopusApiKey `
+            -SourceSpaceName $SourceSpaceName `
+            -DestinationOctopusUrl $DestinationOctopusUrl `
+            -DestinationOctopusApiKey $DestinationOctopusApiKey `
+            -DestinationSpaceName $DestinationSpaceName `
+            -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint `
+            -ClonedTentacleType $ClonedTentacleType `
+            -ClonedListeningPort $ClonedListeningPort `
+            -WhatIf $WhatIf
+
+    Set-Location $currentLocation
+```
