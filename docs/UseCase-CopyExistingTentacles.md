@@ -1,7 +1,7 @@
 # Use Case: Point a Tentacle to Two Octopus Deploy Instances
-A tentacle establishes a two-way trust with an Octopus Deploy server by exchanging certificate thumbprints.  This is a security feature to ensure a tentacle won't accept commands from servers it doesn't trust, nor with the server accept connections from tentacles it doesn't trust.  
+A tentacle establishes a two-way trust with an Octopus Deploy server by exchanging certificate thumbprints.  This is a security feature to ensure a tentacle won't accept commands from servers it doesn't trust, nor will the server accept connections from tentacles it doesn't trust.  
 
-There exists a number of use cases where it makes sense to have the same VM registered in multiple spaces or instances.
+There are a number of use cases where it makes sense to have the same VM registered in multiple spaces or instances.
 
 - Breaking up a large space into several smaller spaces.  Each space has a unique tentancle registration.
 - Wanting to set up a test Octopus Deploy instance but reuse the same Development VMs.  Each instance has a unique tentacle registration.
@@ -10,6 +10,12 @@ There exists a number of use cases where it makes sense to have the same VM regi
 The script `CloneTentacleInstance.ps1` was designed to solve those use cases.  It will go through all the target and worker registrations for the tentacle and clone them for you.
 
 **Please Note**: You must run `CloneTentacleInstance.ps1` as an administrator or sudo or it will not work.  It is calling the `Tentacle.exe` to make changes on your machine.
+
+When this script is finished you will have multiple tentacle instances running on your machine.  If you open up the tentacle manager you will see multiple instances when you click the instance name in the top right corner.
+
+![](img/multi-tentacle-instances.png)
+
+**Please Note**: As this is creating multiple tentacle instances this could have an impact on your license.  Our de-duplication logic sees each hostname/portnumber combo as a unique tentacle instance.  If you run this script multiple times you could see your target count increasing on your license. 
 
 # Examples
 
