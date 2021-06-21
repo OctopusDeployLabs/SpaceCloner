@@ -33,7 +33,8 @@ function Write-OctopusVerbose
 {
     param($message) 
        
-    Add-Content -Value $message -Path $logPath    
+    Add-Content -Value $message -Path $logPath
+    Write-Verbose $message    
 }
 
 function Write-OctopusChangeLog
