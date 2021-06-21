@@ -499,6 +499,7 @@ function New-TentacleInstance
     catch 
     {
         Write-OctopusCritical "There was an exception cloning the tentacle, deleting the new tentacle instance"   
+        Write-OctopusSuccess $_
 	    & $tentacleExe delete-instance --instance $clonedInstanceName
     }
      
