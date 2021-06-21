@@ -394,7 +394,8 @@ function New-TentacleInstance
         $tentacleExe,
         $tentacleListenPort,
         $DestinationOctopusServerThumbprint,
-        $registrationList
+        $registrationList, 
+        $sourceData
     )
 
     try 
@@ -462,18 +463,37 @@ function New-TentacleInstance
             throw "Installation failed on configure: $errorMessage" 
         }
 
-        foreach ($argument in $registrationList.RegistrationList)
-        {            
-            Write-Host $argument.ArgumentList
-
-	        & $tentacleExe $argument.ArgumentList
-        }
-
         & $tentacleExe service --instance $clonedInstanceName --install --start --console
         if ($lastExitCode -ne 0) 
         { 
             $errorMessage = $error[0].Exception.Message	 
             throw "Installation failed on service install: $errorMessage" 
+        }
+
+        foreach ($rename in $registrationList.RenameList)
+        {
+            if ($rename.Type -eq "Target")
+            {
+                $target = Get-OctopusItemById -ItemList $sourceData.TargetList -ItemId $rename.Id
+                $target.Name = $rename.NewName
+
+                Save-OctopusTarget -target $target -destinationDate $sourceData
+            }
+
+            if ($rename.Type -eq "Worker")
+            {
+                $target = Get-OctopusItemById -ItemList $sourceData.WorkerList -ItemId $rename.Id
+                $target.Name = $rename.NewName
+
+                Save-OctopusWorker -target $target -destinationDate $sourceData
+            }
+        }
+
+        foreach ($argument in $registrationList.RegistrationList)
+        {            
+            Write-Host $argument.ArgumentList
+
+	        & $tentacleExe $argument.ArgumentList
         }
     }
     catch 
@@ -528,6 +548,7 @@ if ($clonedTentaclesAreListening)
 
     $registrationList = @{
         RegistrationList = @()
+        RenameList = @()
     }
 
     foreach ($target in $targetRegistrationList.MatchingRegistrations)
@@ -537,6 +558,16 @@ if ($clonedTentaclesAreListening)
         }
         
         $registrationList.RegistrationList += $registrationArguments
+        
+        if ($SourceOctopusUrl.ToLower().Trim() -eq $DestinationOctopusUrl.ToLower().Trim() -and $SourceSpaceName.ToLower().Trim() -eq $DestinationSpaceName.ToLower().Trim())
+        {
+            $registrationList.RenameList += @{
+                Type="Target"
+                Id = $target.Id
+                OldName = $target.Name
+                NewName = "$($target.Name)_Old"
+            }
+        }
     }
 
     foreach ($worker in $workerRegistrationList.MatchingRegistrations)
@@ -546,11 +577,21 @@ if ($clonedTentaclesAreListening)
         }
         
         $registrationList.RegistrationList += $registrationArguments
+
+        if ($SourceOctopusUrl.ToLower().Trim() -eq $DestinationOctopusUrl.ToLower().Trim() -and $SourceSpaceName.ToLower().Trim() -eq $DestinationSpaceName.ToLower().Trim())
+        {
+            $registrationList.RenameList += @{
+                Type="Worker"
+                Id = $worker.Id
+                OldName = $worker.Name
+                NewName = "$($worker.Name)_Old"
+            }
+        }
     }
 
     if ($WhatIf -eq $false)
     {
-        New-TentacleInstance -PollingTentacle $false -ClonedInstanceName $ClonedInstanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $tentacleListenPort -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList
+        New-TentacleInstance -PollingTentacle $false -ClonedInstanceName $ClonedInstanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $tentacleListenPort -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList -sourceData $sourceData
     }
     else
     {
@@ -559,6 +600,15 @@ if ($clonedTentaclesAreListening)
         foreach ($argument in $registrationList.RegistrationList.ArgumentList)
         {
             Write-Host $argument
+        }
+
+        if ($registrationList.RenameList.Count -gt 0)
+        {
+            Write-OctopusSuccess "I also would have renamed the existing tentacle registrations:"
+            foreach ($rename in $registrationList.RenameList)
+            {
+                Write-OctopusSuccess "$($rename.Id) $($rename.OldName) -> $($rename.NewName)"
+            }
         }
     }
 }
@@ -578,17 +628,37 @@ else
                     ArgumentList = New-OctopusRegistrationArguments -newInstanceName $instanceName -DestinationOctopusUrl $DestinationOctopusUrl -DestinationOctopusApiKey $DestinationOctopusApiKey -DestinationSpaceName $DestinationSpaceName -listeningTentacle $false -Hostname $null -IsTarget $true -machineRegistration $target
                 }
             )
-        }                 
+            RenameList = @()
+        }
+        
+        if ($SourceOctopusUrl.ToLower().Trim() -eq $DestinationOctopusUrl.ToLower().Trim() -and $SourceSpaceName.ToLower().Trim() -eq $DestinationSpaceName.ToLower().Trim())
+        {
+            $registrationList.RenameList += @{
+                Type="Target"
+                Id = $target.Id
+                OldName = $target.Name
+                NewName = "$($target.Name)_Old"
+            }
+        }
 
         if ($WhatIf -eq $false)
         {
-            New-TentacleInstance -PollingTentacle $true -ClonedInstanceName $instanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $null -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList
+            New-TentacleInstance -PollingTentacle $true -ClonedInstanceName $instanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $null -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList -sourceData $sourceData
         }
         else
         {
             Write-OctopusSuccess "What if is set to true.  I would have created a new polling tentacle with the instance name $instanceName and registered it as a target"            
             Write-Host $registrationList.RegistrationList[0].ArgumentList
             Write-Host ($tentacleDirectory | ConvertTo-Json)
+
+            if ($registrationList.RenameList.Count -gt 0)
+            {
+                Write-OctopusSuccess "I also would have renamed the existing tentacle registrations:"
+                foreach ($rename in $registrationList.RenameList)
+                {
+                    Write-OctopusSuccess "$($rename.Id) $($rename.OldName) -> $($rename.NewName)"
+                }
+            }
         }
     }
 
@@ -604,17 +674,37 @@ else
                     ArgumentList = New-OctopusRegistrationArguments -newInstanceName $instanceName -DestinationOctopusUrl $DestinationOctopusUrl -DestinationOctopusApiKey $DestinationOctopusApiKey -DestinationSpaceName $DestinationSpaceName -listeningTentacle $false -Hostname $null -IsTarget $false -machineRegistration $worker
                 }
             )
-        }                
+            RenameList = @()
+        }
+        
+        if ($SourceOctopusUrl.ToLower().Trim() -eq $DestinationOctopusUrl.ToLower().Trim() -and $SourceSpaceName.ToLower().Trim() -eq $DestinationSpaceName.ToLower().Trim())
+        {
+            $registrationList.RenameList += @{
+                Type="Worker"
+                Id = $worker.Id
+                OldName = $worker.Name
+                NewName = "$($worker.Name)_Old"
+            }
+        }
 
         if ($WhatIf -eq $false)
         {
-           New-TentacleInstance -PollingTentacle $true -ClonedInstanceName $instanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $null -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList
+           New-TentacleInstance -PollingTentacle $true -ClonedInstanceName $instanceName -tentacleDirectory $tentacleDirectory -tentacleExe $tentacleExe -tentacleListenPort $null -DestinationOctopusServerThumbprint $DestinationOctopusServerThumbprint -registrationList $registrationList -sourceData $sourceData
         }
         else
         {
             Write-OctopusSuccess "What if is set to true.  I would have created a new polling tentacle with the instance name $instanceName and registered it as a worker"
             Write-Host $registrationList.RegistrationList[0].ArgumentList
             Write-Host ($tentacleDirectory | ConvertTo-Json)
+
+            if ($registrationList.RenameList.Count -gt 0)
+            {
+                Write-OctopusSuccess "I also would have renamed the existing tentacle registrations:"
+                foreach ($rename in $registrationList.RenameList)
+                {
+                    Write-OctopusSuccess "$($rename.Id) $($rename.OldName) -> $($rename.NewName)"
+                }
+            }
         }
     }
 }
