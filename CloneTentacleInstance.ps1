@@ -11,6 +11,7 @@ param (
     $ClonedTentacleType,
     $ClonedInstanceName,
     $ClonedListeningPort,
+    $ExpectedSourceTentacleType,
     $WhatIf
 )
 
@@ -63,7 +64,12 @@ if ($null -eq $WhatIf)
 
 if ($ClonedTentacleType -ne "AsIs" -and $ClonedTentacleType -ne "Polling" -and $ClonedTentacleType -ne "Listening")
 {
-    Throw "The parameter value $ClonedTentacleType for the parameter $ClonedTentacleType is not supported.  It must be 'AsIs', 'Polling' or 'Listening'"
+    Throw "The parameter value $ClonedTentacleType for the parameter ClonedTentacleType is not supported.  It must be 'AsIs', 'Polling' or 'Listening'"
+}
+
+if ([string]::IsNullOrEmpty($ExpectedSourceTentacleType) -eq $false -and $ExpectedSourceTentacleType -ne "Polling" -and $ExpectedSourceTentacleType -ne "Listening")
+{
+    Throw "The parameter value $ExpectedSourceTentacleType for the parameter ExpectedSourceTentacleType is not supported.  It must be 'Polling' or 'Listening'"
 }
 
 function Get-MyPublicIPAddress 
@@ -479,8 +485,9 @@ function New-TentacleInstance
             if ($rename.Type -eq "Target")
             {
                 $itemToUpdate = Get-OctopusItemById -ItemList $sourceData.TargetList -ItemId $rename.Id
-                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
+                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName) and disabling the target"
                 $itemToUpdate.Name = $rename.NewName
+                $itemToUpdate.IsDisabled = $true
 
                 Save-OctopusTarget -target $itemToUpdate -destinationData $sourceData
             }
@@ -488,8 +495,9 @@ function New-TentacleInstance
             if ($rename.Type -eq "Worker")
             {
                 $itemToUpdate = Get-OctopusItemById -ItemList $sourceData.WorkerList -ItemId $rename.Id
-                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
+                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName) and disabling the worker"
                 $itemToUpdate.Name = $rename.NewName
+                $itemToUpdate.IsDisabled = $true
 
                 Save-OctopusWorker -worker $itemToUpdate -destinationData $sourceData
             }
@@ -531,13 +539,27 @@ $tentacleExe = [System.IO.Path]::Combine($TentacleInstallDirectory, "Tentacle")
 $currentTentacleInformation = (& $tentacleExe show-configuration --instance="$TentacleInstanceNameToCopy") | Out-String | ConvertFrom-Json
 Write-OctopusSuccess "Found current tentacle with a thumbprint of $($currentTentacleInformation.Tentacle.CertificateThumbprint), the nolisten set to $($currentTentacleInformation.Tentacle.Services.NoListen) and port set to $($currentTentacleInformation.Tentacle.Services.PortNumber)"
 
+$clonedTentaclesAreListening = Get-ClonedTentacleIsListening -existingTentacle $currentTentacleInformation -ClonedTentacleType $ClonedTentacleType
+if ([string]::IsNullOrWhiteSpace($ExpectedSourceTentacleType) -eq $false)
+{
+    if ($ExpectedSourceTentacleType -eq "Polling" -and $clonedTentaclesAreListening -eq $true)
+    {
+        Write-OctopusSuccess "The expected tentacle type was polling but the specified tentacle instance $TentacleInstanceNameToCopy is a listening tentacle.  Exiting."
+        exit 0
+    }
+
+    if ($ExpectedSourceTentacleType -eq "Listening" -and $clonedTentaclesAreListening -eq $false)
+    {
+        Write-OctopusSuccess "The expected tentacle type was listening but the specified tentacle instance $TentacleInstanceNameToCopy is a polling tentacle.  Exiting."
+        exit 0
+    }
+}
+
 Write-OctopusSuccess "Loading up source data"
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -loadTargetInformationOnly $true -whatif $whatIf
 
 $targetRegistrationList = New-OctopusTargetRegistration -sourceData $sourceData -currentTentacleInformation $currentTentacleInformation
 $workerRegistrationList = New-OctopusWorkerRegistration -sourceData $sourceData -currentTentacleInformation $currentTentacleInformation
-
-$clonedTentaclesAreListening = Get-ClonedTentacleIsListening -existingTentacle $currentTentacleInformation -ClonedTentacleType $ClonedTentacleType
 
 if ($clonedTentaclesAreListening)
 {    
