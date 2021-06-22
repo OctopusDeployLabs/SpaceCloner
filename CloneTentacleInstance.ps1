@@ -505,6 +505,7 @@ function New-TentacleInstance
         Write-OctopusCritical "There was an exception cloning the tentacle, deleting the new tentacle instance"   
         Write-OctopusSuccess $_
 	    & $tentacleExe delete-instance --instance $clonedInstanceName
+        Throw "There was an error cloning the tentacle, the new tentacle instance was deleted."
     }
      
 }
@@ -529,7 +530,7 @@ $currentTentacleInformation = (& $tentacleExe show-configuration --instance="$Te
 Write-OctopusSuccess "Found current tentacle with a thumbprint of $($currentTentacleInformation.Tentacle.CertificateThumbprint), the nolisten set to $($currentTentacleInformation.Tentacle.Services.NoListen) and port set to $($currentTentacleInformation.Tentacle.Services.PortNumber)"
 
 Write-OctopusSuccess "Loading up source data"
-$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -loadTargetInformationOnly $true
+$sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -loadTargetInformationOnly $true -whatif $whatIf
 
 $targetRegistrationList = New-OctopusTargetRegistration -sourceData $sourceData -currentTentacleInformation $currentTentacleInformation
 $workerRegistrationList = New-OctopusWorkerRegistration -sourceData $sourceData -currentTentacleInformation $currentTentacleInformation
