@@ -22,5 +22,6 @@ The script `CloneTentacleInstance.ps1` accepts the following parameters.
 - `ClonedTentacleType` - Indicates the type of tentacle that will be created.  Acceptable values are `AsIs` meaning whatever source is, copy it, `Polling`, meaning no matter what make it a polling tentacle and `Listening`, meaning no matter what make it a listening tentacle.  The default is `AsIs`.
 - `ClonedListeningPort` - Indicates the port number of your new tentacle when using a listening tentacle.  The default is `$null`.  The script will attempt to calculate the next port number to use.  Set this when you have a specific port number you opened up via a firewall.
 - `ClonedInstanceName` - The name of the new tentacle instance.  Defaults to `ClonedInstance`.
+- `ClonedTentacleHostName` - The name of the host (or IP address) you wish to use when creating a listening tentacle.  Defaults to `$null` and it will attempt to pull the public IP address of the server.  
 - `ExpectedSourceTentacleType` - Indicates the type of tentacle you expect to clone.  Options are `Polling` and `Listening`.  If you send in `Listening` and the tentacle is polling the script will exit.  Defaults to `$null` and is ignored.
 - `WhatIf` - Set to `$true` if you want to see everything this script will do without it actually doing the work.  Set to `$false` to have it do the work.  Defaults to `$false`.

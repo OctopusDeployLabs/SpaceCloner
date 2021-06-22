@@ -12,6 +12,7 @@ param (
     $ClonedInstanceName,
     $ClonedListeningPort,
     $ExpectedSourceTentacleType,
+    $ClonedTentacleHostName,
     $WhatIf
 )
 
@@ -260,7 +261,8 @@ function Get-ServerHostNameForListeningTentacleRegistration
         $targetRegistrationList,
         $workerRegistrationList,
         $DestinationOctopusUrl,
-        $clonedTentaclesAreListening
+        $clonedTentaclesAreListening,
+        $ClonedTentacleHostName
     )
 
     if ($clonedTentaclesAreListening -eq $false)
@@ -273,6 +275,11 @@ function Get-ServerHostNameForListeningTentacleRegistration
     if ($null -eq $Hostname)
     {
         $Hostname = $workerRegistrationList.Hostname
+    }
+
+    if ([string]::IsNullOrWhiteSpace($ClonedTentacleHostName) -eq $false)
+    {
+        $Hostname = $ClonedTentacleHostName
     }
 
     if ($null -eq $Hostname)
@@ -574,7 +581,7 @@ if ($clonedTentaclesAreListening)
     }
     
     $tentacleDirectory = Get-TentacleDirectories -ClonedInstanceName $ClonedInstanceName
-    $Hostname = Get-ServerHostNameForListeningTentacleRegistration -targetRegistrationList $targetRegistrationList -workerRegistrationList $workerRegistrationList -DestinationOctopusUrl $DestinationOctopusUrl
+    $Hostname = Get-ServerHostNameForListeningTentacleRegistration -targetRegistrationList $targetRegistrationList -workerRegistrationList $workerRegistrationList -DestinationOctopusUrl $DestinationOctopusUrl -ClonedTentacleHostName $ClonedTentacleHostName
 
     $registrationList = @{
         RegistrationList = @()
