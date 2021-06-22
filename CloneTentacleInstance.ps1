@@ -270,13 +270,16 @@ function Get-ServerHostNameForListeningTentacleRegistration
         return $null
     }
 
-    $Hostname = $targetRegistrationList.Hostname
+    Write-OctopusVerbose "Attempting to set the host name to the target host name"
+    $Hostname = $targetRegistrationList.Hostname    
 
     if ($null -eq $Hostname)
     {
+        Write-OctopusVerbose "Attempting to set the host name to the worker host name"
         $Hostname = $workerRegistrationList.Hostname
     }
 
+    Write-OctopusVerbose "Checking to see if the host name was passed in as a paramter $ClonedTentacleHostName"
     if ([string]::IsNullOrWhiteSpace($ClonedTentacleHostName) -eq $false)
     {
         $Hostname = $ClonedTentacleHostName
@@ -303,6 +306,7 @@ function Get-ServerHostNameForListeningTentacleRegistration
         Write-OctopusCritical "Someone ate their YOLO flakes this morning, proceeding with registration."
     }
 
+    Write-OctopusVerbose "The host name after all of this is $HostName"
     return $Hostname
 }
 
