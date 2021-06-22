@@ -478,18 +478,20 @@ function New-TentacleInstance
         {
             if ($rename.Type -eq "Target")
             {
-                $target = Get-OctopusItemById -ItemList $sourceData.TargetList -ItemId $rename.Id
-                $target.Name = $rename.NewName
+                $itemToUpdate = Get-OctopusItemById -ItemList $sourceData.TargetList -ItemId $rename.Id
+                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
+                $itemToUpdate.Name = $rename.NewName
 
-                Save-OctopusTarget -target $target -destinationDate $sourceData
+                Save-OctopusTarget -target $itemToUpdate -destinationDate $sourceData
             }
 
             if ($rename.Type -eq "Worker")
             {
-                $worker = Get-OctopusItemById -ItemList $sourceData.WorkerList -ItemId $rename.Id
-                $worker.Name = $rename.NewName
+                $itemToUpdate = Get-OctopusItemById -ItemList $sourceData.WorkerList -ItemId $rename.Id
+                Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
+                $itemToUpdate.Name = $rename.NewName
 
-                Save-OctopusWorker -worker $worker -destinationDate $sourceData
+                Save-OctopusWorker -worker $itemToUpdate -destinationDate $sourceData
             }
         }
 

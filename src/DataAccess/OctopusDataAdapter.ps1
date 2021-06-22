@@ -157,6 +157,7 @@ Function Save-OctopusApi
         $whatIf
     )
 
+    Write-OctopusVerbose "Checking to see if the whatif flag was sent in"
     if ($null -ne $whatIf -and $whatIf -eq $true)
     {
         Write-OctopusVerbose "What if set to true, skipping $method to $endPoint and just returning the item"
@@ -169,6 +170,7 @@ Function Save-OctopusApi
         
         if ((Test-OctopusObjectHasProperty -objectToTest $Item -propertyName "Id") -eq $true -and $null -eq $Item.Id)
         {
+            Write-OctopusVerbose "Setting the Id property to a GUID"
             $Item.Id = (New-Guid).ToString()
         }
 
@@ -199,6 +201,7 @@ function Save-OctopusApiItem
     {
         Write-OctopusVerbose "Item has id, updating method call to PUT"
         $method = "Put"
+        Write-OctopusVerbose "Updating the endpoint from $endpoint to $endpoint/$($Item.Id)"
         $endPoint = "$endPoint/$($Item.Id)"
     }
 
