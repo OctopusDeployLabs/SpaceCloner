@@ -482,7 +482,7 @@ function New-TentacleInstance
                 Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
                 $itemToUpdate.Name = $rename.NewName
 
-                Save-OctopusTarget -target $itemToUpdate -destinationDate $sourceData
+                Save-OctopusTarget -target $itemToUpdate -destinationData $sourceData
             }
 
             if ($rename.Type -eq "Worker")
@@ -491,7 +491,7 @@ function New-TentacleInstance
                 Write-OctopusVerbose "Renaming $($itemToUpdate.Name) to $($rename.NewName)"
                 $itemToUpdate.Name = $rename.NewName
 
-                Save-OctopusWorker -worker $itemToUpdate -destinationDate $sourceData
+                Save-OctopusWorker -worker $itemToUpdate -destinationData $sourceData
             }
         }
 
