@@ -33,8 +33,8 @@ function Write-OctopusVerbose
 {
     param($message) 
        
-    Add-Content -Value $message -Path $logPath
     Write-Verbose $message    
+    Write-OctopusLog $message
 }
 
 function Write-OctopusChangeLog
@@ -90,7 +90,7 @@ function Write-OctopusSuccess
     param($message)
 
     Write-Host $message -ForegroundColor Green
-    Write-OctopusVerbose $message    
+    Write-OctopusLog $message    
 }
 
 function Write-OctopusWarning
@@ -98,7 +98,7 @@ function Write-OctopusWarning
     param($message)
 
     Write-Host "Warning $message" -ForegroundColor Yellow    
-    Write-OctopusVerbose $message
+    Write-OctopusLog $message
 }
 
 function Write-OctopusCritical
@@ -106,7 +106,7 @@ function Write-OctopusCritical
     param ($message)
 
     Write-Host "Critical Message: $message" -ForegroundColor Red
-    Write-OctopusVerbose $message
+    Write-OctopusLog $message
 }
 
 function Write-OctopusPostCloneCleanUp
@@ -121,6 +121,13 @@ function Write-OctopusPostCloneCleanUpHeader
     param($message)
 
     Add-Content -Value $message -Path $cleanupLogPath
+}
+
+function Write-OctopusLog
+{
+    param ($message)
+
+    Add-Content -Value $message -Path $logPath
 }
 
 Write-OctopusSuccess "Using version $clonerVersion of the cloner."

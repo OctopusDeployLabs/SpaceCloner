@@ -146,7 +146,8 @@ function New-OctopusTargetRegistration
                 TenantTags = $machine.TenantTags;
                 TenantType = $machine.TenantedDeploymentParticipation;
                 MachinePolicyName = $(Get-OctopusItemById -ItemList $sourceData.MachinePolicyList -ItemId $machine.MachinePolicyId).Name;
-                MachineName = $machine.Name                                        
+                MachineName = $machine.Name
+                Id = $machine.Id                                        
             }            
 
             Write-OctopusSuccess "Found the source machine in the source instance. It has the ID of $($machine.Id)"                        
@@ -189,9 +190,12 @@ function New-OctopusWorkerRegistration
                 WorkerPoolList = @(Convert-OctopusIdListToNameList -IdList $worker.WorkerPoolIds -itemList $sourceData.WorkerPoolList);
                 MachinePolicyName = $(Get-OctopusItemById -ItemList $sourceData.MachinePolicyList -ItemId $worker.MachinePolicyId).Name;
                 MachineName = $worker.Name
+                Id = $worker.Id
             }                                                
         }
     }
+
+    return $workerRegistration
 }
 
 function Get-ClonedTentacleIsListening
@@ -565,8 +569,8 @@ if ($clonedTentaclesAreListening)
             $registrationList.RenameList += @{
                 Type="Target"
                 Id = $target.Id
-                OldName = $target.Name
-                NewName = "$($target.Name)_Old"
+                OldName = $target.MachineName
+                NewName = "$($target.MachineName)_Old"
             }
         }
     }
@@ -584,8 +588,8 @@ if ($clonedTentaclesAreListening)
             $registrationList.RenameList += @{
                 Type="Worker"
                 Id = $worker.Id
-                OldName = $worker.Name
-                NewName = "$($worker.Name)_Old"
+                OldName = $worker.MachineName
+                NewName = "$($worker.MachineName)_Old"
             }
         }
     }
@@ -637,8 +641,8 @@ else
             $registrationList.RenameList += @{
                 Type="Target"
                 Id = $target.Id
-                OldName = $target.Name
-                NewName = "$($target.Name)_Old"
+                OldName = $target.MachineName
+                NewName = "$($target.MachineName)_Old"
             }
         }
 
@@ -683,8 +687,8 @@ else
             $registrationList.RenameList += @{
                 Type="Worker"
                 Id = $worker.Id
-                OldName = $worker.Name
-                NewName = "$($worker.Name)_Old"
+                OldName = $worker.MachineName
+                NewName = "$($worker.MachineName)_Old"
             }
         }
 
