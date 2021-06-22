@@ -170,15 +170,17 @@ Function Save-OctopusApi
         
         if ((Test-OctopusObjectHasProperty -objectToTest $Item -propertyName "Id") -eq $true -and $null -eq $Item.Id)
         {
-            Write-OctopusVerbose "Setting the Id property to a GUID"
+            Write-OctopusVerbose "Setting the Id property to a GUID because it was null"
             $Item.Id = (New-Guid).ToString()
         }
 
         return $item
     }
 
+    Write-OctopusVerbose "What if was set to false, pulling back the full URL"
     $url = Get-OctopusUrl -EndPoint $EndPoint -SpaceId $SpaceId -OctopusUrl $OctopusUrl
 
+    Write-OctopusVerbose "The URL to call is $url, invoking the API"
     $results = Invoke-OctopusApi -Method $Method -Url $url -apiKey $ApiKey -item $item
 
     return $results
