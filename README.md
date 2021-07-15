@@ -2,7 +2,9 @@
 PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
 # The cloning process won't cover all use cases
-This script was developed internally for the Octopus Advisory Team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
+This script was developed internally by the Customer Solutions Team at Octopus Deploy to solve specific use cases we encounter each day.  Our typical workflow is to get a deployment / project / space configured locally before pushing it up to our [Samples](https://samples.octopus.app) instance.  Or, we have a complex sample working locally, that we want to push up, and then simplify for general consumption.
+
+We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
 
 > **Note:** if you have questions on how to use this script please reach out to advice@octopus.com
 
@@ -66,7 +68,7 @@ It can be scary to run a random script off the internet.  All the scripts in thi
 All the changes the script will do (or has done) is saved to the `ChangeLog.txt` file in the root directory.
 
 # Use cases
-This script was written to cover the following use cases.
+Space Cloner was written to cover the following use cases.
 
 - As a user, I want to split my one massive default space into [multiple spaces on the same instance](docs/UseCase-BreakUpSpace.md).
 - As a user, I have two Octopus Deploy instances.  One for dev/test deployments.  Another for staging/prod deployments.  I have the [same set of projects I want to keep in sync](docs/UseCase-KeepInstancesInSync.md).
@@ -76,8 +78,20 @@ This script was written to cover the following use cases.
 - As a user, I would like to [create a copy an existing variable set in the same space](docs/UseCase-CopyLibraryVariableSet.md).
 - As a user, I would like to [copy existing tentacles to point to a new instance](docs/UseCase-CopyExistingTentacles.md)
 
+The Space Cloner leverages the Octopus Deploy API.  That limits what it can and cannot do.
+-  It cannot clone deployments or releases.  If it did a POST to copy over a release all the audit records would show the release was created at the time the space cloner ran not the original release date on the source.  A POST to the deployment API would perform an actual deployment, not copy over deployment information such as task logs, artifacts, etc.
+-  It cannot clone sensitive variables, accounts, or anything else encrypted in the database.  Those are never returned in the API anyway.
+
 ## Possible but not recommended
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
+
+## Unsupported
+The use cases for the space cloner is centered around repeated runs between two spaces.  The spaces could be on the same instance.  Or they could be on two self-hosted instances, or one self-hosted instance and one cloud instance.  
+
+It wasn't intended to keep two instances fully in sync.  It won't clone:
+- Users (the API cannot copy passwords as it doesn't have access to them)
+- User Roles
+- Server Settings (folders, JIRA, auth options, etc).  Most of those have some sort or password associated with them, which is never returned in the API.
 
 # How the space cloner works
 Please see the [how it works page](docs/HowItWorks.md).
