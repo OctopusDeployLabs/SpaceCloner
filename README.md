@@ -171,3 +171,11 @@ The space cloner matches variables by comparing:
 - Role Scoping
 
 If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
+
+### Why doesn't the space cloner clone deployments and releases?
+
+It is a limitation of the space cloner going through the API.  You might have releases `1.1.0`, `1.2.1`, and `1.4.5` all created months apart.  If the space cloner were to clone those releases it would snapshot the existing deployment process and variables as they exists today AND set the release creation date to be today.  It wouldn't be a true clone.
+
+For deployments, Octopus would do the actual deployment.  Which means it would first deploy `1.1.0`, then `1.2.1` and then `1.4.5`, but each one would use the deployment process as it exists today.  
+
+In a nutshell, it would be a big mess and not an accurate representation of your releases or deployments.
