@@ -73,49 +73,69 @@ function Copy-OctopusVariableSetValues
             $octopusVariable.Value = "Dummy Value"
         }        
         
-        $foundIndex = -1     
+        $foundIndex = -1
+        $variableMatchType = "NoMatch"     
         Write-OctopusVerbose "Checking if $variableName exists on destination"   
         for($i = 0; $i -lt $DestinationVariableSetVariables.Variables.Length; $i++)
         {            
-            if ((Compare-OctopusVariables -sourceVariable $octopusVariable -destinationVariable $DestinationVariableSetVariables.Variables[$i] -sourceData $sourceData -destinationData $destinationData))
+            $localVariableMatchType = Compare-OctopusVariables -sourceVariable $octopusVariable -destinationVariable $DestinationVariableSetVariables.Variables[$i] -sourceData $sourceData -destinationData $destinationData
+            if ($localVariableMatchType -ne "NoMatch")
             {
-                $foundIndex = $i                
+                $foundIndex = $i 
+                $variableMatchType = $localVariableMatchType               
                 break
             }
         }   
      
-        if ($foundIndex -eq -1)
+        if ($variableMatchType -eq "NoMatch")
         {
             Write-OctopusVerbose "New variable $variableName with unique scoping has been found.  Adding to list."
-            Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"
-            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
-            $DestinationVariableSetVariables.Variables += $octopusVariable
-        }
-        elseif ($CloneScriptOptions.OverwriteExistingVariables -eq $false)
-        {
-            Write-OctopusVerbose "The variable $variableName already exists on the host and you elected to only copy over new items, skipping this one."
-            Write-OctopusChangeLog "      - $variableName already exists with the following scope, skipping"
-            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
-        }                                         
-        elseif ($foundIndex -gt -1 -and $DestinationVariableSetVariables.Variables[$foundIndex].IsSensitive -eq $true)
-        {
-            Write-OctopusVerbose "The variable $variableName with matching scoping is sensitive on the destination, leaving as is on the destination."
-            Write-OctopusChangeLog "      - $variableName already exists with the following scope and is a sensitive variable, skipping"
-            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
-        }
-        elseif ($foundIndex -gt -1)
-        {
-            $DestinationVariableSetVariables.Variables[$foundIndex].Value = $octopusVariable.Value
-            $DestinationVariableSetVariables.Variables[$foundIndex].Scope = $octopusVariable.Scope
 
-            Write-OctopusChangeLog "      - Update $variableName with value $($octopusVariable.Value)"
+            Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"
             Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
 
             if ($octopusVariable.Value -eq "Dummy Value")         
             {                
                 Write-OctopusPostCloneCleanUp "The variable $variableName is a sensitive variable, value set to 'Dummy Value'"
             }
-        }        
+            
+            $octopusVariable.Id = $null
+
+            $DestinationVariableSetVariables.Variables += $octopusVariable
+        }
+        elseif ($variableMatchType -eq "ScopeMatch" -and $CloneScriptOptions.OverwriteExistingVariables -eq $false)
+        {
+            Write-OctopusVerbose "The variable $variableName already exists on the destination with matching scope and you elected to only copy over new items, skipping this one."
+            Write-OctopusChangeLog "      - $variableName already exists with the following scope, skipping"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
+        }                                         
+        elseif ($variableMatchType -eq "ScopeMatch" -and $DestinationVariableSetVariables.Variables[$foundIndex].IsSensitive -eq $true)
+        {
+            Write-OctopusVerbose "The variable $variableName with matching scoping is sensitive on the destination, leaving as is on the destination."
+            Write-OctopusChangeLog "      - $variableName already exists with the following scope and is a sensitive variable, skipping"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
+        }
+        elseif ($variableMatchType -eq "ScopeMatch")
+        {
+            $DestinationVariableSetVariables.Variables[$foundIndex].Value = $octopusVariable.Value            
+
+            Write-OctopusVerbose "The variable $variableName has a matching scope and you elected to update existing values.  Updating the value."
+            Write-OctopusChangeLog "      - Update $variableName value with value $($octopusVariable.Value)"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
+
+            if ($octopusVariable.Value -eq "Dummy Value")         
+            {                
+                Write-OctopusPostCloneCleanUp "The variable $variableName is a sensitive variable, value set to 'Dummy Value'"
+            }
+        }
+        elseif ($variableMatchType -eq "ValueMatch")        
+        {
+            $DestinationVariableSetVariables.Variables[$foundIndex].Scope = $octopusVariable.Scope
+
+            Write-OctopusVerbose "The variable $variableName has a matching value AND name.  Updating the scope to match."
+            Write-OctopusChangeLog "      - Update $variableName scoping with value $($octopusVariable.Value)"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
+        }
     }
 
     $variableSetValues = Save-OctopusVariableSetVariables -libraryVariableSetVariables $DestinationVariableSetVariables -destinationData $DestinationData        
@@ -132,8 +152,8 @@ function Compare-OctopusVariables
 
     if ($destinationVariable.Name -ne $sourceVariable.Name)
     {
-        Write-OctopusVerbose "      The source variable name $($sourceVariable.Name) does not equal the destination name $($destinationVariable.Name).  They do not match, skipping."
-        return $false
+        Write-OctopusVerbose "      The source variable name $($sourceVariable.Name) does not equal the destination name $($destinationVariable.Name).  They do not match."
+        return "NoMatch"
     }
     else
     {
@@ -142,64 +162,70 @@ function Compare-OctopusVariables
 
     if ($destinationVariable.IsSensitive -ne $sourceVariable.IsSensitive)
     {
-        Write-OctopusVerbose "      The source variable IsSensitive is set to $($sourceVariable.IsSensitive) while the destination is set to $($destinationVariable.IsSensitive).  They do not match.  Skipping."
-        return $false
+        Write-OctopusVerbose "      The source variable IsSensitive is set to $($sourceVariable.IsSensitive) while the destination is set to $($destinationVariable.IsSensitive).  They do not match."
+        return "NoMatch"
     }
     else
     {
         Write-OctopusVerbose "      The source variable name $($sourceVariable.Name) and the destination $($destinationVariable.Name) have the same sensitivity.  Moving on to checking scoping."
     }
 
+    if ($destinationVariable.IsSensitive -eq $false -and $sourceVariable.IsSensitive -eq $false -and $sourceVariable.Value.ToLower().Trim() -eq $destinationVariable.Value.ToLower().Trim())
+    {
+        Write-OctopusVerbose "      The source variable and the destination variable have the same name AND the same value"
+        return "ValueMatch"
+    }
+
     $hasMatchingEnvironmentScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Environment"
 
     if ($hasMatchingEnvironmentScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingChannelScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Channel"
 
     if ($hasMatchingChannelScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingProcessOwnerScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "ProcessOwner"
 
     if ($hasMatchingProcessOwnerScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingActionScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Action"
 
     if ($hasMatchingActionScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingRoleScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Role"
 
     if ($hasMatchingRoleScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingMachineScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Machine"
 
     if ($hasMatchingMachineScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
     $hasMatchingMachineScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "TenantTag"
 
     if ($hasMatchingMachineScoping -eq $false)
     {
-        return $false
+        return "NoMatch"
     }
 
-    return $true
+    return "ScopeMatch"
 }
 
 function Compare-VariableScopingProperty
@@ -217,18 +243,18 @@ function Compare-VariableScopingProperty
 
     if ($sourceHasPropertyScoping -ne $destinationHasPropertyScoping)
     {  
-        Write-OctopusVerbose "      The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.$propertyName).  This means one has scoping while the other does not."
+        Write-OctopusVerbose "          The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.$propertyName).  This means one has scoping while the other does not."
 
         return $false
     }
     
     if ($sourceHasPropertyScoping -and $destinationHasPropertyScoping)
     {
-        Write-OctopusVerbose "      The source variable and destination variable are both scoped to $($propertyName)s, comparing the two scoping"
+        Write-OctopusVerbose "          The source variable and destination variable are both scoped to $($propertyName)s, comparing the two scoping"
 
         if ($sourceVariable.Scope.$propertyName.Length -ne $destinationVariable.Scope.$propertyName.Length)
         {
-            Write-OctopusVerbose "      The source variable and destination variable do not have the same $propertyName scoping length, they do not match"
+            Write-OctopusVerbose "          The source variable and destination variable do not have the same $propertyName scoping length, they do not match"
 
             return $false
         }
@@ -239,16 +265,20 @@ function Compare-VariableScopingProperty
 
             if ($null -eq $matchingDestinationValue)
             {
-                Write-OctopusVerbose "      The $propertyName id $destinationEnvironmentId cannot be found in the destination variable scope and they have already been converted over, so there should be a match, there is no way they match."
+                Write-OctopusVerbose "          The $propertyName id $sourceValue cannot be found in the destination variable scope and they have already been converted over, so there should be a match, there is no way they match."
                 return $false
+            }
+            else
+            {
+                Write-OctopusVerbose "          The $propertyName id $sourceValue was found in the destination variable scope.  Moving onto the next scope."    
             }
         }
 
-        Write-OctopusVerbose "      The source variable and destination variable $propertyName scoping matches"
+        Write-OctopusVerbose "          The source variable and destination variable $propertyName scoping matches."
     }
     else 
     {
-        Write-OctopusVerbose "      The source variable and destination variable are both not scoped to $($propertyName)s, moving on"
+        Write-OctopusVerbose "          The source variable and destination variable are both not scoped to $($propertyName)s.  Therefore the scope matches."
     }
 
     return $true
