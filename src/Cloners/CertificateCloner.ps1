@@ -8,7 +8,7 @@ function Copy-OctopusCertificates
     
     $certListToClone = $cloneScriptOptions.CertificatesToClone -split ","
     
-    foreach ($certNameAndPassword in $filteredList)
+    foreach ($certNameAndPassword in $certListToClone)
     {
         $certSplit = $certNameAndPassword -split "::"
         $certName = $certSplit[0]

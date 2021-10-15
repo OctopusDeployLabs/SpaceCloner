@@ -21,6 +21,7 @@ param (
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
     $CloneTenantVariables,
+    $CertificatesToClone,
     $WhatIf  
 )
 
@@ -112,6 +113,7 @@ $cloneSpaceCommandLineOptions = @{
     SpaceTeamsToClone = $null;    
     RolesToClone = $null;
     PackagesToClone = $null;
+    CertificatesToClone = $CertificatesToClone;
 }
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
@@ -638,6 +640,7 @@ Write-OctopusSuccess "  -WorkersToClone $($cloneSpaceCommandLineOptions.WorkersT
 Write-OctopusSuccess "  -TargetsToClone $($cloneSpaceCommandLineOptions.TargetsToClone)"
 Write-OctopusSuccess "  -SpaceTeamsToClone $($cloneSpaceCommandLineOptions.SpaceTeamsToClone)"
 Write-OctopusSuccess "  -PackagesToClone $($cloneSpaceCommandLineOptions.PackagesToClone)"
+Write-OctopusSuccess "  -CertificatesToClone $($cloneSpaceCommandLineOptions.CertificatesToClone)"
 Write-OctopusSuccess "  -OverwriteExistingVariables $OverwriteExistingVariables"
 Write-OctopusSuccess "  -OverwriteExistingCustomStepTemplates $OverwriteExistingCustomStepTemplates"
 Write-OctopusSuccess "  -OverwriteExistingLifecyclesPhases $OverwriteExistingLifecyclesPhases"
