@@ -3,10 +3,6 @@ It is easy to clone a project in Octopus Deploy.  However, once that is done, ke
 
 Please refer to the [how it works page](HowItWorks.md#what-will-it-clone) to get a full list of items cloned and not cloned.
 
-## Runbooks
-
-Right now, the runbook clone is very simple.  You tell it to sync the runbooks, or you tell it to skip the runbooks.  
-
 # Example - Parent / Child Projects Different Space
 
 This example is syncing the parent project in the same space.  

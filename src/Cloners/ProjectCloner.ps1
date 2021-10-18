@@ -25,6 +25,15 @@ function Copy-OctopusProjects
     
     foreach($project in $filteredList)
     {
+        if ((Test-OctopusObjectHasProperty -objectToTest $project -propertyName "IsVersionControlled"))
+        {
+            if ($project.IsVersionControlled -eq $true)
+            {
+                Write-OctopusError "Unable to clone $($project.Name) because has been configured for version control.  At this time, the space cloner does not support version control."
+                continue
+            }
+        }
+        
         $destinationProject = Copy-OctopusProjectSettings -sourceData $SourceData -destinationData $DestinationData -sourceProject $project                       
 
         $sourceChannels = Get-OctopusProjectChannelList -project $project -octopusData $sourceData

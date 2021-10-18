@@ -4,3 +4,6 @@
 /src/**/*.tmp
 /src/**/*.zip
 /src/**/*.nupkg
+/src/**/*.pfx
+/src/**/*.pem
+/src/**/*.der

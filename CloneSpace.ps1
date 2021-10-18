@@ -25,6 +25,7 @@ param (
     $SpaceTeamsToClone, 
     $PackagesToClone,   
     $RunbooksToClone,
+    $CertificatesToClone,
     $OverwriteExistingVariables,    
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
@@ -49,6 +50,7 @@ param (
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "AccountCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ActionCloner.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "CertificateCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "EnvironmentCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "ExternalFeedCloner.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Cloners", "LibraryVariableSetCloner.ps1"))
@@ -144,6 +146,12 @@ if ($null -eq $CloneTenantVariables)
     $CloneTenantVariables = $false
 }
 
+if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -eq "all")
+{
+    Write-OctopusCritical "The parameter $CertificatesToClone is set to 'all'.  That is the one parameter that cannot be set to all.  You must specify specific certificates to clone with their password."
+    Exit 1
+}
+
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
     WorkerPoolsToClone = $WorkerPoolsToClone; 
@@ -163,6 +171,7 @@ $CloneScriptOptions = @{
     TargetsToClone = $TargetsToClone;
     MachinePoliciesToClone = $MachinePoliciesToClone;
     WorkersToClone = $WorkersToClone;
+    CertificatesToClone = $CertificatesToClone;
     CloneProjectRunbooks = $CloneProjectRunbooks;
     ChildProjectsToSync = $ChildProjectsToSync;
     ParentProjectName = $ParentProjectName;
@@ -220,14 +229,16 @@ Copy-OctopusWorkerPools -sourceData $sourceData -destinationData $destinationDat
 Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -firstRun $true
 Copy-OctopusWorkers -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusTargets -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+Copy-OctopusCertificates -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 Copy-OctopusLibraryVariableSets -SourceData $sourceData -DestinationData $destinationData  -cloneScriptOptions $CloneScriptOptions
 Copy-OctopusProjects -SourceData $sourceData -DestinationData $destinationData -CloneScriptOptions $CloneScriptOptions
-# Repeating tenant clone to get all the project assignments
-Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 
+# Repeating tenant clone to get all the project assignments
 Copy-OctopusTenants -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -firstRun $false
 Copy-OctopusTenantVariables -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions 
 Copy-OctopusSpaceTeamUserRoles -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
+
+Sync-OctopusMasterOctopusProjectWithChildProjects -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
 
 $logPath = Get-OctopusLogPath
 $cleanupLogPath = Get-OctopusCleanUpLogPath

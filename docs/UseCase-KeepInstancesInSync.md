@@ -63,6 +63,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
     -PackagesToClone "Redgate.*" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "false" `
@@ -112,6 +113,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "Redgate.*" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -OverwriteExistingVariables "false" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `

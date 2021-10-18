@@ -363,6 +363,19 @@ function Get-OctopusItemLogo
     return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $ApiKey -filePath $filePath
 }
 
+function Get-OctopusCertificateExport
+{
+    param (
+        $certificate,
+        $octopusData,
+        $filePath
+    )
+
+    $url = Get-OctopusUrl -EndPoint "certificates/$($certificate.Id)/export?includePrivateKey=false&pemOptions=PrimaryOnly" -SpaceId $octopusData.SpaceId -OctopusUrl $octopusData.OctopusUrl
+
+    return Invoke-OctopusApi -Method "Get" -Url $url -apiKey $octopusData.OctopusApiKey -filePath $filePath
+}
+
 function Get-OctopusTenantVariables
 {
     param (
@@ -644,4 +657,14 @@ function Save-OctopusCommunityStepTemplate
     )
 
     return Save-OctopusApi -OctopusUrl $destinationData.OctopusUrl -SpaceId $null -EndPoint "/communityactiontemplates/$($communityStepTemplate.Id)/installation/$($destinationData.SpaceId)" -ApiKey $destinationData.OctopusApiKey -Method POST -whatIf $destinationData.WhatIf
+}
+
+function Save-OctopusCertificate
+{
+    param(
+        $cert,
+        $destinationData
+    )
+
+    return Save-OctopusApiItem -Item $cert -Endpoint "certificates" -ApiKey $DestinationData.OctopusApiKey -OctopusUrl $DestinationData.OctopusUrl -SpaceId $DestinationData.SpaceId -whatIf $destinationData.WhatIf           
 }
