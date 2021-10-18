@@ -26,6 +26,7 @@ You can provide a comma-separated list of items.  For example, setting the `Vari
 You must specify items to clone.  By default, nothing is cloned.  If you wish to skip an item, you can exclude it from the parameter list OR set the value to an empty string "".  
 
 - `ProjectsToClone` - The list of projects to clone.
+- `CertificatesToClone` - The list of certificates to clone.  No support for `all` or wildcards.  Format: `[CertificateName1]::[Password01],[CertificateName2]::[Password02]`, for example `MyCert::Password!`.  
 
 ## Items to Exclude
 

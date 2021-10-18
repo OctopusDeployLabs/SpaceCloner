@@ -47,6 +47,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -MachinePoliciesToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "Redgate.*,DBUp.*" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -OverwriteExistingVariables "true" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
@@ -82,6 +83,7 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -DestinationOctopusApiKey "My Key" `
     -DestinationSpaceName "Redgate Space" `
     -ProjectsToClone "Redgate - Feature Branch Example" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -EnvironmentsToExclude $null `
     -WorkersToExclude $null `
     -TargetsToExclude $null `

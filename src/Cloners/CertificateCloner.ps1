@@ -6,6 +6,8 @@ function Copy-OctopusCertificates
         $cloneScriptOptions
     )
     
+    Write-OctopusSuccess "Starting certificate cloning to destination"
+    Write-OctopusChangeLog "Certificates"
     $certListToClone = $cloneScriptOptions.CertificatesToClone -split ","
     
     foreach ($certNameAndPassword in $certListToClone)
@@ -36,10 +38,7 @@ function Copy-OctopusCertificates
         {
             Write-OctopusVerbose "Certificate $($certificate.Name) was not found in destination, creating new record."
             Write-OctopusChangeLog " - Add $($certificate.Name)"                    
-            $certObject = Copy-OctopusObject -ItemToCopy $certificate -SpaceId $destinationData.SpaceId -ClearIdValue $true 
-
-            $certObject.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds)
-            $certObject.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds)
+            $certObject = Copy-OctopusObject -ItemToCopy $certificate -SpaceId $destinationData.SpaceId -ClearIdValue $true             
         }
         elseif ($matchingItem.Thumbprint -ne $certificate.Thumbprint) 
         {
@@ -53,12 +52,18 @@ function Copy-OctopusCertificates
             Write-OctopusChangeLog " - $($certificate.Name) already exists with matching thumbprint, skipping"  
         }
 
-        if ($cloneCertificate -eq $true)
+        if ($null -ne $certObject)
         {
             Write-OctopusVerbose "Downloading Certificate $($certificate.Name) from the Octopus Server."
 
             $certFileExtension = Get-OctopusCertificateFileExtension -certificateDataFormat $certificate.CertificateDataFormat
             $certFileName = $certificate.Name -replace " ", ""
+            $certFileName = $certfileName -replace "\.", ""
+
+            $certObject.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $certificate.EnvironmentIds)
+            $certObject.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $certificate.TenantIds)
+            $certObject.TenantTags = $certificate.TenantTags
+            $certObject.TenantedDeploymentParticipation = $certificate.TenantedDeploymentParticipation
 
             $filePath = [System.IO.Path]::Combine($PSScriptRoot, "$($certFileName).$($certFileExtension)")
 
@@ -68,23 +73,29 @@ function Copy-OctopusCertificates
                 Remove-Item $filePath
             }
 
-            if ($DestinationData.WhatIf -eq $true)
-            {
-                Write-OctopusVerbose "      Whatif set to true, skipping downloading and uploading of certificate"
-                continue
-            }
-
             Get-OctopusCertificateExport -certificate $certificate -octopusData $sourceData -filePath $filePath
             Write-OctopusVerbose "      The certificate $($certificate.Name) has finished downloading"
             
-            $certificateContent = [Convert]::ToBase64String((Get-Content -Path $filePath -Encoding Byte))
+            Write-OctopusVerbose "Reading the downloaded cert $filePath as binary"
+            try
+            {
+                $fileContentToConvertToBase64 = (Get-Content -Path $filePath -AsByteStream)
+            }
+            catch
+            {
+                Write-OctopusError "Unable to read the file $filePath as binary"
+                Write-OctopusError $_.Exception                
+            }
+            
+            $certificateContent = [System.Convert]::ToBase64String($fileContentToConvertToBase64)
+
             $passwordObject = @{
                 HasValue = $false
                 NewValue = $null
             }
-
             if ([string]::IsNullOrWhiteSpace($certPassword) -eq $false)
             {
+                Write-OctopusVerbose "Password found, adding it to the cert request"
                 $passwordObject.HasValue = $true
                 $passwordObject.NewValue = $certPassword
             }
@@ -109,14 +120,17 @@ function Copy-OctopusCertificates
                 $jsonPayload.Id = $certObject.Id
             }
 
-            Save-OctopusCertificate -cert $jsonPayload -destinationData $destinationData
+            $updatedCert = Save-OctopusCertificate -cert $jsonPayload -destinationData $destinationData
+            $destinationData.CertificateList = Update-OctopusList -itemList $destinationData.CertificateList -itemToReplace $updatedCert
+
+            Remove-Item $filePath
         }
     }    
 
     Write-OctopusSuccess "Certificates successfully cloned"        
 }
 
-Get-OctopusCertificateFileExtension
+function Get-OctopusCertificateFileExtension
 {
     param (
         $certificateDataFormat

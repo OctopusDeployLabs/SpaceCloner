@@ -54,6 +54,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TargetsToClone "all" `
     -WorkersToClone "all" `
     -SpaceTeamsToClone "all" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -OverwriteExistingVariables "true" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `
@@ -99,6 +100,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -TenantsToClone "all" `
     -SpaceTeamsToClone "all" `
     -PackagesToClone "all" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
     -OverwriteExistingVariables "true" `
     -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "true" `

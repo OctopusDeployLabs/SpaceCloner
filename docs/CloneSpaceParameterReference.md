@@ -40,7 +40,9 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 - `TenantsToClone` - The list of tenants to clone.  The default is `$null`, nothing will be cloned.
 - `TenantTagsToClone` - The list of tenant tags to clone.  The default is `$null`, nothing will be cloned.
 - `WorkerPoolsToClone` - The list of worker pools to clone.  The default is `$null`, nothing will be cloned.
-- `WorkersToClone` - The list of workers to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned.        
+- `WorkersToClone` - The list of workers to clone.  Please note, this won't clone any polling tentacles. The default is `$null`, nothing will be cloned. 
+
+- `CertificatesToClone` - The list of certificates to clone.  No support for `all` or wildcards.  Format: `[CertificateName1]::[Password01],[CertificateName2]::[Password02]`, for example `MyCert::Password!`.  
 
 ## Parent / Child Projects
 - `ParentProjectName` - The name of the project to clone.  This has to match exactly one project in the source space.  If this is specified, the regular project cloner process is skipped.

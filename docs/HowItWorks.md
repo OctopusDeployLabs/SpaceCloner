@@ -24,6 +24,8 @@ The script `CloneSpace.ps1` will clone the following:
 
 - Accounts
 - Build Information
+- Certificates
+    - Will only copy when a new certificate is found or the certificate thumbprints are different
 - Environments
 - External Feeds
 - Library Variable Sets
@@ -56,7 +58,6 @@ The script `CloneSpace.ps1` will not clone the following items:
 - Users
 - External Auth Providers
 - Server Settings (folders, SMTP, JIRA, etc)
-- Certificates
 
 This script assumes the user for the destination has `Space manager` rights.  Some of those items, users, roles, and creating spaces, cannot be copied over because the space manager does not have permissions to do so.
 
@@ -171,3 +172,17 @@ The script provides an option to clone teams.  It follows the following rules:
 - Teams that are created have the external groups cleared.  
 - For team scoping, the roles must exist on both the destination and the source.  This script will _**NOT**_ create new roles.  It only leverages existing roles.  
 - If the destination team already has roles scoped to it, the script will skip it.
+
+## Certificates
+
+The process for cloning certificates is different than other items.  This is due to the fact we have a reliable means of comparing certificates (thumbprint) and some certificates have passwords.  
+
+The logic for cloning certificates is to only clone a certificate when:
+
+- The certificate is not present on the destination.
+- The source and destination certificate thumbprints do not match.
+- The destination certificate was archived.
+
+You can tell the space cloner to clone the certificate all day long, but unless one of those conditions are met, the certificate will not be cloned.
+
+Unlike the other parameters, the certificate parameter does not support "all" or wild-card matching.  This is to allow you to submit a password.  You must match the certificate name exactly.  The format for the certificate parameter is `[CertificateName1]::[Password01],[CertificateName2]::[Password02]`, for example `MyCert::Password!`.  
