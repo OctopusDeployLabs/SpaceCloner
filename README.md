@@ -34,6 +34,7 @@ This script has been tested against the following versions of Octopus Deploy:
 - `2020.6.x`
 - `2021.1.x`
 - `2021.2.x`
+- `2021.3.x`
 
 It should work with `3.4.x`+ release of Octopus Deploy.  The script will run some version checks to ensure it doesn't call the wrong API endpoint.  There is a far better chance the script will work using a `2020.x` or higher release of Octopus Deploy.
 

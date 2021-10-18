@@ -118,7 +118,9 @@ function Copy-OctopusCertificates
             if ($null -ne $certObject.Id)
             {
                 $jsonPayload.Id = $certObject.Id
-            }
+            }            
+
+            $jsonPayload = [pscustomobject]$jsonPayload
 
             $updatedCert = Save-OctopusCertificate -cert $jsonPayload -destinationData $destinationData
             $destinationData.CertificateList = Update-OctopusList -itemList $destinationData.CertificateList -itemToReplace $updatedCert
