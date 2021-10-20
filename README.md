@@ -2,15 +2,11 @@
 PowerShell script to help you clone a space using the Octopus Deploy Restful API.
 
 # The cloning process won't cover all use cases
-This script was developed internally by the Customer Solutions Team at Octopus Deploy to solve specific use cases we encounter each day.  Our typical workflow is to get a deployment / project / space configured locally before pushing it up to our [Samples](https://samples.octopus.app) instance.  Or, we have a complex sample working locally, that we want to push up, and then simplify for general consumption.
-
-We are sharing this script to help other users of Octopus Deploy.  To cover as many use cases as we run into as possible, the script has a set of generic comparisons in place.  It matches by name, order is tracked via a simple index, etc.  We work in Octopus all day every day.  As such, we are okay with a script that accomplishes 80-90% of a clone, and then spending a bit of time doing some manual work. 
+This script was developed internally by the Customer Solutions Team at Octopus Deploy to solve specific use cases we encounter each day.  We are sharing this script to help other users of Octopus Deploy.  It won't cover all use cases, and that is by design.  It is limited by the fact it is a CLI tool going against a REST API.  It doesn't have direct DB acces.
 
 > **Note:** if you have questions on how to use this script please reach out to advice@octopus.com
 
-This repository is [licensed](license) under the Apache license.  It is possible for the script to work for your use cases without modification.  However, it is impossible for us to write a script that matches every specific use case.  For example, you might store a number of your variables in a key store, with Octopus storing the credentials.  You could update the script so when it comes across a specific variable name the credentials are inserted into the variable value instead of pulling from the source instance.  
-
-As such, we encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  If you feel your change can benefit the community, please submit a pull request!
+This repository is [licensed](license) under the Apache license.  While it covers a variety of use cases, we know it can't cover every last hyper-specific use case. As such, we encourage you to fork it, test it out on an empty space or empty instance, look at the results and modify the script to meet your needs.  If you feel your change can benefit the community, please submit a pull request!
 
 ## Issues and Feature Requests
 
@@ -18,9 +14,15 @@ Issues, bugs, and feature requests are accepted.  Please create an issue in this
 
 The Customer Solutions Team at Octopus Deploy plans on keeping this tool up to date with the latest version of Octopus Deploy.  If you do fork this repo, you might want to keep up to date on the latest changes.
 
+## Support
+
+The space cloner is not shy about logging.  Everything it does is logged into the log.txt file.  We encourage you to review the logs before submitting an issue.  Often times it is a missing command line option or a mis-spelling.  For example, you might be getting a 400 bad request when trying to create a lifecycle, but that is a result of a missing environment for a phase.
+
+If you do need help, please zip up your log files and send them to advice@octopus.com along with a description on what you are trying to do with the tool.  
+
 ## Pull Requests
 
-We do accept Pull Requests on this repository.  See [Contributing guidelines](docs/Contributing.md).
+Pull Requests are accepted on this repository.  See [Contributing guidelines](docs/Contributing.md).
 
 ## Tested Octopus Deploy Versions
 
@@ -88,9 +90,7 @@ The Space Cloner leverages the Octopus Deploy API.  That limits what it can and 
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
 
 ## Unsupported
-The use cases for the space cloner is centered around repeated runs between two spaces.  The spaces could be on the same instance.  Or they could be on two self-hosted instances, or one self-hosted instance and one cloud instance.  
-
-It wasn't intended to keep two instances fully in sync.  It won't clone:
+The use cases for the space cloner is centered around repeated runs between two spaces.  It wasn't intended to keep two instances fully in sync.  It won't clone:
 - Users (the API cannot copy passwords as it doesn't have access to them)
 - User Roles
 - Server Settings (folders, JIRA, auth options, etc).  Most of those have some sort or password associated with them, which is never returned in the API.
@@ -114,7 +114,7 @@ Please see the [example page](docs/Examples.md).
 Below are questions and answers to common questions we've gotten about this project.
 
 ### Why was this script created?
-The Octopus Advisory Team at Octopus Deploy team developed this script.  We use it to clone items for our [samples instance](https://samples.octopus.app).
+The Customer Solutions Team at Octopus Deploy team developed this script.  We use it to clone items for our [samples instance](https://samples.octopus.app).
 
 ### Can I use this to migrate from self-hosted to the cloud?
 Yes.  However, this script is not a full migration.  It will jump-start your migration.  This script hits the API, meaning it won't have access to your sensitive variables.  it will not clone releases or deployments.  See the [how it works](docs/HowItWorks.md) page for details on what it will and won't clone.  
