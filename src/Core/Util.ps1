@@ -12,9 +12,19 @@ function Get-OctopusItemByName
     
     foreach ($item in $itemList)
     {
+        if ($null -eq $item)
+        {
+            continue
+        }
+
         if ($null -eq $item.Name -and $null -eq $itemName)
         {
             return $item
+        }
+
+        if ($null -eq $item.Name)
+        {
+            continue
         }
 
         if ($item.Name.ToLower().Trim() -eq $loweredItem)
