@@ -5,7 +5,25 @@ function Get-OctopusItemByName
         $ItemName
         )    
 
-    return ($ItemList | Where-Object {$_.Name -eq $ItemName})
+    if ($null -ne $itemName)
+    {
+        $loweredItem = $ItemName.ToLower().Trim()
+    }
+    
+    foreach ($item in $itemList)
+    {
+        if ($null -eq $item.Name -and $null -eq $itemName)
+        {
+            return $item
+        }
+
+        if ($item.Name.ToLower().Trim() -eq $loweredItem)
+        {
+            return $item
+        }
+    }
+
+    return $null
 }
 
 function Get-OctopusItemById
@@ -303,7 +321,7 @@ function New-OctopusFilteredList
                 {
                     continue
                 }
-                if (($filter).ToLower() -eq "all")
+                if (($filter).ToLower().Trim() -eq "all")
                 {
                     Write-OctopusVerbose "The filter is 'all' -> adding $($item.Name) to $itemType filtered list"
                     $filteredList += $item

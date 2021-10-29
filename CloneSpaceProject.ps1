@@ -127,7 +127,7 @@ function Get-OctopusIsInExclusionList
     foreach ($item in $exclusionList)
     {
         Write-OctopusVerbose "Checking to see if $($item.Name) is equal to $itemName for exclusion list"
-        if ($item.Name -eq $itemName)
+        if ($item.Name.ToLower().Trim() -eq $itemName.ToLower().Trim())
         {
             Write-OctopusVerbose "  The items match"
             return $true
