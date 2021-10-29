@@ -150,7 +150,7 @@ function Compare-OctopusVariables
         $destinationData
     )
 
-    if ($destinationVariable.Name -ne $sourceVariable.Name)
+    if ($destinationVariable.Name.ToLower().Trim() -ne $sourceVariable.Name.ToLower().Trim())
     {
         Write-OctopusVerbose "      The source variable name $($sourceVariable.Name) does not equal the destination name $($destinationVariable.Name).  They do not match."
         return "NoMatch"
