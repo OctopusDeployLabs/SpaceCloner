@@ -52,7 +52,7 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 
 Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?
 
-You can have several variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to environments.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
+You can have variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to a variety of items.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
 
 - `ErrorUnlessExactMatch`: An **Error** will be thrown unless an exact match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` AND `Test`.
 - `SkipUnlessExactMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless an exact match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` AND `Test`.
