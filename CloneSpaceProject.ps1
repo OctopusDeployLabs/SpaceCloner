@@ -22,6 +22,17 @@ param (
     $SkipPausingWhenIgnoringVersionCheckResult,
     $CloneTenantVariables,
     $CertificatesToClone,
+    $ProcessEnvironmentScopingMatch,
+    $ProcessChannelScopingMatch,
+    $VariableChannelScopingMatch,
+    $VariableEnvironmentScopingMatch,
+    $VariableProcessOwnerScopingMatch,
+    $VariableActionScopingMatch,
+    $VariableAccountScopingMatch,
+    $VariableCertificateScopingMatch,
+    $InfrastructureEnvironmentScopingMatch,
+    $InfrastructureTenantScopingMatch,
+    $ProcessCloningOption,
     $WhatIf  
 )
 
@@ -651,6 +662,17 @@ Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentPr
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
 Write-OctopusSuccess "  -CloneTenantVariables $CloneTenantVariables"
+Write-OctopusSuccess "  -ProcessEnvironmentScopingMatch $ProcessEnvironmentScopingMatch"
+Write-OctopusSuccess "  -ProcessChannelScopingMatch $ProcessChannelScopingMatch"
+Write-OctopusSuccess "  -VariableChannelScopingMatch $VariableChannelScopingMatch"
+Write-OctopusSuccess "  -VariableEnvironmentScopingMatch $VariableEnvironmentScopingMatch"
+Write-OctopusSuccess "  -VariableProcessOwnerScopingMatch $VariableProcessOwnerScopingMatch"
+Write-OctopusSuccess "  -VariableActionScopingMatch $VariableActionScopingMatch"
+Write-OctopusSuccess "  -VariableAccountScopingMatch $VariableAccountScopingMatch"
+Write-OctopusSuccess "  -VariableCertificateScopingMatch $VariableCertificateScopingMatch"
+Write-OctopusSuccess "  -InfrastructureEnvironmentScopingMatch $InfrastructureEnvironmentScopingMatch"
+Write-OctopusSuccess "  -InfrastructureTenantScopingMatch $InfrastructureTenantScopingMatch"
+Write-OctopusSuccess "  -ProcessCloningOption $ProcessCloningOption"
 Write-OctopusSuccess "  -WhatIf $WhatIf"
 
 $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
@@ -687,6 +709,17 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
     -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
+    -EnvironmentScopingMatch "$EnvironmentScopingMatch" `
+    -ProcessEnvironmentScopingMatch "$ProcessEnvironmentScopingMatch" `
+    -ProcessChannelScopingMatch "$ProcessChannelScopingMatch" `
+    -VariableChannelScopingMatch "$VariableChannelScopingMatch" `
+    -VariableEnvironmentScopingMatch "$VariableEnvironmentScopingMatch" `
+    -VariableProcessOwnerScopingMatch "$VariableProcessOwnerScopingMatch" `
+    -VariableActionScopingMatch "$VariableActionScopingMatch" `
+    -VariableAccountScopingMatch "$VariableAccountScopingMatch" `
+    -VariableCertificateScopingMatch "$VariableCertificateScopingMatch" `
+    -InfrastructureEnvironmentScopingMatch "$InfrastructureEnvironmentScopingMatch" `
+    -InfrastructureTenantScopingMatch "$InfrastructureTenantScopingMatch" `
     -CloneTenantVariables "$CloneTenantVariables" `
     -WhatIf "$whatIf"
 

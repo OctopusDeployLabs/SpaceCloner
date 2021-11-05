@@ -68,7 +68,7 @@ function Copy-OctopusSpaceTeamUserRoles
         {
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $role -SpaceId $destinationData.SpaceId -ClearIdValue $true      
 
-            $copyOfItemToClone.UserRoleId = Convert-SourceIdToDestinationId -sourceList $sourceData.UserRoleList -destinationList $sourceData.UserRoleList -idValue $role.UserRoleId                        
+            $copyOfItemToClone.UserRoleId = Convert-SourceIdToDestinationId -sourceList $sourceData.UserRoleList -destinationList $sourceData.UserRoleList -idValue $role.UserRoleId  -ItemName "$($copyOfItem.Name) User Role" -ThrowErrorOnMismatch $true                      
 
             if ($null -ne $copyOfItemToClone.UserRoleId)
             {

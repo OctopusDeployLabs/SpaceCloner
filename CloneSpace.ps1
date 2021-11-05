@@ -37,6 +37,17 @@ param (
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
     $CloneTenantVariables,
+    $ProcessEnvironmentScopingMatch,
+    $ProcessChannelScopingMatch,
+    $VariableChannelScopingMatch,
+    $VariableEnvironmentScopingMatch,
+    $VariableProcessOwnerScopingMatch,
+    $VariableActionScopingMatch,
+    $VariableAccountScopingMatch,
+    $VariableCertificateScopingMatch,
+    $InfrastructureEnvironmentScopingMatch,
+    $InfrastructureTenantScopingMatch,
+    $ProcessCloningOption,
     $WhatIf
 )
 
@@ -148,9 +159,32 @@ if ($null -eq $CloneTenantVariables)
 
 if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -eq "all")
 {
-    Write-OctopusCritical "The parameter $CertificatesToClone is set to 'all'.  That is the one parameter that cannot be set to all.  You must specify specific certificates to clone with their password."
+    Write-OctopusCritical "The parameter CertificatesToClone is set to 'all'.  That is the one parameter that cannot be set to all.  You must specify specific certificates to clone with their password."
     Exit 1
 }
+
+if ([string]::IsNullOrWhiteSpace($ProcessCloningOption))
+{
+    $ProcessCloningOption = "KeepAdditionalDestinationSteps"
+}
+elseif ($ProcessCloningOption.ToLower().Trim() -ne "KeepAdditionalDestinationSteps" -and $ProcessCloningOption.ToLower().Trim() -ne "SourceOnly")
+{
+    Write-OctopusCritical "The parameter ProcessCloningOption is set to $ProcessCloningOption.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
+    exit 1
+}
+
+$ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessExactMatch"
+
+$VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$VariableProcessOwnerScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableProcessOwnerScopingMatch" -ParameterValue $VariableProcessOwnerScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableActionScopingMatch" -ParameterValue $VariableActionScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch"
+$VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch"
+
+$InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch"
+$InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch"
 
 $CloneScriptOptions = @{
     EnvironmentsToClone = $EnvironmentsToClone; 
@@ -182,7 +216,18 @@ $CloneScriptOptions = @{
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
     CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess; 
-    CloneTenantVariables = $CloneTenantVariables;   
+    CloneTenantVariables = $CloneTenantVariables;  
+    ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
+    ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 
+    VariableChannelScopingMatch = $VariableChannelScopingMatch;
+    VariableEnvironmentScopingMatch = $VariableEnvironmentScopingMatch;
+    VariableProcessOwnerScopingMatch = $VariableProcessOwnerScopingMatch;
+    VariableActionScopingMatch = $VariableActionScopingMatch;
+    VariableAccountScopingMatch = $VariableAccountScopingMatch;
+    VariableCertificateScopingMatch = $VariableCertificateScopingMatch;
+    InfrastructureEnvironmentScopingMatch = $InfrastructureEnvironmentScopingMatch;
+    InfrastructureTenantScopingMatch = $InfrastructureTenantScopingMatch;
+    ProcessCloningOption = $ProcessCloningOption;
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"

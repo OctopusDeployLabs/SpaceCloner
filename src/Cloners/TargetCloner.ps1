@@ -39,7 +39,7 @@ function Copy-OctopusTargets
 
             if ((Test-OctopusObjectHasProperty -objectToTest $target -propertyName "MachinePolicyId") -eq $true -and $null -ne $target.MachinePolicyId)
             {
-                $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId
+                $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId -ItemName "$($copyOfItemToClone.Name) Machine Policy" -ThrowErrorOnMismatch $true
             }
 
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $copyOfItemToClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList
@@ -113,7 +113,7 @@ function Convert-OctopusCloudRegionTarget
         return
     }
 
-    $target.EndPoint.DefaultWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $target.EndPoint.DefaultWorkerPoolId
+    $target.EndPoint.DefaultWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $target.EndPoint.DefaultWorkerPoolId -ItemName "$($target.Name) Default Worker Pool" -ThrowErrorOnMismatch $true
 }
 
 function Convert-OctopusK8sTarget
@@ -128,9 +128,9 @@ function Convert-OctopusK8sTarget
         return
     }
 
-    if ($target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAzure" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAWS")
+    if ($target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAzure" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAWS" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesGCP")
     {
-        $target.EndPoint.Authentication.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.Authentication.AccountId
+        $target.EndPoint.Authentication.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.Authentication.AccountId -ItemName "$($target.Name) K8s Auth Account" -ThrowErrorOnMismatch $true
     }
 }
 
@@ -146,7 +146,7 @@ function Convert-OctopusAzureWebAppTarget
         return
     }
 
-    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId
+    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId -ItemName "$($target.Name) Azure Account" -ThrowErrorOnMismatch $true
 }
 
 function Convert-OctopusTargetTenantedDeploymentParticipation

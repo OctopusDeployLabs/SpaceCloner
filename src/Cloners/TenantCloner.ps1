@@ -54,7 +54,7 @@ function Copy-OctopusTenants
                 }
                 
                 Write-OctopusVerbose "Attempting to matching $sourceProjectId with source"
-		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
+		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId -ItemName "$($tenantToUpdate.Name) Project" -ThrowErrorOnMismatch $true
                 Write-OctopusVerbose "The project id for $sourceProjectId on the destination is $matchingProjectId"
 
                 $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId)

@@ -17,6 +17,7 @@ function Copy-OctopusVariableSetValues
         if (Get-Member -InputObject $octopusVariable.Scope -Name "Environment" -MemberType Properties)
         {
             Write-OctopusVerbose "$variableName has environment scoping, converting to destination values"
+            Test-OctopusScopeMatch -SourceScopingList $octopusVariable.Scope.Environment -SourceList $sourceVariableSetVariables.ScopeValues.Environments -DestinationList $DestinationVariableSetVariables.ScopeValues.Environments -ScopeMatchingOption $CloneScriptOptions.EnvironmentScopingMatch -ScopeName "$($octopusVariable.Name) Environment Scoping"
             $NewEnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Environments -DestinationList $DestinationVariableSetVariables.ScopeValues.Environments -IdList $octopusVariable.Scope.Environment)
             $octopusVariable.Scope.Environment = @($NewEnvironmentIds)            
         }
@@ -24,6 +25,7 @@ function Copy-OctopusVariableSetValues
         if (Get-Member -InputObject $octopusVariable.Scope -Name "Channel" -MemberType Properties)
         {
             Write-OctopusVerbose "$variableName has channel scoping, converting to destination values"
+            Test-OctopusScopeMatch -SourceScopingList $octopusVariable.Scope.Channel -SourceList $sourceVariableSetVariables.ScopeValues.Channels -DestinationList $DestinationVariableSetVariables.ScopeValues.Channels -ScopeMatchingOption $CloneScriptOptions.ChannelScopingMatch -ScopeName "$($octopusVariable.Name) Channel Scoping"
             $NewChannelIds = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Channels -DestinationList $DestinationVariableSetVariables.ScopeValues.Channels -IdList $octopusVariable.Scope.Channel)
             $octopusVariable.Scope.Channel = @($NewChannelIds)            
         }
@@ -59,13 +61,13 @@ function Copy-OctopusVariableSetValues
         if ($octopusVariable.Type -match ".*Account")
         {
             Write-OctopusVerbose "$variableName is an account value, converting to destination account"
-            $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $octopusVariable.Value
+            $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $octopusVariable.Value -ItemName "$($octopusVariable.Name) Accpimt" -ThrowErrorOnMismatch $false
         }
 
         if ($octopusVariable.Type -eq "Certificate")
         {
             Write-OctopusVerbose "$variableName is an certificate value, converting to destination account"
-            $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $octopusVariable.Value
+            $octopusVariable.Value = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $octopusVariable.Value -ItemName "$($octopusVariable.Name) Certificate" -ThrowErrorOnMismatch $false
         }
 
         if ($octopusVariable.IsSensitive -eq $true)

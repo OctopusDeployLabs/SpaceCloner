@@ -107,7 +107,9 @@ function Convert-SourceIdToDestinationId
     param(
         $SourceList,
         $DestinationList,
-        $IdValue
+        $IdValue,
+        $ItemName,
+        $ThrowErrorOnMismatch
     )
 
     $idValueSplit = $IdValue -split "-"
@@ -132,7 +134,13 @@ function Convert-SourceIdToDestinationId
 
     if ([string]::IsNullOrWhiteSpace($nameToUse))
     {
-        Write-OctopusVerbose "Unable to find a name property for $IdValue"
+        if ($ThrowErrorOnMismatch)
+        {
+            Write-OctopusCritical "Unable to find a name property for $IdValue in the source list for $itemName.  Stopping to prevent bad data."
+            exit 1                
+        }
+
+        Write-OctopusVerbose "Unable to find a name property for $IdValue."
         return $null
     }
 
@@ -142,7 +150,13 @@ function Convert-SourceIdToDestinationId
 
     if ($null -eq $destinationItem)
     {
-        Write-OctopusVerbose "Unable to find $nameToUse in the destination list"
+        if ($ThrowErrorOnMismatch)
+        {        
+            Write-OctopusCritical "Unable to find $nameToUse in the destination list for $itemName.  Stopping to prevent bad data."
+            exit 1        
+        }
+
+        Write-OctopusCritical "Unable to find $nameToUse in the destination."
         return $null
     }
     else
@@ -164,7 +178,7 @@ function Convert-SourceIdListToDestinationIdList
     Write-OctopusVerbose "Converting id list with $($IdList.Length) item(s) over to destination space"     
     foreach ($idValue in $idList)
     {
-        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue
+        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue -ItemName $null -ThrowErrorOnMismatch $false
 
         if ($null -ne $ConvertedId)
         {
@@ -579,4 +593,82 @@ function Update-OctopusList
     }
 
     return $itemArray
+}
+
+function Test-OctopusScopeMatchParameter
+{
+    param (
+        $parameterValue,
+        $parameterName,
+        $defaultValue
+    )
+
+    $lowerParameterValue = $parameterValue.ToLower().Trim()
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        return $defaultValue
+    }
+
+    if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "errorunlesspartialmatch" -and $lowerParameterValue -ne "skipunlesspartialmatch" -and $lowerParameterValue -ne "ignoremismatch")
+    {
+        Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, ErrorUnlessPartialMatch, SkipUnlessPartialMatch or IgnoreMismatch."
+        exit 1
+    }    
+
+    return $parameterValue
+}
+
+function Test-OctopusScopeMatch
+{
+    param (
+        $sourceScopingList,
+        $sourceList,
+        $destinationList,
+        $scopeMatchingOption,
+        $scopeName
+    )
+
+    if ($scopeMatchingOption.ToLower().Trim() -eq "ignoremismatch")
+    {
+        Write-OctopusVerbose "Ignoring the matching of scope on $scopeName because the Scope Matching Option was set to IgnoreMismatch."
+        return
+    }
+
+    $sourceScopingClone = @($sourceScopingList)
+    $originalCount = $sourceScopingClone.Count
+    if ($originalCount -eq 0)
+    {
+        Write-OctopusVerbose "Ignoring the matching of scope on $scopeName because the source list is empty."
+        return
+    }
+
+    $matchingList = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments)    
+    $matchingCount = $matchingList.Count
+
+    if ($matchingCount -eq $originalCount)
+    {
+        Write-OctopusVerbose "Matching list found."
+        return
+    }
+
+    if ($scopeMatchingOption.ToLower().Trim() -eq "exact" -and $originalCount -ne $matchingCount)
+    {
+        Write-OctopusCritical "The scoping on $scopeName does not match and the scoping matching option was set to Exact.  The source item had $originalCount item(s) and the destination had $matchingCount item(s).  Exiting the cloner to prevent a bad clone."
+        Exit 1
+    }
+
+    if ($originalCount -gt 1 -and $matchingCount -ge 1)
+    {
+        Write-OctopusVerbose "The scoping on $scopeName had a partial match.  The source item had $originalCount item(s) and the destination had $matchingCount item(s)."
+        return
+    }
+
+    if ($originalCount -eq 1 -and $matchingCount -eq 0)
+    {
+        Write-OctopusCritical "The scoping on $scopeName does not match even with the scope matching option set to Partial.  The source item had $originalCount item(s) and the destination had $matchingCount item(s).  If the source item list had one item then it is considered an exact match."
+        Exit 1
+    }
+
+    return
 }
