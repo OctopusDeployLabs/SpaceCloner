@@ -23,7 +23,7 @@ function Copy-OctopusProjectChannels
             $cloneChannel.ProjectId = $destinationProject.Id
             if ($null -ne $cloneChannel.LifeCycleId)
             {
-                $cloneChannel.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $cloneChannel.LifeCycleId  -ItemName "$($cloneChannel.Name) Lifecycle" -ThrowErrorOnMismatch $true              
+                $cloneChannel.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $cloneChannel.LifeCycleId  -ItemName "$($cloneChannel.Name) Lifecycle" -MatchingOption "ErrorUnlessExactMatch"              
             }
 
             $cloneChannel.Rules = @()            

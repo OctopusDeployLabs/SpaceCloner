@@ -60,8 +60,22 @@ function Copy-OctopusCertificates
             $certFileName = $certificate.Name -replace " ", ""
             $certFileName = $certfileName -replace "\.", ""
 
-            $certObject.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $certificate.EnvironmentIds)
-            $certObject.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $certificate.TenantIds)
+            Write-OctopusVerbose "Attempting to match Certificate Environment Ids to the destination"
+            $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $certificate.EnvironmentIds -MatchingOption $CloneScriptOptions.InfrastructureEnvironmentScopingMatch
+            if ($newEnvironmentIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $certObject.EnvironmentIds = @($newEnvironmentIds.NewIdList)  
+
+            Write-OctopusVerbose "Attempting to match Certificate Tenant Ids to the destination"
+            $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $certificate.TenantIds -MatchingOption $CloneScriptOptions.InfrastructureTenantScopingMatch
+            if ($newTenantIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $certObject.TenantIds = @($newTenantIds.NewIdList)
+            
             $certObject.TenantTags = $certificate.TenantTags
             $certObject.TenantedDeploymentParticipation = $certificate.TenantedDeploymentParticipation
 

@@ -6,7 +6,8 @@ function Copy-OctopusProjectRunbooks
         $destinationProject,        
         $sourceProject,
         $sourceData,
-        $destinationData
+        $destinationData,
+        $cloneScriptOptions
     )
 
     if ($sourceData.HasRunbooks -eq $false -or $destinationData.HasRunbooks -eq $false)
@@ -57,7 +58,7 @@ function Copy-OctopusProjectRunbooks
         $destinationRunbookProcess = Get-OctopusRunbookProcess -runbook $destinationRunbook -OctopusData $DestinationData
 
         Write-OctopusPostCloneCleanUp "*****************Starting Sync for runbook process $($runbook.Name)***************"        
-        $destinationRunbookProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceRunbookProcess.Steps -destinationDeploymentProcessSteps $destinationRunbookProcess.Steps)
+        $destinationRunbookProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceRunbookProcess.Steps -destinationDeploymentProcessSteps $destinationRunbookProcess.Steps -cloneScriptOptions $cloneScriptOptions)
         Write-OctopusPostCloneCleanUp "*****************End Sync for runbook process $($runbook.Name)********************"        
             
         $updatedRunbookProcess = Save-OctopusProjectRunbookProcess -RunbookProcess $destinationRunbookProcess -DestinationData $destinationData        
@@ -77,6 +78,7 @@ function Convert-OctopusRunbookEnvironmentIdList
 
     if ((Test-OctopusObjectHasProperty -objectToTest $runbookToClone -propertyName "Environments"))
     {
-        $runbookToClone.Environments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $runbookToClone.Environments)        
+        $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $runbookToClone.Environments -MatchingOption "IgnoreMismatch"
+        $runbookToClone.Environments = @($newEnvironmentIds.NewIdList)        
     }
 }

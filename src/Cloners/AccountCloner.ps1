@@ -27,8 +27,21 @@ function Copy-OctopusInfrastructureAccounts
 
             $accountClone = Copy-OctopusObject -ItemToCopy $account -ClearIdValue $true -SpaceId $DestinationData.SpaceId
 
-            $accountClone.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $accountClone.EnvironmentIds)  
-            $accountClone.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $accountClone.TenantIds)
+            Write-OctopusVerbose "Attempting to match Account Environment Ids to the destination"
+            $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $accountClone.EnvironmentIds -MatchingOption $CloneScriptOptions.InfrastructureEnvironmentScopingMatch
+            if ($newEnvironmentIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $accountClone.EnvironmentIds = @($newEnvironmentIds.NewIdList)  
+
+            Write-OctopusVerbose "Attempting to match Account Tenant Ids to the destination"
+            $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $accountClone.TenantIds -MatchingOption $CloneScriptOptions.InfrastructureTenantScopingMatch
+            if ($newTenantIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $accountClone.TenantIds = @($newTenantIds.NewIdList)
             
             Convert-OctopusAWSAccountInformation -accountClone $accountClone
             Convert-OctopusAzureServicePrincipalAccount -accountClone $accountClone

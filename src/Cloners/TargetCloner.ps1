@@ -34,12 +34,25 @@ function Copy-OctopusTargets
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $target -SpaceId $destinationData.SpaceId -ClearIdValue $true
 
-            $copyOfItemToClone.EnvironmentIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds)
-            $copyOfItemToClone.TenantIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds)
+            Write-OctopusVerbose "Attempting to match Target Environment Ids to the destination"
+            $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds -MatchingOption $CloneScriptOptions.InfrastructureEnvironmentScopingMatch
+            if ($newEnvironmentIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $copyOfItemToClone.EnvironmentIds = @($newEnvironmentIds.NewIdList)  
+
+            Write-OctopusVerbose "Attempting to match Target Tenant Ids to the destination"
+            $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds -MatchingOption $CloneScriptOptions.InfrastructureTenantScopingMatch
+            if ($newTenantIds.CanProceed -eq $false)
+            {
+                continue
+            }
+            $copyOfItemToClone.TenantIds = @($newTenantIds.NewIdList)
 
             if ((Test-OctopusObjectHasProperty -objectToTest $target -propertyName "MachinePolicyId") -eq $true -and $null -ne $target.MachinePolicyId)
             {
-                $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId -ItemName "$($copyOfItemToClone.Name) Machine Policy" -ThrowErrorOnMismatch $true
+                $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId -ItemName "$($copyOfItemToClone.Name) Machine Policy" -MatchingOption "ErrorUnlessExactMatch"
             }
 
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $copyOfItemToClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList
@@ -113,7 +126,7 @@ function Convert-OctopusCloudRegionTarget
         return
     }
 
-    $target.EndPoint.DefaultWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $target.EndPoint.DefaultWorkerPoolId -ItemName "$($target.Name) Default Worker Pool" -ThrowErrorOnMismatch $true
+    $target.EndPoint.DefaultWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $target.EndPoint.DefaultWorkerPoolId -ItemName "$($target.Name) Default Worker Pool" -MatchingOption "ErrorUnlessExactMatch"
 }
 
 function Convert-OctopusK8sTarget
@@ -130,7 +143,7 @@ function Convert-OctopusK8sTarget
 
     if ($target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAzure" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesAWS" -or $target.Endpoint.Authentication.AuthenticationType -eq "KubernetesGCP")
     {
-        $target.EndPoint.Authentication.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.Authentication.AccountId -ItemName "$($target.Name) K8s Auth Account" -ThrowErrorOnMismatch $true
+        $target.EndPoint.Authentication.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.Authentication.AccountId -ItemName "$($target.Name) K8s Auth Account" -MatchingOption "ErrorUnlessExactMatch"
     }
 }
 
@@ -146,7 +159,7 @@ function Convert-OctopusAzureWebAppTarget
         return
     }
 
-    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId -ItemName "$($target.Name) Azure Account" -ThrowErrorOnMismatch $true
+    $target.EndPoint.AccountId = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $target.EndPoint.AccountId -ItemName "$($target.Name) Azure Account" -MatchingOption "ErrorUnlessExactMatch"
 }
 
 function Convert-OctopusTargetTenantedDeploymentParticipation

@@ -16,17 +16,33 @@ function Copy-OctopusProcessStepAction
     Write-OctopusChangeLog "          - IsDisabled: $($action.IsDisabled)"
     Write-OctopusChangeLog "          - IsRequired: $($action.IsRequired)"
     Write-OctopusChangeLog "          - Run Condition: $($action.Condition)"
+   
+    Write-OctopusVerbose "Attempted to convert environment run conditions for $($action.Name)"
+    $environmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch
+    if ($environmentMatch.CanProceed -eq $false)
+    {
+        return $null
+    }
 
-    Test-OctopusScopeMatch -SourceScopingList $action.Environments -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -ScopeMatchingOption $CloneScriptOptions.EnvironmentScopingMatch -ScopeName "$($action.Name) Environment Run Condition"
-    $action.Environments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments)    
+    $action.Environments = @($environmentMatch.NewIdList)
     Write-OctopusChangeLogListDetails -idList $action.Environments -destinationList $DestinationData.EnvironmentList -listType "Environments" -prefixSpaces "         "
 
-    Test-OctopusScopeMatch -SourceScopingList $action.ExcludedEnvironments -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -ScopeMatchingOption $CloneScriptOptions.EnvironmentScopingMatch -ScopeName "$($action.Name) Excluded Environment Run Condition"
-    $action.ExcludedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments)
+    Write-OctopusVerbose "Attempted to convert exclude environment run conditions for $($action.Name)"
+    $excludeEnvironmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch
+    if ($excludeEnvironmentMatch.CanProceed -eq $false)
+    {
+        return $null
+    }
+    $action.ExcludedEnvironments = @($excludeEnvironmentMatch.NewIdList)
     Write-OctopusChangeLogListDetails -idList $action.ExcludedEnvironments -destinationList $DestinationData.EnvironmentList -listType "Excluded Environments" -prefixSpaces "         "    
 
-    Test-OctopusScopeMatch -SourceScopingList $action.Channels -SourceList $SourceChannelList -DestinationList $destinationChannelList -ScopeMatchingOption $CloneScriptOptions.ChannelScopingMatch -ScopeName "$($action.Name) Channel Run Condition"
-    $action.Channels = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels)
+    Write-OctopusVerbose "Attempted to convert channel run conditions for $($action.Name)"
+    $channelMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels -MatchingOption $CloneScriptOptions.ProcessChannelScopingMatch
+    if ($channelMatch.CanProceed -eq $false)
+    {
+        return $null
+    }
+    $action.Channels = @($channelMatch.NewIdList)
     Write-OctopusChangeLogListDetails -idList $action.Channels -destinationList $destinationChannelList -listType "Channels" -prefixSpaces "         "
 
     Write-OctopusChangeLogListDetails -idList $action.TenantTags -destinationList $DestinationData.TenantTags -listType "Tenant Tags" -prefixSpaces "         " -skipNameConversion $true    
@@ -57,7 +73,7 @@ function Convert-OctopusProcessActionWorkerPoolId
     {
         if ($null -ne $action.WorkerPoolId)
         {
-            $action.WorkerPoolId = Convert-SourceIdToDestinationId -SourceList $SourceData.WorkerPoolList -DestinationList $DestinationData.WorkerPoolList -IdValue $action.WorkerPoolId -ItemName "$($action.Name) Worker Pool" -ThrowErrorOnMismatch $true                    
+            $action.WorkerPoolId = Convert-SourceIdToDestinationId -SourceList $SourceData.WorkerPoolList -DestinationList $DestinationData.WorkerPoolList -IdValue $action.WorkerPoolId -ItemName "$($action.Name) Worker Pool" -MatchingOption "ErrorUnlessExactMatch"                    
             Write-OctopusChangeLogListDetails -idList @($action.WorkerPoolId) -destinationList $DestinationData.WorkerPoolList -listType "Worker Pool Id" -prefixSpaces "         "
         }
     }
@@ -75,7 +91,7 @@ function Convert-OctopusProcessActionExecutionContainerFeedId
     {
         if ($null -ne $action.Container.FeedId)
         {
-            $action.Container.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Container.FeedId -ItemName "$($action.Name) Execution Container Feed" -ThrowErrorOnMismatch $true           
+            $action.Container.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Container.FeedId -ItemName "$($action.Name) Execution Container Feed" -MatchingOption "ErrorUnlessExactMatch"           
             Write-OctopusChangeLogListDetails -idList @($action.Container.Image) -destinationList $DestinationData.FeedList -listType "Container Image Feed" -prefixSpaces "         " -skipNameConversion $true            
         }
     }
@@ -91,7 +107,7 @@ function Convert-OctopusProcessActionStepTemplate
 
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Template.Id")
     {      
-        $action.Properties.'Octopus.Action.Template.Id' = Convert-SourceIdToDestinationId -SourceList $sourceData.StepTemplates -DestinationList $destinationData.StepTemplates -IdValue $action.Properties.'Octopus.Action.Template.Id'  -ItemName "$($action.Name) Step Template" -ThrowErrorOnMismatch $true
+        $action.Properties.'Octopus.Action.Template.Id' = Convert-SourceIdToDestinationId -SourceList $sourceData.StepTemplates -DestinationList $destinationData.StepTemplates -IdValue $action.Properties.'Octopus.Action.Template.Id'  -ItemName "$($action.Name) Step Template" -MatchingOption "ErrorUnlessExactMatch"
 
         if ($null -ne $action.Properties.'Octopus.Action.Template.Id')                                  
         {            
@@ -111,7 +127,7 @@ function Convert-OctopusProcessActionStepTemplate
                 if ($controlType -eq "Package")
                 {
                     $feedInformation = $action.Properties.$($parameter.Name) | ConvertFrom-Json
-                    $feedInformation.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $feedInformation.FeedId -ItemName "$($action.Name) Package Parameter" -ThrowErrorOnMismatch $true
+                    $feedInformation.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $feedInformation.FeedId -ItemName "$($action.Name) Package Parameter" -MatchingOption "ErrorUnlessExactMatch"
 
                     $action.Properties.$($parameter.Name) = $feedInformation | ConvertTo-Json
                 }    
@@ -140,19 +156,20 @@ function Convert-OctopusProcessActionManualIntervention
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Manual.ResponsibleTeamIds")
     {
         $manualInterventionSourceTeamIds = @($action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' -split ",")
-        $manualInterventionDestinationTeamIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TeamList -DestinationList $DestinationData.TeamList -IdList $manualInterventionSourceTeamIds)
+        $manualInterventionDestinationTeamIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TeamList -DestinationList $DestinationData.TeamList -IdList $manualInterventionSourceTeamIds -MatchingOption "IgnoreMismatch"
 
-        if ($manualInterventionDestinationTeamIds.Length -eq 0)
+        $newTeamIds = @($manualInterventionDestinationTeamIds.NewIdList)
+        if ($newTeamIds.Count -eq 0)
         {
             Write-OctopusPostCloneCleanUp "Unable to find matching teams for $($action.Name), converting responsible team to built in team 'team-managers'"                                        
             $action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' = "team-managers"
         }
         else
         {
-            $action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' = ($manualInterventionDestinationTeamIds -join ",")
+            $action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' = ($newTeamIds -join ",")
         } 
                         
-        Write-OctopusChangeLogListDetails -idList $manualInterventionDestinationTeamIds -destinationList $DestinationData.TeamList -listType "Manual Intervention Teams" -prefixSpaces "         "
+        Write-OctopusChangeLogListDetails -idList $newTeamIds -destinationList $DestinationData.TeamList -listType "Manual Intervention Teams" -prefixSpaces "         "
     }
 }
 
@@ -166,7 +183,7 @@ function Convert-OctopusProcessActionFeedId
 
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId")
     {
-        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($action.Name) Feed Id" -ThrowErrorOnMismatch $true                    
+        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($action.Name) Feed Id" -MatchingOption "ErrorUnlessExactMatch"                    
         Write-OctopusChangeLogListDetails -idList @($action.Properties.'Octopus.Action.Package.FeedId') -destinationList $DestinationData.FeedList -listType "Package Feed" -prefixSpaces "         "
         $packageId = $action.Properties.'Octopus.Action.Package.PackageId'
         Write-OctopusChangeLog "            - $packageId"

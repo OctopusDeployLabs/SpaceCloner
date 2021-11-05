@@ -28,6 +28,7 @@ param (
     $VariableEnvironmentScopingMatch,
     $VariableProcessOwnerScopingMatch,
     $VariableActionScopingMatch,
+    $VariableMachineScopingMatch,
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
@@ -105,6 +106,20 @@ if ($null -eq $CloneTenantVariables)
 {
     $CloneTenantVariables = $false
 }
+
+$ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+
+$VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableProcessOwnerScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableProcessOwnerScopingMatch" -ParameterValue $VariableProcessOwnerScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableActionScopingMatch" -ParameterValue $VariableActionScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+
+$InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
@@ -668,6 +683,7 @@ Write-OctopusSuccess "  -VariableChannelScopingMatch $VariableChannelScopingMatc
 Write-OctopusSuccess "  -VariableEnvironmentScopingMatch $VariableEnvironmentScopingMatch"
 Write-OctopusSuccess "  -VariableProcessOwnerScopingMatch $VariableProcessOwnerScopingMatch"
 Write-OctopusSuccess "  -VariableActionScopingMatch $VariableActionScopingMatch"
+Write-OctopusSuccess "  -VariableMachineScopingMatch $VariableMachineScopingMatch"
 Write-OctopusSuccess "  -VariableAccountScopingMatch $VariableAccountScopingMatch"
 Write-OctopusSuccess "  -VariableCertificateScopingMatch $VariableCertificateScopingMatch"
 Write-OctopusSuccess "  -InfrastructureEnvironmentScopingMatch $InfrastructureEnvironmentScopingMatch"
@@ -716,6 +732,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -VariableEnvironmentScopingMatch "$VariableEnvironmentScopingMatch" `
     -VariableProcessOwnerScopingMatch "$VariableProcessOwnerScopingMatch" `
     -VariableActionScopingMatch "$VariableActionScopingMatch" `
+    -VariableMachineScopingMatch "$VariableMachineScopingMatch" `
     -VariableAccountScopingMatch "$VariableAccountScopingMatch" `
     -VariableCertificateScopingMatch "$VariableCertificateScopingMatch" `
     -InfrastructureEnvironmentScopingMatch "$InfrastructureEnvironmentScopingMatch" `

@@ -42,12 +42,12 @@ function Copy-OctopusProjects
         
         if ($CloneScriptOptions.CloneProjectDeploymentProcess -eq $true)
         {
-            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -sourceProject $project -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -sourceProject $project -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $cloneScriptOptions
         }
 
         if ($CloneScriptOptions.CloneProjectRunbooks -eq $true)
         {
-            Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData            
+            Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions      
         }
 
         Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $project -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions        
@@ -78,8 +78,11 @@ function Copy-OctopusProjectSettings
         $copyOfProject.VariableSetId = $null
         $copyOfProject.ClonedFromProjectId = $null        
 
-        $VariableSetIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds)
-        $scriptModuleIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds)
+        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" 
+        $VariableSetIds = @($newVariableSetIds.NewIdList)
+
+        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch"
+        $scriptModuleIds = @($newScriptModuleIds.NewIdList)
 
         $copyOfProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
 
@@ -91,8 +94,8 @@ function Copy-OctopusProjectSettings
             }
         }        
 
-        $copyOfProject.ProjectGroupId = Convert-SourceIdToDestinationId -SourceList $SourceData.ProjectGroupList -DestinationList $DestinationData.ProjectGroupList -IdValue $copyOfProject.ProjectGroupId -ItemName "$($copyOfProject.Name) Project Group" -ThrowErrorOnMismatch $true
-        $copyOfProject.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $copyOfProject.LifeCycleId -ItemName "$($copyOfProject.Name) Default Lifecycle" -ThrowErrorOnMismatch $true
+        $copyOfProject.ProjectGroupId = Convert-SourceIdToDestinationId -SourceList $SourceData.ProjectGroupList -DestinationList $DestinationData.ProjectGroupList -IdValue $copyOfProject.ProjectGroupId -ItemName "$($copyOfProject.Name) Project Group" -MatchingOption "ErrorUnlessExactMatch"
+        $copyOfProject.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $copyOfProject.LifeCycleId -ItemName "$($copyOfProject.Name) Default Lifecycle" -MatchingOption "ErrorUnlessExactMatch"
 
         Write-OctopusPostCloneCleanUp "New project $($sourceProject.Name), resetting the versioning template to the default, removing the automatic release creation"
         $copyOfProject.VersioningStrategy.Template = "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.NextPatch}"
@@ -113,8 +116,12 @@ function Copy-OctopusProjectSettings
         $matchingProject.Description = $sourceProject.Description    
         
         Write-OctopusChangeLog " - Update $($sourceProject.Name)"
-        $VariableSetIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $sourceProject.IncludedLibraryVariableSetIds)
-        $scriptModuleIds = @(Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $sourceProject.IncludedLibraryVariableSetIds)
+        
+        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" 
+        $VariableSetIds = @($newVariableSetIds.NewIdList)
+
+        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch"
+        $scriptModuleIds = @($newScriptModuleIds.NewIdList)
 
         $matchingProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
 
@@ -175,7 +182,7 @@ function Copy-OctopusProjectReleaseVersioningSettings
         Write-OctopusVerbose "The project $($project.Name) has automatic release creation set."
         Write-OctopusChangeLog "    - Turn On Automatic Release Creation"
         $destinationProject.ReleaseCreationStrategy = Copy-OctopusObject -ItemToCopy $sourceProject.ReleaseCreationStrategy -ClearIdValue $false -SpaceId $null
-        $destinationProject.ReleaseCreationStrategy.ChannelId = Convert-SourceIdToDestinationId -SourceList $sourceChannels -DestinationList $destinationChannels -IdValue $sourceProject.ReleaseCreationStrategy.ChannelId -ItemName "$($copyOfProject.Name) Automatic Release Creation Channel" -ThrowErrorOnMismatch $true
+        $destinationProject.ReleaseCreationStrategy.ChannelId = Convert-SourceIdToDestinationId -SourceList $sourceChannels -DestinationList $destinationChannels -IdValue $sourceProject.ReleaseCreationStrategy.ChannelId -ItemName "$($copyOfProject.Name) Automatic Release Creation Channel" -MatchingOption "ErrorUnlessExactMatch"
         $destinationProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId = Convert-OctopusProcessDeploymentStepId -sourceProcess $sourceDeploymentProcess -destinationProcess $destinationDeploymentProcess -sourceId $sourceProject.ReleaseCreationStrategy.ReleaseCreationPackageStepId
         $destinationProject.AutoCreateRelease = $true
     }

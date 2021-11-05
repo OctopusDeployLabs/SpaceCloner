@@ -6,7 +6,8 @@ function Copy-OctopusProjectDeploymentProcess
         $sourceProject,
         $destinationProject,        
         $sourceData,
-        $destinationData
+        $destinationData,
+        $cloneScriptOptions
     )
 
     Write-OctopusSuccess "Syncing deployment process for $($destinationProject.Name)"
@@ -15,7 +16,7 @@ function Copy-OctopusProjectDeploymentProcess
     
     Write-OctopusChangeLog "    - Deployment Process"
     Write-OctopusPostCloneCleanUp "*****************Starting sync of deployment process for $($destinationProject.Name)***************"
-    $destinationDeploymentProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceDeploymentProcess.Steps -destinationDeploymentProcessSteps $destinationDeploymentProcess.Steps)
+    $destinationDeploymentProcess.Steps = @(Copy-OctopusDeploymentProcess -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -sourceDeploymentProcessSteps $sourceDeploymentProcess.Steps -destinationDeploymentProcessSteps $destinationDeploymentProcess.Steps -cloneScriptOptions $cloneScriptOptions)
     Write-OctopusPostCloneCleanUp "*****************Ending sync of deployment process for $($destinationProject.Name)*****************"
 
     $destinationDeploymentProcess = Save-OctopusProjectDeploymentProcess -DeploymentProcess $destinationDeploymentProcess -DestinationData $destinationData    
