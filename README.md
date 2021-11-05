@@ -173,6 +173,27 @@ The space cloner matches variables by comparing:
 
 If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
 
+### What if I have dev and test in one instance and production in another and I have variable scoped to dev
+
+By default the space cloner will skip that variable.  The space cloner allows you to throw an error on mismatch, skip unless everything is matched, throw an error unless there is a partial match, skip unless there is a partial match, or ignore the mismatch and clone whatever is there.  
+
+You have flexibility with each scoping option.
+
+- Deployment Process (both runbook and deployment process)
+    - Environments
+    - Channels
+- Variables (both project and library variable set)
+    - Environments
+    - Channels
+    - Process Owners (deployment process or runbook)
+    - Deployment Process Steps
+    - Deployment Targets
+    - Accounts
+    - Certificates
+- Infrastructure (targets and certificates)
+    - Environments
+    - Tenants
+
 ### Why doesn't the space cloner clone deployments and releases?
 
 It is a limitation of the space cloner going through the API.  You might have releases `1.1.0`, `1.2.1`, and `1.4.5` all created months apart.  If the space cloner were to clone those releases it would snapshot the existing deployment process and variables as they exist today AND set the release creation date to be today.  It wouldn't be a true clone.

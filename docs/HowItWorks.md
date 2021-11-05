@@ -106,6 +106,36 @@ The space cloner matches variables by comparing:
 
 If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
 
+## Scope Matching
+
+Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?
+
+You can have several variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to environments.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
+
+- `ErrorUnlessExactMatch`: An **Error** will be thrown unless an exact match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` AND `Test`.
+- `SkipUnlessExactMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless an exact match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` AND `Test`.
+- `ErrorUnlessPartialMatch`: An **Error** will be thrown unless a partial match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` OR `Test`.
+- `SkipUnlessPartialMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless a partial match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` OR `Test`.
+- `IgnoreMismatch`: The item will be cloned regardless of matching.
+
+You have flexibility with each scoping option.
+
+- Deployment Process (both runbook and deployment process)
+    - Environments
+    - Channels
+- Variables (both project and library variable set)
+    - Environments
+    - Channels
+    - Process Owners (deployment process or runbook)
+    - Deployment Process Steps
+    - Deployment Targets
+    - Accounts
+    - Certificates
+- Infrastructure (targets and certificates)
+    - Environments
+    - Tenants
+
+
 ## Limitations
 Because this is hitting the Octopus Restful API, it cannot decrypt items from the Octopus Database.  To decrypt items from the Octopus database, you'll need access to the master key and the database.  This script was designed to run on an Octopus Cloud instance.  You, the user, do not have access to that information.  
 
@@ -144,6 +174,10 @@ The rules for cloning a deployment process are:
 - Clone steps not found in the destination process
 - Leave existing steps as is
 - The source process is the source of truth for step order.  It will ensure the destination deployment process order matches.  It will then add additional steps found in the deployment process not found in the source to the end of the deployment process.
+
+### Override Default Process Cloning Behavior
+
+A new parameter has been added to the process cloner, `ProcessCloningOption`.  That allows you to overwrite the default behavior.  The options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`.  Setting this parameter to `SourceOnly` will result in any steps in the destination not on the source to be removed.
 
 ## Targets and Workers
 

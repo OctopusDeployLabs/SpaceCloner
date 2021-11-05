@@ -10,6 +10,13 @@ param (
     $OverwriteExistingVariables,    
     $IgnoreVersionCheckResult,
     $SkipPausingWhenIgnoringVersionCheckResult,
+    $VariableChannelScopingMatch,
+    $VariableEnvironmentScopingMatch,
+    $VariableProcessOwnerScopingMatch,
+    $VariableActionScopingMatch,
+    $VariableMachineScopingMatch,
+    $VariableAccountScopingMatch,
+    $VariableCertificateScopingMatch,
     $WhatIf     
 )
 
@@ -46,11 +53,25 @@ if ($null -eq $WhatIf)
     $WhatIf = $false
 }
 
+$VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableProcessOwnerScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableProcessOwnerScopingMatch" -ParameterValue $VariableProcessOwnerScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableActionScopingMatch" -ParameterValue $VariableActionScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $false
+$VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;     
     LibraryVariableSetsToClone = $SourceVariableSetName;
     DestinationVariableSetName = $DestinationVariableSetName;   
+    VariableChannelScopingMatch = $VariableChannelScopingMatch;
+    VariableEnvironmentScopingMatch = $VariableEnvironmentScopingMatch;
+    VariableProcessOwnerScopingMatch = $VariableProcessOwnerScopingMatch;
+    VariableActionScopingMatch = $VariableActionScopingMatch;
+    VariableMachineScopingMatch = $VariableMachineScopingMatch;
+    VariableAccountScopingMatch = $VariableAccountScopingMatch;
+    VariableCertificateScopingMatch = $VariableCertificateScopingMatch;
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"
