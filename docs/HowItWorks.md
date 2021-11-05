@@ -144,16 +144,6 @@ Please see the [sensitive variables page](SensitiveVariables.md) for more inform
 ## Simple Relationship Management
 The process does not attempt to walk a tree of dependencies.  It loads up all the necessary data from the source and destination.  It will attempt to find the corresponding ID in the destination space when it comes across an ID in the source space.  If it cannot find a matching item, it removes that binding.  
 
-If that binding on a specific object is required, the script will fail.  
-
-Let's use environment scoping as an example.  In my source space, I have a variable set called `Global`.  That variable set has an environment scoped to environments.
-
-![](../img/source-global-variables-environment-scoping.png)
-
-In my destination space, I only have three of those four environments, `Test`, `Staging`, and `Production`.  As a result, the cloned variable set still has the `Development` value, but it doesn't have a scope associated with it.
-
-![](../img/destination-global-variables-environment-scoping-missing-env.png)
-
 ## Intelligent Process Cloning
 This script assumes that when you clone a deployment process, you want to add missing steps but leave existing steps.
 
