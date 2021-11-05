@@ -1,6 +1,6 @@
 $currentDate = Get-Date
 $currentDateFormatted = $currentDate.ToString("yyyy_MM_dd_HH_mm_ss")
-$clonerVersion = "2.2.1"
+$clonerVersion = "2.2.2"
 
 $logFolder = "$PSScriptRoot\..\..\"
 $logArchiveFolder = "$PSScriptRoot\..\..\logs\archive_$currentDateFormatted" 
