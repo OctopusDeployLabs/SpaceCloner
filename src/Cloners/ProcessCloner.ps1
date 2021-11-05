@@ -51,7 +51,7 @@ function Copy-OctopusDeploymentProcess
             }            
         }
 
-        if ($cloneScriptOptions.ProcessCloningOption.ToLower().Trim() -eq "KeepAdditionalDestinationSteps")
+        if ($cloneScriptOptions.ProcessCloningOption.ToLower().Trim() -eq "keepadditionaldestinationsteps")
         {
             Write-OctopusVerbose "Looping through the destination step to make sure we didn't miss any actions"
             foreach ($action in $stepToAdd.Actions)
@@ -86,7 +86,7 @@ function Copy-OctopusDeploymentProcess
         }
     }
 
-    if ($cloneScriptOptions.ProcessCloneOptions.ToLower().Trim() -eq "KeepAdditionalDestinationSteps")
+    if ($cloneScriptOptions.ProcessCloningOption.ToLower().Trim() -eq "keepadditionaldestinationsteps")
     {
         Write-OctopusVerbose "Looping through the destination deployment process steps to make sure we didn't miss anything"
         foreach ($step in $destinationDeploymentProcessSteps)

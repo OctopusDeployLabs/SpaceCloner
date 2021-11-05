@@ -140,7 +140,7 @@ function Convert-SourceIdToDestinationId
             exit 1             
         }
 
-        Write-OctopusVerbose "Unable to find a name property for $IdValue."
+        Write-OctopusVerbose "Unable to find a name property for $IdValue for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with 'Error'."
         return $null
     }
 
@@ -156,7 +156,7 @@ function Convert-SourceIdToDestinationId
             exit 1        
         }
 
-        Write-OctopusCritical "Unable to find $nameToUse in the destination."
+        Write-OctopusWarning "Unable to find $nameToUse in the destination for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with 'Error'."
         return $null
     }
     else
@@ -219,7 +219,7 @@ function Convert-SourceIdListToDestinationIdList
         return $returnObject
     }
 
-    if ($originalCount -ge 1 -and $matchingCount -ge 1)
+    if ($originalCount -ge 1 -and $matchedCount -ge 1)
     {
         Write-OctopusVerbose "There was a partial match. The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can Proceed is true."
         return $returnObject
