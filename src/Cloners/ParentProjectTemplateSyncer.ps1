@@ -30,12 +30,12 @@ function Sync-OctopusMasterOctopusProjectWithChildProjects
 
         if ($CloneScriptOptions.CloneProjectDeploymentProcess -eq $true)
         {
-            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -sourceProject $sourceProject -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData 
+            Copy-OctopusProjectDeploymentProcess -sourceChannelList $sourceChannels -sourceProject $sourceProject -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceData $SourceData -destinationData $DestinationData -cloneScriptOptions $CloneScriptOptions
         }
 
         if ($CloneScriptOptions.CloneProjectRunbooks -eq $true)
         {
-            Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData            
+            Copy-OctopusProjectRunbooks -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions            
         }
         
         Copy-OctopusProjectVariables -sourceChannelList $sourceChannels -destinationChannelList $destinationChannels -destinationProject $destinationProject -sourceProject $sourceProject -destinationData $DestinationData -sourceData $SourceData -cloneScriptOptions $CloneScriptOptions -createdNewProject $false        

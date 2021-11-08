@@ -51,7 +51,7 @@ function Copy-OctopusWorkers
 
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Worker Pool Scoping" -idList $copyOfItemToClone.WorkerPoolIds -destinationList $DestinationData.WorkerPoolList            
 
-            $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $worker.MachinePolicyId
+            $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $worker.MachinePolicyId -ItemName "$($copyOfItemToClone.Name) Machine Policy" -MatchingOption "ErrorUnlessExactMatch"
             $copyOfItemToClone.Status = "Unknown"
             $copyOfItemToClone.HealthStatus = "Unknown"
             $copyOfItemToClone.StatusSummary = ""
@@ -94,7 +94,7 @@ function Get-OctopusFilteredWorkerPoolIdList
             continue
         }
 
-        $destinationWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $workerPoolId            
+        $destinationWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $workerPoolId -ItemName "$($worker.Name) Worker Pool" -MatchingOption "ErrorUnlessPartialMatch"
         $workerPoolIdsToReturn += $destinationWorkerPoolId
     }
 

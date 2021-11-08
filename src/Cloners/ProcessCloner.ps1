@@ -6,7 +6,8 @@ function Copy-OctopusDeploymentProcess
         $sourceData,
         $destinationData,
         $sourceDeploymentProcessSteps,
-        $destinationDeploymentProcessSteps
+        $destinationDeploymentProcessSteps,
+        $cloneScriptOptions
     )
 
     Write-OctopusVerbose "Looping through the source steps to get them added"
@@ -33,34 +34,41 @@ function Copy-OctopusDeploymentProcess
         foreach ($action in $step.Actions)
         {
             $matchingAction = Get-OctopusItemByName -ItemList $matchingStep.Actions -ItemName $action.Name
-            $clonedStep = Copy-OctopusProcessStepAction -sourceAction $action -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -matchingAction $matchingAction
-
-            if ($null -ne $matchingAction)
-            {
-                Write-OctopusChangeLog "        - Updating action $($action.Name)"
-            }
-            else 
-            {
-                Write-OctopusChangeLog "        - Adding action $($action.Name)"
-            }
+            $clonedStep = Copy-OctopusProcessStepAction -sourceAction $action -sourceChannelList $sourceChannelList -destinationChannelList $destinationChannelList -sourceData $sourceData -destinationData $destinationData -matchingAction $matchingAction -CloneScriptOptions $cloneScriptOptions                  
 
             if ($null -ne $clonedStep)
             {                
                 $newStepActions += $clonedStep                
+
+                if ($null -ne $matchingAction)
+                {
+                    Write-OctopusChangeLog "        - Updating action $($action.Name)"
+                }
+                else 
+                {
+                    Write-OctopusChangeLog "        - Adding action $($action.Name)"
+                }
             }            
         }
 
-        Write-OctopusVerbose "Looping through the destination step to make sure we didn't miss any actions"
-        foreach ($action in $stepToAdd.Actions)
+        if ($cloneScriptOptions.ProcessCloningOption.ToLower().Trim() -eq "keepadditionaldestinationsteps")
         {
-            $matchingAction = Get-OctopusItemByName -ItemList $step.Actions -ItemName $action.Name
-
-            if ($null -eq $matchingAction)
+            Write-OctopusVerbose "Looping through the destination step to make sure we didn't miss any actions"
+            foreach ($action in $stepToAdd.Actions)
             {
-                Write-OctopusVerbose "The action $($action.Name) didn't exist at the source, adding that back to the destination list"  
-                Write-OctopusChangeLog "        - $($action.Name) exists on destination, but not on the source, leaving as is"              
-                $newStepActions += Copy-OctopusObject -ItemToCopy $action -ClearIdValue $false -SpaceId $null
+                $matchingAction = Get-OctopusItemByName -ItemList $step.Actions -ItemName $action.Name
+
+                if ($null -eq $matchingAction)
+                {
+                    Write-OctopusVerbose "The action $($action.Name) didn't exist at the source, adding that back to the destination list"  
+                    Write-OctopusChangeLog "        - $($action.Name) exists on destination, but not on the source, leaving as is"              
+                    $newStepActions += Copy-OctopusObject -ItemToCopy $action -ClearIdValue $false -SpaceId $null
+                }
             }
+        }
+        else
+        {
+            Write-OctopusVerbose "The parameter ProcessCloningOption was set to SourceOnly, skipping any steps on the destination not in the source."    
         }
         
         $stepToAdd.Actions = @()
@@ -78,17 +86,24 @@ function Copy-OctopusDeploymentProcess
         }
     }
 
-    Write-OctopusVerbose "Looping through the destination deployment process steps to make sure we didn't miss anything"
-    foreach ($step in $destinationDeploymentProcessSteps)
+    if ($cloneScriptOptions.ProcessCloningOption.ToLower().Trim() -eq "keepadditionaldestinationsteps")
     {
-        $matchingStep = Get-OctopusItemByName -ItemList $sourceDeploymentProcessSteps -ItemName $step.Name
-
-        if ($null -eq $matchingStep)
+        Write-OctopusVerbose "Looping through the destination deployment process steps to make sure we didn't miss anything"
+        foreach ($step in $destinationDeploymentProcessSteps)
         {
-            Write-OctopusVerbose "The step $($step.Name) didn't exist in the source, adding that back to the destiantion list"
-            Write-OctopusChangeLog "      - $($step.Name) exists on destination, but not on source, leaving alone"
-            $newDeploymentProcessSteps += Copy-OctopusObject -ItemToCopy $step -ClearIdValue $false -SpaceId $null
+            $matchingStep = Get-OctopusItemByName -ItemList $sourceDeploymentProcessSteps -ItemName $step.Name
+
+            if ($null -eq $matchingStep)
+            {
+                Write-OctopusVerbose "The step $($step.Name) didn't exist in the source, adding that back to the destiantion list"
+                Write-OctopusChangeLog "      - $($step.Name) exists on destination, but not on source, leaving alone"
+                $newDeploymentProcessSteps += Copy-OctopusObject -ItemToCopy $step -ClearIdValue $false -SpaceId $null
+            }
         }
+    }
+    else
+    {
+        Write-OctopusVerbose "The parameter ProcessCloningOption was set to SourceOnly, skipping any steps on the destination not in the source."
     }
 
     return @($newDeploymentProcessSteps)

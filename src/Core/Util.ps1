@@ -10,25 +10,31 @@ function Get-OctopusItemByName
         $loweredItem = $ItemName.ToLower().Trim()
     }
     
+    Write-OctopusVerbose "Looping through $($itemList.Count) items to find $loweredItem"
     foreach ($item in $itemList)
     {
         if ($null -eq $item)
         {
+            Write-OctopusVerbose "      The item to compare is $null moving on to next item in list."
             continue
         }
 
         if ($null -eq $item.Name -and $null -eq $itemName)
         {
+            Write-OctopusVerbose "      The item name is null and the item to find is null; returning item."
             return $item
         }
-
+        
         if ($null -eq $item.Name)
         {
+            Write-OctopusVerbose "      The item name is null moving on to next item in list."
             continue
         }
 
+        Write-OctopusVerbose "      Comparing $($item.Name.ToLower().Trim()) with $loweredItem"
         if ($item.Name.ToLower().Trim() -eq $loweredItem)
         {
+            Write-OctopusVerbose "      Match found on name, returning item."
             return $item
         }
     }
@@ -107,7 +113,9 @@ function Convert-SourceIdToDestinationId
     param(
         $SourceList,
         $DestinationList,
-        $IdValue
+        $IdValue,
+        $ItemName,
+        $MatchingOption
     )
 
     $idValueSplit = $IdValue -split "-"
@@ -120,7 +128,7 @@ function Convert-SourceIdToDestinationId
         }
     }
     
-    Write-OctopusVerbose "Getting Name of $IdValue"
+    Write-OctopusVerbose "Getting Name of $IdValue for $itemName."
     $sourceItem = Get-OctopusItemById -ItemList $SourceList -ItemId $IdValue
 
     $nameToUse = $sourceItem.Name
@@ -132,7 +140,13 @@ function Convert-SourceIdToDestinationId
 
     if ([string]::IsNullOrWhiteSpace($nameToUse))
     {
-        Write-OctopusVerbose "Unable to find a name property for $IdValue"
+        if ($MatchingOption.ToLower().Trim() -eq "errorunlessexactmatch")
+        {
+            Write-OctopusCritical "Unable to find a name property for $IdValue in the source list for $itemName.  Stopping to prevent bad data.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+            exit 1             
+        }
+
+        Write-OctopusVerbose "Unable to find a name property for $IdValue for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with Error."
         return $null
     }
 
@@ -142,7 +156,13 @@ function Convert-SourceIdToDestinationId
 
     if ($null -eq $destinationItem)
     {
-        Write-OctopusVerbose "Unable to find $nameToUse in the destination list"
+        if ($MatchingOption.ToLower().Trim() -eq "errorunlessexactmatch")
+        {        
+            Write-OctopusCritical "Unable to find $nameToUse in the destination list for $itemName.  Stopping to prevent bad data.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+            exit 1        
+        }
+
+        Write-OctopusWarning "Unable to find $nameToUse in the destination for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with Error."
         return $null
     }
     else
@@ -157,22 +177,71 @@ function Convert-SourceIdListToDestinationIdList
     param(
         $SourceList,
         $DestinationList,
-        $IdList
+        $IdList,
+        $MatchingOption,
+        $IdListName
     )
 
-    $NewIdList = @()
-    Write-OctopusVerbose "Converting id list with $($IdList.Length) item(s) over to destination space"     
+    $returnObject = @{
+        NewIdList = @()
+        CanProceed = $true
+    }
+    
+    $originalCount = $IdList.Count
+
+    if ($originalCount -eq 0)    
+    {
+        Write-OctopusVerbose "Ignoring the matching test because the id list $IdListName has no items to match to. Can Proceed is true."
+        return $returnObject
+    }
+
+    Write-OctopusVerbose "Converting id list $IdListName with $originalCount item(s) over to destination space"     
     foreach ($idValue in $idList)
     {
-        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue
+        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue -ItemName $IdListName -matchingOption $MatchingOption
 
         if ($null -ne $ConvertedId)
         {
-            $NewIdList += $ConvertedId
+            $returnObject.NewIdList += $ConvertedId
         }
+    }    
+
+    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch")
+    {
+        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true."
+        return $returnObject
+    }
+    
+    $matchedCount = $returnObject.NewIdList.Count
+    if ($matchedCount -eq $originalCount)
+    {
+        Write-OctopusVerbose "Exact match was found for $IdListName.  Can Proceed is true."
+        return $returnObject
     }
 
-    return @($NewIdList)
+    if ($MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -and $originalCount -ne $matchedCount)
+    {
+        Write-OctopusVerbose "The matching option was set to SkipUnlessExactMatch.  The source $IdListName had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip the item."
+        $returnObject.CanProceed = $false
+        return $returnObject
+    }
+
+    if ($originalCount -ge 1 -and $matchedCount -ge 1)
+    {
+        Write-OctopusVerbose "There was a partial match. The source $IdListName had $originalCount item(s) and the destination had $matchedCount item(s).  Can Proceed is true."
+        return $returnObject
+    }
+
+    if ($MatchingOption.ToLower().Trim() -eq "errorunlesspartialmatch")
+    {
+        Write-OctopusCritical "A partial match was not found for $IdListName and the Matching Option is set to ErrorUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Exiting.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+        Exit 1
+    }
+
+    Write-OctopusVerbose "A partial match was not found for $IdListName and matching option is SkipUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip this item."
+    $returnObject.CanProceed = $false
+
+    return $returnObject
 }
 
 function Test-OctopusObjectHasProperty
@@ -579,4 +648,40 @@ function Update-OctopusList
     }
 
     return $itemArray
+}
+
+function Test-OctopusScopeMatchParameter
+{
+    param (
+        $parameterValue,
+        $parameterName,
+        $defaultValue,
+        $singleValueItem
+    )
+
+    $lowerParameterValue = $parameterValue.ToLower().Trim()
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        return $defaultValue
+    }
+
+    if ($singleValueItem)
+    {
+        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "ignoremismatch")
+        {
+            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, or IgnoreMismatch."
+            exit 1
+        }  
+    }
+    else
+    {
+        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "errorunlesspartialmatch" -and $lowerParameterValue -ne "skipunlesspartialmatch" -and $lowerParameterValue -ne "ignoremismatch")
+        {
+            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, ErrorUnlessPartialMatch, SkipUnlessPartialMatch, or IgnoreMismatch."
+            exit 1
+        }  
+    }      
+
+    return $parameterValue
 }

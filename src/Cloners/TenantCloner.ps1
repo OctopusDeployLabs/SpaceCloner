@@ -53,14 +53,20 @@ function Copy-OctopusTenants
                     continue
                 }
                 
-                Write-OctopusVerbose "Attempting to matching $sourceProjectId with source"
-		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId
+                Write-OctopusVerbose "Attempting to match $sourceProjectId with source"
+		        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceProjectId -ItemName "$($tenantToUpdate.Name) Project" -MatchingOption "IgnoreMismatch"
+
+                if ($null -eq $matchingProjectId)
+                {
+                    Write-OctopusVerbose "The destination project does not exist.  Skipping this project."
+                    continue
+                }
                 Write-OctopusVerbose "The project id for $sourceProjectId on the destination is $matchingProjectId"
+                
+                $scopedEnvironments = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId -MatchingOption "IgnoreMismatch" -IdListName "$($Tenant.Name) Project Environments"
 
-                $scopedEnvironments = @(Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $tenant.ProjectEnvironments.$sourceProjectId)
-
-                $added = Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments)
-                $tenantToUpdate.ProjectEnvironments.$matchingProjectId = @($scopedEnvironments)
+                $added = Add-PropertyIfMissing -objectToTest $tenantToUpdate.ProjectEnvironments -propertyName $matchingProjectId -propertyValue @($scopedEnvironments.NewIdList)
+                $tenantToUpdate.ProjectEnvironments.$matchingProjectId = @($scopedEnvironments.NewIdList)
             }
 
             $updatedTenant = Save-OctopusTenant -Tenant $tenantToUpdate -destinationData $destinationData

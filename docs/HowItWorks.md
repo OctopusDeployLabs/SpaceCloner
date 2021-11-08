@@ -106,6 +106,10 @@ The space cloner matches variables by comparing:
 
 If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
 
+## Scope Matching
+
+Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?  See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+
 ## Limitations
 Because this is hitting the Octopus Restful API, it cannot decrypt items from the Octopus Database.  To decrypt items from the Octopus database, you'll need access to the master key and the database.  This script was designed to run on an Octopus Cloud instance.  You, the user, do not have access to that information.  
 
@@ -114,17 +118,7 @@ Please see the [sensitive variables page](SensitiveVariables.md) for more inform
 ## Simple Relationship Management
 The process does not attempt to walk a tree of dependencies.  It loads up all the necessary data from the source and destination.  It will attempt to find the corresponding ID in the destination space when it comes across an ID in the source space.  If it cannot find a matching item, it removes that binding.  
 
-If that binding on a specific object is required, the script will fail.  
-
-Let's use environment scoping as an example.  In my source space, I have a variable set called `Global`.  That variable set has an environment scoped to environments.
-
-![](../img/source-global-variables-environment-scoping.png)
-
-In my destination space, I only have three of those four environments, `Test`, `Staging`, and `Production`.  As a result, the cloned variable set still has the `Development` value, but it doesn't have a scope associated with it.
-
-![](../img/destination-global-variables-environment-scoping-missing-env.png)
-
-## Intelligent Process Cloning
+## Process Cloning
 This script assumes that when you clone a deployment process, you want to add missing steps but leave existing steps.
 
 I have a deployment process on my source, where I added a new step.
@@ -144,6 +138,10 @@ The rules for cloning a deployment process are:
 - Clone steps not found in the destination process
 - Leave existing steps as is
 - The source process is the source of truth for step order.  It will ensure the destination deployment process order matches.  It will then add additional steps found in the deployment process not found in the source to the end of the deployment process.
+
+### Override Default Process Cloning Behavior
+
+A new parameter has been added to the process cloner, `ProcessCloningOption`.  That allows you to overwrite the default behavior.  The options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`.  Setting this parameter to `SourceOnly` will result in any steps in the destination not on the source to be removed.
 
 ## Targets and Workers
 

@@ -65,7 +65,14 @@ function Copy-OctopusTenantProjectVariables
     foreach ($sourceTenantVariableProject in $sourceTenantVariableProjects)
     {
         Write-OctopusVerbose "Attempting to match project Id $($sourceTenantVariableProject.Name) with destination Id"
-        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceTenantVariableProject.Name
+        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceTenantVariableProject.Name -ItemName "$($destinationTenant.Name) Assigned Project" -MatchingOption "IgnoreMismatch"
+
+        if ($null -eq $matchingProjectId)
+        {
+            Write-OctopusVerbose "Unable to find the matching project on the destination.  Moving onto next project's set of variables."
+            continue
+        }
+
         $project = Get-OctopusItemById -ItemId $matchingProjectId -itemList $destinationData.ProjectList
         $projectName = $project.Name
 
@@ -99,7 +106,14 @@ function Copy-OctopusTenantProjectVariables
             foreach ($sourceEnvironmentId in $sourceTenant.ProjectEnvironments.$($sourceTenantVariableProject.Name))
             {   
                 Write-OctopusVerbose "Converting the environment id $sourceEnvironmentId to the destination id"
-                $destinationEnvironmentId = Convert-SourceIdToDestinationId -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdValue $sourceEnvironmentId
+                $destinationEnvironmentId = Convert-SourceIdToDestinationId -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdValue $sourceEnvironmentId -ItemName "$($destinationTenant.Name) Environment" -MatchingOption "SkipUnlessExactMatch"
+
+                if ($null -eq $destinationEnvironmentId)
+                {
+                    Write-OctopusVerbose "The destination environment matching $sourceEnvironmentId was not found.  Moving onto the next value."
+                    continue
+                }
+
                 $destinationEnvironment = Get-OctopusItemById -ItemId $destinationEnvironmentId -ItemList $destinationData.EnvironmentList
 
                 $sourceHasValue = Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId) -propertyName $($projectTemplateVariable.Id)
@@ -143,17 +157,17 @@ function Copy-OctopusTenantProjectVariables
                 }
                 elseif ($controlType -match ".*Account")
                 {
-                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id)
+                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id) -ItemName "$($destinationTenant.Name) Account" -MatchingOption "ErrorUnlessExactMatch"
                     $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Variables.$($destinationEnvironmentId) -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
                 }
                 elseif ($controlType -eq "Certificate")
                 {
-                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id)
+                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id) -ItemName "$($destinationTenant.Name) Certificate" -MatchingOption "ErrorUnlessExactMatch"
                     $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Variables.$($destinationEnvironmentId) -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
                 }
                 elseif ($controlType -eq "WorkerPool")
                 {
-                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id)
+                    $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId).$($projectTemplateVariable.Id)  -ItemName "$($destinationTenant.Name) Worker Pool" -MatchingOption "ErrorUnlessExactMatch"
                     $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.ProjectVariables.$($matchingProjectId).Variables.$($destinationEnvironmentId) -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
                 }
                 else
@@ -199,7 +213,7 @@ function Copy-OctopusTenantLibraryVariables
     foreach ($sourceTenantLibraryVariable in $sourceTenantLibraryVariableList)
     {
         Write-OctopusVerbose "Attempting to match library variable set Id $($sourceTenantLibraryVariable.Name) with destination Id"
-        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name        
+        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name  -ItemName "$($destinationTenant.Name) Library Variable Set" -MatchingOption "ErrorUnlessExactMatch"
         $libraryVariableSet = Get-OctopusItemById -ItemList $sourceData.VariableSetList -ItemId $sourceTenantLibraryVariable.Name
         Write-OctopusVerbose "The library variable set id for $($sourceTenantLibraryVariable.Name) on the destination is $matchingVariableSetId"    
 
@@ -257,17 +271,17 @@ function Copy-OctopusTenantLibraryVariables
             }
             elseif ($controlType -match ".*Account")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.InfrastructureAccounts -DestinationList $destinationData.InfrastructureAccounts -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)  -ItemName "$($destinationTenant.Name) Accounts" -MatchingOption "ErrorUnlessExactMatch"
                 $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             elseif ($controlType -eq "Certificate")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.CertificateList -DestinationList $destinationData.CertificateList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)  -ItemName "$($destinationTenant.Name) Certificates" -MatchingOption "ErrorUnlessExactMatch"
                 $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             elseif ($controlType -eq "WorkerPool")
             {
-                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)
+                $newValue = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $sourceTenantVariables.LibraryVariables.$($sourceTenantLibraryVariable.Name).Variables.$($projectTemplateVariable.Id)  -ItemName "$($destinationTenant.Name) Worker Pool" -MatchingOption "ErrorUnlessExactMatch"
                 $added = Add-PropertyIfMissing -objectToTest $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables -propertyName $destinationVariableTemplateId -propertyValue $newValue -overwriteIfExists $CloneScriptOptions.OverwriteExistingVariables
             }
             else

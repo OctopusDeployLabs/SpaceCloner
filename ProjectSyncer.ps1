@@ -10,6 +10,16 @@ param (
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
     $CloneProjectDeploymentProcess,
+    $ProcessEnvironmentScopingMatch,
+    $ProcessChannelScopingMatch,
+    $VariableChannelScopingMatch,
+    $VariableEnvironmentScopingMatch,
+    $VariableProcessOwnerScopingMatch,
+    $VariableActionScopingMatch,
+    $VariableMachineScopingMatch,
+    $VariableAccountScopingMatch,
+    $VariableCertificateScopingMatch,    
+    $ProcessCloningOption,
     $WhatIf  
 )
 
@@ -72,6 +82,27 @@ if ($null -eq $WhatIf)
     $WhatIf = $false
 }
 
+if ([string]::IsNullOrWhiteSpace($ProcessCloningOption))
+{
+    $ProcessCloningOption = "KeepAdditionalDestinationSteps"
+}
+elseif ($ProcessCloningOption.ToLower().Trim() -ne "keepadditionaldestinationsteps" -and $ProcessCloningOption.ToLower().Trim() -ne "sourceonly")
+{
+    Write-OctopusCritical "The parameter ProcessCloningOption is set to $ProcessCloningOption.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
+    exit 1
+}
+
+$ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+
+$VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableProcessOwnerScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableProcessOwnerScopingMatch" -ParameterValue $VariableProcessOwnerScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableActionScopingMatch" -ParameterValue $VariableActionScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+
 
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;    
@@ -82,6 +113,16 @@ $CloneScriptOptions = @{
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
     CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;
+    ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
+    ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 
+    VariableChannelScopingMatch = $VariableChannelScopingMatch;
+    VariableEnvironmentScopingMatch = $VariableEnvironmentScopingMatch;
+    VariableProcessOwnerScopingMatch = $VariableProcessOwnerScopingMatch;
+    VariableActionScopingMatch = $VariableActionScopingMatch;
+    VariableMachineScopingMatch = $VariableMachineScopingMatch;
+    VariableAccountScopingMatch = $VariableAccountScopingMatch;
+    VariableCertificateScopingMatch = $VariableCertificateScopingMatch;    
+    ProcessCloningOption = $ProcessCloningOption;
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"
