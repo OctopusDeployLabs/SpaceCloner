@@ -40,6 +40,7 @@ function Copy-OctopusLifecycles
             Write-OctopusChangeLog " - Add $($lifecycle.Name)"    
         }
 
+        $phasesWithNoEnvironmentsCount = 0
         foreach ($phase in $lifeCycleToClone.Phases)
         {          
             Write-OctopusChangeLog "    - Phase $($phase.Name)"
@@ -49,6 +50,17 @@ function Copy-OctopusLifecycles
 
             $newAutomaticDeploymentTargetList = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.AutomaticDeploymentTargets -MatchingOption "IgnoreMismatch" -IdListName "$($lifecycle.Name) Phase $($phase.Name) Automatic Deployment Environments"
             $phase.AutomaticDeploymentTargets = @($newAutomaticDeploymentTargetList.NewIdList)
+
+            if ($phase.OptionalDeploymentTargets.Count -eq 0 -and $phase.AutomaticDeploymentTargets.Count -eq 0)
+            {
+                $phasesWithNoEnvironmentsCount += 1
+
+                if ($phasesWithNoEnvironmentsCount -gt 1)
+                {
+                    Write-OctopusCritical "Lifecycle $($lifeCycle.Name) has multiple phases with no environments.  This is not allowed.  If you want to clone this lifecycle either include all environments or manually create it and set the option 'OverwriteLifecyclePhases` to $false."
+                    exit 1
+                }
+            }
 
             Write-OctopusChangeLogListDetails -prefixSpaces "       " -listType "Manual Deployment Environments" -idList $phase.OptionalDeploymentTargets -destinationList $DestinationData.EnvironmentList
             Write-OctopusChangeLogListDetails -prefixSpaces "       " -listType "Automatic Deployment Environments" -idList $phase.AutomaticDeploymentTargets -destinationList $DestinationData.EnvironmentList

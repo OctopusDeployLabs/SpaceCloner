@@ -66,6 +66,13 @@ function Copy-OctopusTenantProjectVariables
     {
         Write-OctopusVerbose "Attempting to match project Id $($sourceTenantVariableProject.Name) with destination Id"
         $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceTenantVariableProject.Name -ItemName "$($destinationTenant.Name) Assigned Project" -MatchingOption "IgnoreMismatch"
+
+        if ($null -eq $matchingProjectId)
+        {
+            Write-OctopusVerbose "Unable to find the matching project on the destination.  Moving onto next project's set of variables."
+            continue
+        }
+
         $project = Get-OctopusItemById -ItemId $matchingProjectId -itemList $destinationData.ProjectList
         $projectName = $project.Name
 

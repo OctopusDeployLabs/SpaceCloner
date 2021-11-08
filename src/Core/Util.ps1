@@ -10,25 +10,31 @@ function Get-OctopusItemByName
         $loweredItem = $ItemName.ToLower().Trim()
     }
     
+    Write-OctopusVerbose "Looping through $($itemList.Count) items to find $loweredItem"
     foreach ($item in $itemList)
     {
         if ($null -eq $item)
         {
+            Write-OctopusVerbose "      The item to compare is $null moving on to next item in list."
             continue
         }
 
         if ($null -eq $item.Name -and $null -eq $itemName)
         {
+            Write-OctopusVerbose "      The item name is null and the item to find is null; returning item."
             return $item
         }
-
+        
         if ($null -eq $item.Name)
         {
+            Write-OctopusVerbose "      The item name is null moving on to next item in list."
             continue
         }
 
+        Write-OctopusVerbose "      Comparing $($item.Name.ToLower().Trim()) with $loweredItem"
         if ($item.Name.ToLower().Trim() -eq $loweredItem)
         {
+            Write-OctopusVerbose "      Match found on name, returning item."
             return $item
         }
     }
@@ -140,7 +146,7 @@ function Convert-SourceIdToDestinationId
             exit 1             
         }
 
-        Write-OctopusVerbose "Unable to find a name property for $IdValue for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with 'Error'."
+        Write-OctopusVerbose "Unable to find a name property for $IdValue for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with Error."
         return $null
     }
 
@@ -156,7 +162,7 @@ function Convert-SourceIdToDestinationId
             exit 1        
         }
 
-        Write-OctopusWarning "Unable to find $nameToUse in the destination for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with 'Error'."
+        Write-OctopusWarning "Unable to find $nameToUse in the destination for $itemName.  The matching option was set to $MatchingOption, will continue to process.  To stop on mismatch change the option to start with Error."
         return $null
     }
     else

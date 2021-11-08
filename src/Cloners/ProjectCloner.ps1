@@ -76,23 +76,9 @@ function Copy-OctopusProjectSettings
         
         $copyOfProject.DeploymentProcessId = $null
         $copyOfProject.VariableSetId = $null
-        $copyOfProject.ClonedFromProjectId = $null        
+        $copyOfProject.ClonedFromProjectId = $null                
 
-        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "ErrorUnlessExactMatch" -IdListName "$($sourceProject.Name) Library Variable Sets"
-        $VariableSetIds = @($newVariableSetIds.NewIdList)
-
-        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "ErrorUnlessExactMatch" -IdListName "$($sourceProject.Name) Script Modules"
-        $scriptModuleIds = @($newScriptModuleIds.NewIdList)
-
-        $copyOfProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
-
-        if ($scriptModuleIds.Count -gt 0)
-        {
-            foreach ($scriptModuleId in $scriptModuleIds)
-            {
-                $copyOfProject.IncludedLibraryVariableSetIds += $scriptModuleId
-            }
-        }        
+        $copyOfProject.IncludedLibraryVariableSetIds = @(Get-OctopusProjectReferencedVariableSets -project $copyOfProject -sourceProjectLibraryVariableSets @($copyOfProject.IncludedLibraryVariableSetIds) -sourceData $sourceData -destinationData $destinationData)                
 
         $copyOfProject.ProjectGroupId = Convert-SourceIdToDestinationId -SourceList $SourceData.ProjectGroupList -DestinationList $DestinationData.ProjectGroupList -IdValue $copyOfProject.ProjectGroupId -ItemName "$($copyOfProject.Name) Project Group" -MatchingOption "ErrorUnlessExactMatch"
         $copyOfProject.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $copyOfProject.LifeCycleId -ItemName "$($copyOfProject.Name) Default Lifecycle" -MatchingOption "ErrorUnlessExactMatch"
@@ -115,23 +101,19 @@ function Copy-OctopusProjectSettings
     {            
         $matchingProject.Description = $sourceProject.Description    
         
-        Write-OctopusChangeLog " - Update $($sourceProject.Name)"
-        
-        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" -IdListName "$($SourceProject.Name) Library Variable Sets"
-        $VariableSetIds = @($newVariableSetIds.NewIdList)
+        Write-OctopusChangeLog " - Update $($sourceProject.Name)"        
 
-        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" -IdListName "$($SourceProject.Name) Script Modules"
-        $scriptModuleIds = @($newScriptModuleIds.NewIdList)
+        $existingVariableSetIds = @($matchingProject.IncludedLibraryVariableSetIds)
+        $matchingProject.IncludedLibraryVariableSetIds = @(Get-OctopusProjectReferencedVariableSets -project $sourceProject -sourceProjectLibraryVariableSets @($sourceProject.IncludedLibraryVariableSetIds) -sourceData $sourceData -destinationData $destinationData)
 
-        $matchingProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
-
-        if ($scriptModuleIds.Count -gt 0)
+        foreach ($variableSetId in $existingVariableSetIds)
         {
-            foreach ($scriptModuleId in $scriptModuleIds)
+            if ($matchingProject.IncludedLibraryVariableSetIds -notcontains $variableSetId)
             {
-                $matchingProject.IncludedLibraryVariableSetIds += $scriptModuleId
+                Write-OctopusVerbose "Adding $variableSetId back into the list because it was not in the source but it was on the destination"
+                $matchingProject.IncludedLibraryVariableSetIds += $variableSetId
             }
-        } 
+        }
 
         $updatedProject = Save-OctopusProject -Project $matchingProject -DestinationData $destinationData               
         $destinationData.ProjectList = Update-OctopusList -itemList $destinationData.ProjectList -itemToReplace $updatedProject
@@ -201,4 +183,42 @@ function Copy-OctopusProjectReleaseVersioningSettings
     Write-OctopusSuccess "Finished cloning release versioning settings for project $($project.Name)"
 
     return $updatedProject
+}
+
+function Get-OctopusProjectReferencedVariableSets
+{
+    param (
+        $project,
+        $sourceProjectLibraryVariableSets,
+        $sourceData,
+        $destinationData
+    )
+    
+    $returnList = @()
+
+    foreach ($SourceVariableSetId in $sourceProjectLibraryVariableSets)
+    {
+        $sourceVariableSet = Get-OctopusItemById -ItemList $sourceData.VariableSetList -ItemId $SourceVariableSetId
+
+        if ($null -eq $sourceVariableSet)
+        {
+            Write-OctopusCritical "Unable to find the library variable set (or script module) $SourceVariableSetId assigned to project $($project.Name)."
+            exit 1
+        }
+
+        if ($sourceVariableSet.ContentType -eq "Variables")
+        {
+            $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Variable Sets" -MatchingOption "ErrorUnlessExactMatch"
+
+            $returnList += $matchingVariableSetId
+        }
+        else
+        {
+            $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.ScriptModuleList -DestinationList $destinationData.ScriptModuleList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Script Modules" -MatchingOption "ErrorUnlessExactMatch"
+
+            $returnList += $matchingVariableSetId
+        }
+    }    
+
+    return $returnList
 }
