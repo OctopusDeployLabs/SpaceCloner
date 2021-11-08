@@ -65,7 +65,7 @@ function Copy-OctopusTenantProjectVariables
     foreach ($sourceTenantVariableProject in $sourceTenantVariableProjects)
     {
         Write-OctopusVerbose "Attempting to match project Id $($sourceTenantVariableProject.Name) with destination Id"
-        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceTenantVariableProject.Name -ItemName "$($destinationTenant.Name) Assigned Project" -MatchingOption "ErrorUnlessExactMatch"
+        $matchingProjectId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $sourceTenantVariableProject.Name -ItemName "$($destinationTenant.Name) Assigned Project" -MatchingOption "IgnoreMismatch"
         $project = Get-OctopusItemById -ItemId $matchingProjectId -itemList $destinationData.ProjectList
         $projectName = $project.Name
 
@@ -99,7 +99,14 @@ function Copy-OctopusTenantProjectVariables
             foreach ($sourceEnvironmentId in $sourceTenant.ProjectEnvironments.$($sourceTenantVariableProject.Name))
             {   
                 Write-OctopusVerbose "Converting the environment id $sourceEnvironmentId to the destination id"
-                $destinationEnvironmentId = Convert-SourceIdToDestinationId -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdValue $sourceEnvironmentId -ItemName "$($destinationTenant.Name) Environment" -MatchingOption "ErrorUnlessExactMatch"
+                $destinationEnvironmentId = Convert-SourceIdToDestinationId -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdValue $sourceEnvironmentId -ItemName "$($destinationTenant.Name) Environment" -MatchingOption "SkipUnlessExactMatch"
+
+                if ($null -eq $destinationEnvironmentId)
+                {
+                    Write-OctopusVerbose "The destination environment matching $sourceEnvironmentId was not found.  Moving onto the next value."
+                    continue
+                }
+
                 $destinationEnvironment = Get-OctopusItemById -ItemId $destinationEnvironmentId -ItemList $destinationData.EnvironmentList
 
                 $sourceHasValue = Test-OctopusObjectHasProperty -objectToTest $sourceTenantVariables.ProjectVariables.$($sourceTenantVariableProject.Name).Variables.$($sourceEnvironmentId) -propertyName $($projectTemplateVariable.Id)
