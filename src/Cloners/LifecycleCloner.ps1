@@ -44,10 +44,10 @@ function Copy-OctopusLifecycles
         {          
             Write-OctopusChangeLog "    - Phase $($phase.Name)"
 
-            $newDeploymentTargetList = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.OptionalDeploymentTargets -MatchingOption "IgnoreMismatch"
+            $newDeploymentTargetList = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.OptionalDeploymentTargets -MatchingOption "IgnoreMismatch" -IdListName "$($lifecycle.Name) Phase $($phase.Name) Manual Deployment Environments"
             $phase.OptionalDeploymentTargets = @($newDeploymentTargetList.NewIdList)
 
-            $newAutomaticDeploymentTargetList = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.AutomaticDeploymentTargets -MatchingOption "IgnoreMismatch"
+            $newAutomaticDeploymentTargetList = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $phase.AutomaticDeploymentTargets -MatchingOption "IgnoreMismatch" -IdListName "$($lifecycle.Name) Phase $($phase.Name) Automatic Deployment Environments"
             $phase.AutomaticDeploymentTargets = @($newAutomaticDeploymentTargetList.NewIdList)
 
             Write-OctopusChangeLogListDetails -prefixSpaces "       " -listType "Manual Deployment Environments" -idList $phase.OptionalDeploymentTargets -destinationList $DestinationData.EnvironmentList

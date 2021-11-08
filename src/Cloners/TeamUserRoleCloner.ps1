@@ -76,16 +76,16 @@ function Copy-OctopusSpaceTeamUserRoles
 
                 $copyOfItemToClone.TeamId = $matchingItem.Id
 
-                $newProjectIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdList $role.ProjectIds -MatchingOption "IgnoreMismatch"
+                $newProjectIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdList $role.ProjectIds -MatchingOption "IgnoreMismatch" -IdListName "$($target.Name) Projects"
                 $copyOfItemToClone.ProjectIds = @($newProjectIds.NewIdList) 
 
-                $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $role.EnvironmentIds -MatchingOption "IgnoreMismatch"
+                $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.EnvironmentList -DestinationList $destinationData.EnvironmentList -IdList $role.EnvironmentIds -MatchingOption "IgnoreMismatch" -IdListName "$($target.Name) Environments"
                 $copyOfItemToClone.EnvironmentIds = @($newEnvironmentIds.NewIdList) 
 
-                $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.TenantList -DestinationList $destinationData.TenantList -IdList $role.TenantIds -MatchingOption "IgnoreMismatch"
+                $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.TenantList -DestinationList $destinationData.TenantList -IdList $role.TenantIds -MatchingOption "IgnoreMismatch" -IdListName "$($target.Name) Tenants"
                 $copyOfItemToClone.TenantIds = @($newTenantIds.NewIdList) 
 
-                $newProjectGroupIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.ProjectGroupList -DestinationList $destinationData.ProjectGroupList -IdList $role.ProjectGroupIds -MatchingOption "IgnoreMismatch"
+                $newProjectGroupIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.ProjectGroupList -DestinationList $destinationData.ProjectGroupList -IdList $role.ProjectGroupIds -MatchingOption "IgnoreMismatch" -IdListName "$($target.Name) Project Groups"
                 $copyOfItemToClone.ProjectGroupIds = @($newProjectGroupIds.NewIdList)
 
                 Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $copyOfItemToClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList

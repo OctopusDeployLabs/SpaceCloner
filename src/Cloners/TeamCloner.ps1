@@ -42,7 +42,7 @@ function Copy-OctopusSpaceTeams
 
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $team -SpaceId $destinationData.SpaceId -ClearIdValue $true  
             
-            $newMemberUserIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.UserList -DestinationList $destinationData.UserList -IdList $team.MemberUserIds -MatchingOption "IgnoreMismatch"
+            $newMemberUserIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceData.UserList -DestinationList $destinationData.UserList -IdList $team.MemberUserIds -MatchingOption "IgnoreMismatch" -IdListName "$($team.Name) Team Members"
             $copyOfItemToClone.MemberUserIds = @($newMemberUserIds.NewIdList)
             
             $copyOfItemToClone.ExternalSecurityGroups = @() 

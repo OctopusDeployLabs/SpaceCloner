@@ -18,7 +18,7 @@ function Copy-OctopusVariableSetValues
         {
             Write-OctopusVerbose "$variableName has environment scoping, converting to destination values"
             
-            $NewEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Environments -DestinationList $DestinationVariableSetVariables.ScopeValues.Environments -IdList $octopusVariable.Scope.Environment -MatchingOption $CloneScriptOptions.VariableEnvironmentScopingMatch
+            $NewEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Environments -DestinationList $DestinationVariableSetVariables.ScopeValues.Environments -IdList $octopusVariable.Scope.Environment -MatchingOption $CloneScriptOptions.VariableEnvironmentScopingMatch -IdListName "$variableName Environment Scoping"
 
             if ($NewEnvironmentIds.CanProceed -eq $false)
             {
@@ -31,7 +31,7 @@ function Copy-OctopusVariableSetValues
         if (Get-Member -InputObject $octopusVariable.Scope -Name "Channel" -MemberType Properties)
         {
             Write-OctopusVerbose "$variableName has channel scoping, converting to destination values"
-            $NewChannelIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Channels -DestinationList $DestinationVariableSetVariables.ScopeValues.Channels -IdList $octopusVariable.Scope.Channel -MatchingOption $CloneScriptOptions.VariableChannelScopingMatch
+            $NewChannelIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Channels -DestinationList $DestinationVariableSetVariables.ScopeValues.Channels -IdList $octopusVariable.Scope.Channel -MatchingOption $CloneScriptOptions.VariableChannelScopingMatch -IdListName "$variableName Channel Scoping"
 
             if ($NewChannelIds.CanProceed -eq $false)
             {
@@ -47,7 +47,7 @@ function Copy-OctopusVariableSetValues
             {
                 Write-OctopusVerbose "$variableName has process owner scoping, converting to destination values"
 
-                $NewOwnerIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Processes -DestinationList $DestinationVariableSetVariables.ScopeValues.Processes -IdList $octopusVariable.Scope.ProcessOwner -MatchingOption $CloneScriptOptions.VariableProcessOwnerScopingMatch
+                $NewOwnerIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Processes -DestinationList $DestinationVariableSetVariables.ScopeValues.Processes -IdList $octopusVariable.Scope.ProcessOwner -MatchingOption $CloneScriptOptions.VariableProcessOwnerScopingMatch -IdListName "$variableName Process Owners Scoping"
                 
                 if ($NewOwnerIds.CanProceed -eq $false)
                 {
@@ -66,7 +66,7 @@ function Copy-OctopusVariableSetValues
         {
             Write-OctopusVerbose "$variableName has deployment process step scoping, converting to destination values"
 
-            $NewActionIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Actions -DestinationList $DestinationVariableSetVariables.ScopeValues.Actions -IdList $octopusVariable.Scope.Action -MatchingOption $CloneScriptOptions.VariableActionScopingMatch
+            $NewActionIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Actions -DestinationList $DestinationVariableSetVariables.ScopeValues.Actions -IdList $octopusVariable.Scope.Action -MatchingOption $CloneScriptOptions.VariableActionScopingMatch -IdListName "$variableName Deployment Process Steps Scoping"
 
             if ($NewActionIds.CanProceed -eq $false)
             {
@@ -80,7 +80,7 @@ function Copy-OctopusVariableSetValues
         {
             Write-OctopusVerbose "$variableName has machine scoping, converting to destination values"            
 
-            $NewMachineIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Machines -DestinationList $DestinationVariableSetVariables.ScopeValues.Machines -IdList $octopusVariable.Scope.Machine -MatchingOption $CloneScriptOptions.VariableMachineScopingMatch
+            $NewMachineIds = Convert-SourceIdListToDestinationIdList -SourceList $sourceVariableSetVariables.ScopeValues.Machines -DestinationList $DestinationVariableSetVariables.ScopeValues.Machines -IdList $octopusVariable.Scope.Machine -MatchingOption $CloneScriptOptions.VariableMachineScopingMatch -IdListName "$variableName Deployment Target Scoping"
 
             if ($NewMachineIds.CanProceed -eq $false)
             {

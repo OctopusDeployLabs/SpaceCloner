@@ -78,7 +78,7 @@ function Convert-OctopusRunbookEnvironmentIdList
 
     if ((Test-OctopusObjectHasProperty -objectToTest $runbookToClone -propertyName "Environments"))
     {
-        $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $runbookToClone.Environments -MatchingOption "IgnoreMismatch"
+        $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $runbookToClone.Environments -MatchingOption "IgnoreMismatch" -IdListName "$($runbookToClone.Name) Environment List"
         $runbookToClone.Environments = @($newEnvironmentIds.NewIdList)        
     }
 }

@@ -122,7 +122,7 @@ function Convert-SourceIdToDestinationId
         }
     }
     
-    Write-OctopusVerbose "Getting Name of $IdValue"
+    Write-OctopusVerbose "Getting Name of $IdValue for $itemName."
     $sourceItem = Get-OctopusItemById -ItemList $SourceList -ItemId $IdValue
 
     $nameToUse = $sourceItem.Name
@@ -172,7 +172,8 @@ function Convert-SourceIdListToDestinationIdList
         $SourceList,
         $DestinationList,
         $IdList,
-        $MatchingOption
+        $MatchingOption,
+        $IdListName
     )
 
     $returnObject = @{
@@ -184,14 +185,14 @@ function Convert-SourceIdListToDestinationIdList
 
     if ($originalCount -eq 0)    
     {
-        Write-OctopusVerbose "Ignoring the matching test because the id list has no items to match to. Can Proceed is true."
+        Write-OctopusVerbose "Ignoring the matching test because the id list $IdListName has no items to match to. Can Proceed is true."
         return $returnObject
     }
 
-    Write-OctopusVerbose "Converting id list with $originalCount item(s) over to destination space"     
+    Write-OctopusVerbose "Converting id list $IdListName with $originalCount item(s) over to destination space"     
     foreach ($idValue in $idList)
     {
-        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue -ItemName "Id List" -matchingOption $MatchingOption
+        $ConvertedId = Convert-SourceIdToDestinationId -SourceList $SourceList -DestinationList $DestinationList -IdValue $IdValue -ItemName $IdListName -matchingOption $MatchingOption
 
         if ($null -ne $ConvertedId)
         {
@@ -201,37 +202,37 @@ function Convert-SourceIdListToDestinationIdList
 
     if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch")
     {
-        Write-OctopusVerbose "Ignoring the matching test because the Matching Option was set to IgnoreMismatch. Can Proceed is true."
+        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true."
         return $returnObject
     }
     
     $matchedCount = $returnObject.NewIdList.Count
     if ($matchedCount -eq $originalCount)
     {
-        Write-OctopusVerbose "Exact match was found.  Can Proceed is true."
+        Write-OctopusVerbose "Exact match was found for $IdListName.  Can Proceed is true."
         return $returnObject
     }
 
     if ($MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -and $originalCount -ne $matchedCount)
     {
-        Write-OctopusVerbose "The matching option was set to SkipUnlessExactMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip the item."
+        Write-OctopusVerbose "The matching option was set to SkipUnlessExactMatch.  The source $IdListName had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip the item."
         $returnObject.CanProceed = $false
         return $returnObject
     }
 
     if ($originalCount -ge 1 -and $matchedCount -ge 1)
     {
-        Write-OctopusVerbose "There was a partial match. The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can Proceed is true."
+        Write-OctopusVerbose "There was a partial match. The source $IdListName had $originalCount item(s) and the destination had $matchedCount item(s).  Can Proceed is true."
         return $returnObject
     }
 
     if ($MatchingOption.ToLower().Trim() -eq "errorunlesspartialmatch")
     {
-        Write-OctopusCritical "A partial match was not found and the Matching Option is set to ErrorUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Exiting.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+        Write-OctopusCritical "A partial match was not found for $IdListName and the Matching Option is set to ErrorUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Exiting.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
         Exit 1
     }
 
-    Write-OctopusVerbose "A partial match was not found and matching option is SkipUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip this item."
+    Write-OctopusVerbose "A partial match was not found for $IdListName and matching option is SkipUnlessPartialMatch.  The source item had $originalCount item(s) and the destination had $matchedCount item(s).  Can proceed is set to false to skip this item."
     $returnObject.CanProceed = $false
 
     return $returnObject

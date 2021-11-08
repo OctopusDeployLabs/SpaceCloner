@@ -78,10 +78,10 @@ function Copy-OctopusProjectSettings
         $copyOfProject.VariableSetId = $null
         $copyOfProject.ClonedFromProjectId = $null        
 
-        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" 
+        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "ErrorUnlessExactMatch" -IdListName "$($sourceProject.Name) Library Variable Sets"
         $VariableSetIds = @($newVariableSetIds.NewIdList)
 
-        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch"
+        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "ErrorUnlessExactMatch" -IdListName "$($sourceProject.Name) Script Modules"
         $scriptModuleIds = @($newScriptModuleIds.NewIdList)
 
         $copyOfProject.IncludedLibraryVariableSetIds = @($VariableSetIds)
@@ -117,10 +117,10 @@ function Copy-OctopusProjectSettings
         
         Write-OctopusChangeLog " - Update $($sourceProject.Name)"
         
-        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" 
+        $newVariableSetIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.VariableSetList -DestinationList $DestinationData.VariableSetList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" -IdListName "$($SourceProject.Name) Library Variable Sets"
         $VariableSetIds = @($newVariableSetIds.NewIdList)
 
-        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch"
+        $newScriptModuleIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.ScriptModuleList -DestinationList $DestinationData.ScriptModuleList -IdList $copyOfProject.IncludedLibraryVariableSetIds -MatchingOption "IgnoreMismatch" -IdListName "$($SourceProject.Name) Script Modules"
         $scriptModuleIds = @($newScriptModuleIds.NewIdList)
 
         $matchingProject.IncludedLibraryVariableSetIds = @($VariableSetIds)

@@ -49,6 +49,8 @@ The parameters are:
 - `VariableAccountScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Account in the source but not all environments are in the destination.  Default is `SkipUnlessExactMatch`.
 - `VariableCertificateScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Certificate in the source but not all environments are in the destination.  Default is `SkipUnlessExactMatch`.
 
+See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+
 ## Options
 
 The values for these options are either `True`, `False` or `null`.  Null will cause the default parameter to be used.

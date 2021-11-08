@@ -94,7 +94,7 @@ function Get-OctopusFilteredWorkerPoolIdList
             continue
         }
 
-        $destinationWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $workerPoolId -ItemName "$($worker.Name) Worker Pool" -MatchingOption "ErrorUnlessExactMatch"
+        $destinationWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $workerPoolId -ItemName "$($worker.Name) Worker Pool" -MatchingOption "ErrorUnlessPartialMatch"
         $workerPoolIdsToReturn += $destinationWorkerPoolId
     }
 

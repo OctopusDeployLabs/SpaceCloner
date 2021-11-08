@@ -16,9 +16,8 @@ function Copy-OctopusProcessStepAction
     Write-OctopusChangeLog "          - IsDisabled: $($action.IsDisabled)"
     Write-OctopusChangeLog "          - IsRequired: $($action.IsRequired)"
     Write-OctopusChangeLog "          - Run Condition: $($action.Condition)"
-   
-    Write-OctopusVerbose "Attempted to convert environment run conditions for $($action.Name)"
-    $environmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch
+       
+    $environmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Environment Scoping"
     if ($environmentMatch.CanProceed -eq $false)
     {
         return $null
@@ -26,18 +25,16 @@ function Copy-OctopusProcessStepAction
 
     $action.Environments = @($environmentMatch.NewIdList)
     Write-OctopusChangeLogListDetails -idList $action.Environments -destinationList $DestinationData.EnvironmentList -listType "Environments" -prefixSpaces "         "
-
-    Write-OctopusVerbose "Attempted to convert exclude environment run conditions for $($action.Name)"
-    $excludeEnvironmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch
+    
+    $excludeEnvironmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Exclude Environment Scoping"
     if ($excludeEnvironmentMatch.CanProceed -eq $false)
     {
         return $null
     }
     $action.ExcludedEnvironments = @($excludeEnvironmentMatch.NewIdList)
     Write-OctopusChangeLogListDetails -idList $action.ExcludedEnvironments -destinationList $DestinationData.EnvironmentList -listType "Excluded Environments" -prefixSpaces "         "    
-
-    Write-OctopusVerbose "Attempted to convert channel run conditions for $($action.Name)"
-    $channelMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels -MatchingOption $CloneScriptOptions.ProcessChannelScopingMatch
+    
+    $channelMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels -MatchingOption $CloneScriptOptions.ProcessChannelScopingMatch -IdListName "$($Action.Name) Channel Scoping"
     if ($channelMatch.CanProceed -eq $false)
     {
         return $null
@@ -156,7 +153,7 @@ function Convert-OctopusProcessActionManualIntervention
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Manual.ResponsibleTeamIds")
     {
         $manualInterventionSourceTeamIds = @($action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' -split ",")
-        $manualInterventionDestinationTeamIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TeamList -DestinationList $DestinationData.TeamList -IdList $manualInterventionSourceTeamIds -MatchingOption "IgnoreMismatch"
+        $manualInterventionDestinationTeamIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TeamList -DestinationList $DestinationData.TeamList -IdList $manualInterventionSourceTeamIds -MatchingOption "IgnoreMismatch" -IdListName "$($Action.Name) Manual Intervention Teams"
 
         $newTeamIds = @($manualInterventionDestinationTeamIds.NewIdList)
         if ($newTeamIds.Count -eq 0)

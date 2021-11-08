@@ -108,33 +108,7 @@ If you add a scope, the space cloner will see that as a new variable value and a
 
 ## Scope Matching
 
-Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?
-
-You can have several variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to a variety of items.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
-
-- `ErrorUnlessExactMatch`: An **Error** will be thrown unless an exact match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` AND `Test`.
-- `SkipUnlessExactMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless an exact match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` AND `Test`.
-- `ErrorUnlessPartialMatch`: An **Error** will be thrown unless a partial match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` OR `Test`.
-- `SkipUnlessPartialMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless a partial match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` OR `Test`.
-- `IgnoreMismatch`: The item will be cloned regardless of matching.
-
-You have flexibility with each scoping option.
-
-- Deployment Process (both runbook and deployment process)
-    - Environments
-    - Channels
-- Variables (both project and library variable set)
-    - Environments
-    - Channels
-    - Process Owners (deployment process or runbook)
-    - Deployment Process Steps
-    - Deployment Targets
-    - Accounts
-    - Certificates
-- Infrastructure (targets and certificates)
-    - Environments
-    - Tenants
-
+Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?  See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
 
 ## Limitations
 Because this is hitting the Octopus Restful API, it cannot decrypt items from the Octopus Database.  To decrypt items from the Octopus database, you'll need access to the master key and the database.  This script was designed to run on an Octopus Cloud instance.  You, the user, do not have access to that information.  
@@ -144,7 +118,7 @@ Please see the [sensitive variables page](SensitiveVariables.md) for more inform
 ## Simple Relationship Management
 The process does not attempt to walk a tree of dependencies.  It loads up all the necessary data from the source and destination.  It will attempt to find the corresponding ID in the destination space when it comes across an ID in the source space.  If it cannot find a matching item, it removes that binding.  
 
-## Intelligent Process Cloning
+## Process Cloning
 This script assumes that when you clone a deployment process, you want to add missing steps but leave existing steps.
 
 I have a deployment process on my source, where I added a new step.

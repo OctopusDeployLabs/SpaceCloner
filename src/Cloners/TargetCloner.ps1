@@ -35,7 +35,7 @@ function Copy-OctopusTargets
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $target -SpaceId $destinationData.SpaceId -ClearIdValue $true
 
             Write-OctopusVerbose "Attempting to match Target Environment Ids to the destination"
-            $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds -MatchingOption $CloneScriptOptions.InfrastructureEnvironmentScopingMatch
+            $newEnvironmentIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $target.EnvironmentIds -MatchingOption $CloneScriptOptions.InfrastructureEnvironmentScopingMatch -IdListName "$($target.Name) Environments"
             if ($newEnvironmentIds.CanProceed -eq $false)
             {
                 continue
@@ -43,7 +43,7 @@ function Copy-OctopusTargets
             $copyOfItemToClone.EnvironmentIds = @($newEnvironmentIds.NewIdList)  
 
             Write-OctopusVerbose "Attempting to match Target Tenant Ids to the destination"
-            $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds -MatchingOption $CloneScriptOptions.InfrastructureTenantScopingMatch
+            $newTenantIds = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.TenantList -DestinationList $DestinationData.TenantList -IdList $target.TenantIds -MatchingOption $CloneScriptOptions.InfrastructureTenantScopingMatch -IdListName "$($target.Name) Tenants"
             if ($newTenantIds.CanProceed -eq $false)
             {
                 continue

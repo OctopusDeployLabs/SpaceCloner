@@ -76,6 +76,8 @@ The parameters are:
 - `InfrastructureEnvironmentScopingMatch`: How to handle when a Deployment Target or Account is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `InfrastructureTenantScopingMatch`: How to handle when a Deployment Target or Account is scoped to 1 to N Tenants in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 
+See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+
 ## Options
 
 The values for these options are either `True`, `False` or `null`.  Null will cause the default parameter to be used.
