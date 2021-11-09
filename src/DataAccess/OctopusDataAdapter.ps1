@@ -91,6 +91,7 @@ function Invoke-OctopusApi
             elseif ($_.ErrorDetails.Message)
             {                
                 Write-OctopusVerbose -Message "Error calling $url StatusCode: $($_.Exception.Response) $($_.ErrorDetails.Message)"
+                Write-OctopusVerbose $_.Exception
             }            
             else 
             {
