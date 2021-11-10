@@ -659,12 +659,14 @@ function Test-OctopusScopeMatchParameter
         $singleValueItem
     )
 
-    $lowerParameterValue = $parameterValue.ToLower().Trim()
-
+    
     if ([string]::IsNullOrWhiteSpace($parameterValue))
     {
         return $defaultValue
     }
+
+    $lowerParameterValue = $parameterValue.ToLower().Trim()
+
 
     if ($singleValueItem)
     {
