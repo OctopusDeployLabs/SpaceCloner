@@ -199,24 +199,24 @@ function Get-OctopusProjectReferencedVariableSets
     foreach ($SourceVariableSetId in $sourceProjectLibraryVariableSets)
     {
         $sourceVariableSet = Get-OctopusItemById -ItemList $sourceData.VariableSetList -ItemId $SourceVariableSetId
+        $sourceScriptModule = Get-OctopusItemById -ItemList $sourceData.ScriptModuleList -ItemId $SourceVariableSetId   
 
-        if ($null -eq $sourceVariableSet)
-        {
-            Write-OctopusCritical "Unable to find the library variable set (or script module) $SourceVariableSetId assigned to project $($project.Name)."
-            exit 1
-        }
-
-        if ($sourceVariableSet.ContentType -eq "Variables")
+        if ($null -ne $sourceVariableSet)
         {
             $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Variable Sets" -MatchingOption "ErrorUnlessExactMatch"
 
             $returnList += $matchingVariableSetId
         }
-        else
+        elseif ($null -ne $sourceScriptModule)
         {
             $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.ScriptModuleList -DestinationList $destinationData.ScriptModuleList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Script Modules" -MatchingOption "ErrorUnlessExactMatch"
 
             $returnList += $matchingVariableSetId
+        }
+        else
+        {
+            Write-OctopusCritical "Unable to find the library variable set (or script module) $SourceVariableSetId assigned to project $($project.Name)."
+            exit 1    
         }
     }    
 
