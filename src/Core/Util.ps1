@@ -208,7 +208,7 @@ function Convert-SourceIdListToDestinationIdList
 
     if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch")
     {
-        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true."
+        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true.  Return object has $($returnObject.NewIdList.Count) item(s) matching."
         return $returnObject
     }
     

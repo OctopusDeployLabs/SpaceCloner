@@ -300,8 +300,13 @@ function Compare-VariableScopingProperty
 
     if ($sourceHasPropertyScoping -ne $destinationHasPropertyScoping)
     {  
-        Write-OctopusVerbose "          The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.$propertyName).  This means one has scoping while the other does not."
+        if ($sourceHasPropertyScoping -eq $true -and $destinationHasPropertyScoping -eq $false -and $sourceVariable.Scope.$propertyName.Length -eq 0)
+        {
+            Write-OctopusVerbose "          The source variable says it is scoped to $($propertyName) but the destination variable is not scoped to anything.  But there are no items in the source list.  This is the same as having the same (no) scoping.  They match."
+            return true
+        }
 
+        Write-OctopusVerbose "          The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.$propertyName).  This means one has scoping while the other does not."
         return $false
     }
     
@@ -312,7 +317,6 @@ function Compare-VariableScopingProperty
         if ($sourceVariable.Scope.$propertyName.Length -ne $destinationVariable.Scope.$propertyName.Length)
         {
             Write-OctopusVerbose "          The source variable and destination variable do not have the same $propertyName scoping length, they do not match"
-
             return $false
         }
 
