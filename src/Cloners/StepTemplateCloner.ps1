@@ -64,6 +64,15 @@ function Copy-OctopusStepTemplates
                 $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($stepTemplateToClone.Name) Feed Id Package Property" -MatchingOption "ErrorUnlessExactMatch"
             }
 
+            foreach ($parameter in $stepTemplateToClone.Parameters)
+            {
+                if ((Test-OctopusObjectHasProperty -objectToTest $parameter.DisplaySettings -propertyName "Octopus.ControlType") -eq $false)
+                {
+                    Write-OctopusVerbose "The parameter $($parameter.Name) is missing a control type, setting to 'SingleLineText' as that is the default."
+                    $parameter.DisplaySettings.'Octopus.ControlType' = "SingleLineText"
+                }
+            }
+
             $destinationStepTemplate = Save-OctopusStepTemplate -StepTemplate $stepTemplateToClone -DestinationData $destinationData            
 
             Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions
