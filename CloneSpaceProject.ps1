@@ -47,76 +47,18 @@ $ErrorActionPreference = "Stop"
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-if ($null -eq $CloneProjectRunbooks)
-{
-    $CloneProjectRunbooks = $true
-}
+$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
+$OverwriteExistingCustomStepTemplates = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingCustomStepTemplates -parameterName "OverwriteExistingCustomStepTemplates" -defaultValue $false
+$OverwriteExistingLifecyclesPhases = Test-OctopusOverwriteExistingLifecyclesPhasesParameter -parameterValue $OverwriteExistingLifecyclesPhases
 
-if ($null -eq $CloneTeamUserRoleScoping)
-{
-    $CloneTeamUserRoleScoping = $false
-}
+$CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectRunbooks -parameterName "CloneProjectRunbooks" -defaultValue $true
+$CloneTeamUserRoleScoping = Test-OctopusTrueFalseParameter -parameterValue $CloneTeamUserRoleScoping -parameterName "CloneTeamUserRoleScoping" -defaultValue $false
+$CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
+$CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
+$CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 
-if ($null -eq $CloneProjectChannelRules)
-{
-    $CloneProjectChannelRules = $false
-}
-
-if ($null -eq $CloneProjectVersioningReleaseCreationSettings)
-{
-    $CloneProjectVersioningReleaseCreationSettings = $true
-}
-
-if ($null -eq $CloneProjectDeploymentProcess)
-{
-    $CloneProjectDeploymentProcess = $true
-}
-
-if ($null -eq $OverwriteExistingVariables)
-{
-    $OverwriteExistingVariables = $false
-}
-
-if ($null -eq $OverwriteExistingCustomStepTemplates)
-{
-    $OverwriteExistingCustomStepTemplates = $false
-}
-
-if ($null -eq $OverwriteExistingLifecyclesPhases)
-{
-    $OverwriteExistingLifecyclesPhases = $false
-}
-
-if ($null -eq $IgnoreVersionCheckResult)
-{
-    $IgnoreVersionCheckResult = $false
-}
-
-if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
-{
-    $SkipPausingWhenIgnoringVersionCheckResult = $false
-}
-
-if ($null -eq $WhatIf)
-{
-    $WhatIf = $false
-}
-
-if ($null -eq $CloneTenantVariables)
-{
-    $CloneTenantVariables = $false
-}
-
-if ([string]::IsNullOrWhiteSpace($ProcessCloningOption))
-{
-    $ProcessCloningOption = "KeepAdditionalDestinationSteps"
-}
-elseif ($ProcessCloningOption.ToLower().Trim() -ne "keepadditionaldestinationsteps" -and $ProcessCloningOption.ToLower().Trim() -ne "sourceonly")
-{
-    Write-OctopusCritical "The parameter ProcessCloningOption is set to $ProcessCloningOption.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
-    exit 1
-}
-
+$ProcessCloningOption = Test-OctopusProcessCloningParameter -ParameterValue $ProcessCloningOption
 $ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
@@ -130,6 +72,10 @@ $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterNam
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+
+$IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $IgnoreVersionCheckResult -parameterName "IgnoreVersionCheckResult" -defaultValue $false
+$SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
+$WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName "WhatIf" -defaultValue $false
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;

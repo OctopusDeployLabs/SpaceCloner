@@ -21,13 +21,13 @@ function Copy-OctopusLifecycles
 
         $matchingItem = Get-OctopusItemByName -ItemName $lifecycle.Name -ItemList $destinationData.LifeCycleList   
 
-        if ($null -ne $matchingItem -and $CloneScriptOptions.OverwriteExistingLifecyclesPhases -eq $false)             
+        if ($null -ne $matchingItem -and ($CloneScriptOptions.OverwriteExistingLifecyclesPhases -eq $false -or $CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToLower().Trim() -eq "neverclonelifecyclephases"))             
         {
             Write-OctopusVerbose "Lifecycle already exists and you selected not to overwrite phases, skipping"
             Write-OctopusChangeLog " - $($lifecycle.Name) already exists, option set to not overwrite, skipping"
             continue
-        }        
-
+        } 
+                
         $lifeCycleToClone = Copy-OctopusObject -ItemToCopy $lifecycle -ClearIdValue $true -SpaceId $null  
         
         if ($null -ne $matchingItem)
@@ -36,9 +36,23 @@ function Copy-OctopusLifecycles
             Write-OctopusChangeLog " - Updating $($lifecycle.Name)"
         }
         else
-        {
+        {            
             Write-OctopusChangeLog " - Add $($lifecycle.Name)"    
-        }
+
+            if ($CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToLower().Trim() -eq "neverclonelifecyclephases")
+            {
+                Write-OctopusVerbose "Overwrite Existing Lifecycle phases was set to NeverCloneLifeCyclePhases, setting the retention policies and moving onto the next lifecycle."
+
+                $lifeCycleToClone.Phases = @()
+                $lifeCycleToClone.ReleaseRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.ReleaseRetentionPolicy -DestinationData $destinationData
+                $lifeCycleToClone.TentacleRetentionPolicy = Test-OctopusLifeCycleRetentionPolicy -retentionPolicy $lifeCycleToClone.TentacleRetentionPolicy -DestinationData $destinationData        
+
+                $updatedLifecycle = Save-OctopusLifecycle -lifecycle $lifeCycleToClone -destinationData $DestinationData  
+                $destinationData.LifeCycleList = Update-OctopusList -itemList $destinationData.LifeCycleList -itemToReplace $updatedLifecycle
+            }
+
+            continue
+        }      
 
         $phasesWithNoEnvironmentsCount = 0
         foreach ($phase in $lifeCycleToClone.Phases)

@@ -33,25 +33,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-if ($null -eq $OverwriteExistingVariables)
-{
-    $OverwriteExistingVariables = $false
-}
-
-if ($null -eq $IgnoreVersionCheckResult)
-{
-    $IgnoreVersionCheckResult = $false
-}
-
-if ($null -eq $SkipPausingWhenIgnoringVersionCheckResult)
-{
-    $SkipPausingWhenIgnoringVersionCheckResult = $false
-}
-
-if ($null -eq $WhatIf)
-{
-    $WhatIf = $false
-}
+$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
 
 $VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -60,6 +42,10 @@ $VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "Va
 $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+
+$IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $IgnoreVersionCheckResult -parameterName "IgnoreVersionCheckResult" -defaultValue $false
+$SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
+$WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName "WhatIf" -defaultValue $false
 
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;     

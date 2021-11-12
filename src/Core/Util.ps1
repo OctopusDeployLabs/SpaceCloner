@@ -687,3 +687,71 @@ function Test-OctopusScopeMatchParameter
 
     return $parameterValue
 }
+
+function Test-OctopusTrueFalseParameter
+{
+    param (
+        $parameterValue,
+        $parameterName,
+        $defaultValue
+    )
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        Write-OctopusVerbose "The parameter $parameterName sent in was null or empty, setting to $defaultValue."
+        return $defaultValue
+    }
+
+    if ($parameterValue -ne $true -and $parameterValue -ne $false)
+    {
+        Write-OctopusCritical "The value for $parameterName was $parameterValue.  It must be $true or $false. Exiting."
+        exit 1
+    }
+
+    Write-OctopusVerbose "The value sent in for $parameterName is $parameterValue."
+    return $parameterValue
+}
+
+function Test-OctopusProcessCloningParameter
+{
+    param (
+        $parameterValue        
+    )
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        Write-OctopusVerbose "The parameter ProcessCloningOption was empty or null, setting to KeepAdditionalDestinationSteps."
+        return "KeepAdditionalDestinationSteps"
+    }
+    
+    if ($parameterValue.ToLower().Trim() -ne "keepadditionaldestinationsteps" -and $parameterValue.ToLower().Trim() -ne "sourceonly")
+    {
+        Write-OctopusCritical "The parameter ProcessCloningOption is set to $parameterValue.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
+        exit 1
+    }
+
+    Write-OctopusVerbose "The value sent in for ProcessCloningOption is $parameterValue."
+    return $parameterValue
+}
+
+function Test-OctopusOverwriteExistingLifecyclesPhasesParameter
+{
+    param (
+        $parameterValue
+    )
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        Write-OctopusVerbose "The parameter OverwriteExistingLifecyclesPhases was empty or null, setting to $false."
+        return $false
+    }
+
+    if ($parameterValue -ne $true -and $parameterValue -ne $false -and $parameterValue.ToLower().Trim() -ne "neverclonelifecyclephases")
+    {
+        Write-OctopusCritical "The parameter OverwriteExistingLifecyclesPhases is set to $parameterValue.  Acceptable values are $true, $false or NeverCloneLifecyclePhases"
+        exit 1
+    }
+
+    Write-OctopusVerbose "The value sent in for OverwriteExistingLifecyclesPhases is $parameterValue."
+    return $parameterValue
+}

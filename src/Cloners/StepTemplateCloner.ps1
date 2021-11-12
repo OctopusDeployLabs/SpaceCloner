@@ -59,6 +59,11 @@ function Copy-OctopusStepTemplates
 
             Convert-OctopusPackageList -item $stepTemplateToClone -SourceData $sourceData -destinationData $destinationData
 
+            if (Test-OctopusObjectHasProperty -objectToTest $stepTemplateToClone.Properties -propertyName "Octopus.Action.Package.FeedId")
+            {
+                $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($stepTemplateToClone.Name) Feed Id Package Property" -MatchingOption "ErrorUnlessExactMatch"
+            }
+
             $destinationStepTemplate = Save-OctopusStepTemplate -StepTemplate $stepTemplateToClone -DestinationData $destinationData            
 
             Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions

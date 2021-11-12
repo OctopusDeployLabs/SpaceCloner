@@ -47,51 +47,13 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-if ($null -eq $OverwriteExistingVariables)
-{
-    $OverwriteExistingVariables = $false
-}
+$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
+$CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectRunbooks -parameterName "CloneProjectRunbooks" -defaultValue $true
+$CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
+$CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
 
-if ($null -eq $CloneProjectRunbooks)
-{
-    $CloneProjectRunbooks = $true
-}
-
-if ($null -eq $CloneProjectChannelRules)
-{
-    $CloneProjectChannelRules = $false
-}
-
-if ($null -eq $CloneProjectVersioningReleaseCreationSettings)
-{
-    $CloneProjectVersioningReleaseCreationSettings = $false
-}
-
-if ($null -eq $CloneProjectDeploymentProcess)
-{
-    $CloneProjectDeploymentProcess = $true
-}
-
-if ($null -eq $RunbooksToClone)
-{
-    $RunbooksToClone = "all"
-}
-
-if ($null -eq $WhatIf)
-{
-    $WhatIf = $false
-}
-
-if ([string]::IsNullOrWhiteSpace($ProcessCloningOption))
-{
-    $ProcessCloningOption = "KeepAdditionalDestinationSteps"
-}
-elseif ($ProcessCloningOption.ToLower().Trim() -ne "keepadditionaldestinationsteps" -and $ProcessCloningOption.ToLower().Trim() -ne "sourceonly")
-{
-    Write-OctopusCritical "The parameter ProcessCloningOption is set to $ProcessCloningOption.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
-    exit 1
-}
-
+$ProcessCloningOption = Test-OctopusProcessCloningParameter -ParameterValue $ProcessCloningOption
 $ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
@@ -103,6 +65,7 @@ $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "V
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 
+$WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName "WhatIf" -defaultValue $false
 
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;    
