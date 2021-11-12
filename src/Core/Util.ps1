@@ -362,16 +362,67 @@ function Get-OctopusExclusionList
     param(
         $itemList,
         $itemType,
-        $filters
-    )
-
-    $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters  
-        
-    if ($filteredList.Length -eq 0)
+        $filters,
+        $includeFilters
+    )   
+    
+    if ([string]::IsNullOrWhiteSpace($includeFilters))
     {
-        Write-OctopusWarning "No $itemType items were found to exclude"
-    }    
+        $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters     
 
+        if ($filteredList.Length -eq 0)
+        {
+            Write-OctopusVerbose "No $itemType items were found to exclude"
+        }    
+    
+        return $filteredList
+    }
+    
+    $filteredList = @()
+    
+    if ($includeFilters.ToLower().Trim() -eq "all")
+    {
+        Write-OctopusVerbose "The include filter was set to all for $itemType, there are no items to exclude."
+
+        return $filteredList
+    }   
+    
+    if ($null -eq $itemList)
+    {
+        Write-OctopusVerbose "There were no items in the item list $itemType, nothing to exclude."
+
+        return $filteredList
+    }
+
+    Write-OctopusVerbose "The inclusion filter $includeFilters for $itemType was sent in.  Going to build the exclusion list based on that."
+    $splitFilters = $includeFilters -split ","
+    
+    foreach ($item in $itemList)
+    {
+        $matchFound = $false
+        foreach ($filter in $splitFilters)
+        {
+            Write-OctopusVerbose "Checking to see if filter $filter matches $($item.Name)"
+            if ([string]::IsNullOrWhiteSpace($filter))
+            {
+                Write-OctopusVerbose "The filter $filter was null or empty, that's odd, moving onto the next filter"
+                continue
+            }
+            
+            if ($item.Name -like $filter)
+            {
+                Write-OctopusVerbose "The filter $filter matches $($item.Name), it will not be included in the exclusion list."
+                $matchFound = $true
+            }
+        }
+
+        if ($matchFound -eq $false)
+        {
+            Write-OctopusVerbose "No match was found for $($item.Name), adding it to the exclusion list."
+            $filteredList += $item
+        }
+    }
+    
     return $filteredList
 }
 
@@ -389,6 +440,11 @@ function New-OctopusFilteredList
 
     if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
     {
+        if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $filters.ToLower().Trim() -eq "all")
+        {
+            return $itemList
+        }
+
         $splitFilters = $filters -split ","
 
         foreach($item in $itemList)
@@ -399,11 +455,6 @@ function New-OctopusFilteredList
                 if ([string]::IsNullOrWhiteSpace($filter))
                 {
                     continue
-                }
-                if (($filter).ToLower().Trim() -eq "all")
-                {
-                    Write-OctopusVerbose "The filter is 'all' -> adding $($item.Name) to $itemType filtered list"
-                    $filteredList += $item
                 }
                 elseif ($item.Name -like $filter)
                 {
@@ -754,4 +805,69 @@ function Test-OctopusOverwriteExistingLifecyclesPhasesParameter
 
     Write-OctopusVerbose "The value sent in for OverwriteExistingLifecyclesPhases is $parameterValue."
     return $parameterValue
+}
+
+function Test-OctopusOverwriteExistingVariablesParameter
+{
+    param (
+        $parameterValue
+    )
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        Write-OctopusVerbose "The parameter OverwriteExistingVariables was empty or null, setting to $false."
+        return $false
+    }
+
+    if ($parameterValue -ne $true -and $parameterValue -ne $false -and $parameterValue.ToLower().Trim() -ne "addnewwithdefaultvalue")
+    {
+        Write-OctopusCritical "The parameter OverwriteExistingVariables is set to $parameterValue.  Acceptable values are $true, $false or AddNewWithDefaultValue"
+        exit 1
+    }
+
+    Write-OctopusVerbose "The value sent in for OverwriteExistingVariables is $parameterValue."
+
+    return $parameterValue
+}
+
+function Test-OctopusNewListParameter
+{
+    param (
+        $parameterValue,
+        $parameterName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($parameterValue))
+    {
+        Write-OctopusWarning "The paramter $parameterName is empty or null but this is a paramter you previously didn't have to set.  Setting to 'all' so it doesn't break your existing clone."
+        return "all"
+    }
+
+    Write-Verbose "The value sent in for $parameterName was $parameterValue"
+
+    return $parameterValue
+}
+
+function Test-OctopusIncludeExcludeFilterParameter
+{
+    param (
+        $includeFilters,
+        $excludeFilters,
+        $parameterName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($includeFilters) -eq $false -and [string]::IsNullOrWhiteSpace($excludeFilters) -eq $false)
+    {
+        Write-OctopusCritical "Both include and exclude filters were set for $parameterName.  That is not allowed, either pick an exclude filter or an include filter.  Exiting."
+        exit 1
+    }  
+    
+    if ([string]::IsNullOrWhiteSpace($includeFilters) -and [string]::IsNullOrWhiteSpace($excludeFilters))
+    {
+        Write-OctopusVerbose "Both include and exclude filters were empty for $parameterName.  This means you want to include everything.  Setting the include filter to all."
+        return "all"
+    }
+
+    Write-OctopusVerbose "The values for $parameterName are include filters: $includeFilters and exclude filters: $excludeFilters"
+    return $includeFilters
 }

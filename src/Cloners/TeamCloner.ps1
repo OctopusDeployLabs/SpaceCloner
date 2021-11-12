@@ -27,7 +27,7 @@ function Copy-OctopusSpaceTeams
     {
         if ($null -eq $team.SpaceId)
         {
-            Write-OctopusVerbose "The team $($team.Name) is a space team, skipping"
+            Write-OctopusVerbose "The team $($team.Name) is a system team, skipping"
             continue
         }
 

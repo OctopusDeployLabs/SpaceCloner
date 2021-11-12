@@ -26,7 +26,8 @@ param (
     $PackagesToClone,   
     $RunbooksToClone,
     $CertificatesToClone,
-    $OverwriteExistingVariables,    
+    $ChannelsToClone,
+    $OverwriteExistingVariables,        
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
     $CloneProjectRunbooks,
@@ -48,7 +49,7 @@ param (
     $VariableCertificateScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
     $InfrastructureTenantScopingMatch,
-    $ProcessCloningOption,
+    $ProcessCloningOption,    
     $WhatIf
 )
 
@@ -93,7 +94,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
+$OverwriteExistingVariables = Test-OctopusOverwriteExistingVariablesParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
 $OverwriteExistingCustomStepTemplates = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingCustomStepTemplates -parameterName "OverwriteExistingCustomStepTemplates" -defaultValue $false
 $OverwriteExistingLifecyclesPhases = Test-OctopusOverwriteExistingLifecyclesPhasesParameter -parameterValue $OverwriteExistingLifecyclesPhases
 
@@ -104,10 +105,8 @@ $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter 
 $CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 
-if ($null -eq $RunbooksToClone)
-{
-    $RunbooksToClone = "all"
-}
+$RunbooksToClone = Test-OctopusNewListParameter -parameterValue $RunbooksToClone -parameterName "RunbooksToClone"
+$ChannelsToClone = Test-OctopusNewListParameter -parameterValue $ChannelsToClone -parameterName "ChannelsToClone"
 
 if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -eq "all")
 {
@@ -160,6 +159,7 @@ $CloneScriptOptions = @{
     SpaceTeamsToClone = $SpaceTeamsToClone;
     PackagesToClone = $PackagesToClone;
     RunbooksToClone = $RunbooksToClone;
+    ChannelsToClone = $ChannelsToClone;
     CloneTeamUserRoleScoping = $CloneTeamUserRoleScoping;
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;

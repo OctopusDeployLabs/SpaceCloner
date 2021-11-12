@@ -12,7 +12,15 @@ function Copy-OctopusProjectChannels
     Write-OctopusChangeLog "    - Channels"
     $projectChannels = @()
 
-    foreach($channel in $sourceChannelList)
+    $filteredList = Get-OctopusFilteredList -itemList $sourceChannelList -itemType "Project Channels" -filters $cloneScriptOptions.ChannelsToClone
+    
+    if ($filteredList.length -eq 0)
+    {
+        Write-OctopusChangeLog "      - No channels found to clone matching the filters"
+        return
+    }
+
+    foreach($channel in $filteredList)
     {
         $matchingChannel = Get-OctopusItemByName -ItemList $destinationChannelList -ItemName $channel.Name
 
@@ -27,7 +35,7 @@ function Copy-OctopusProjectChannels
             }
 
             $cloneChannel.Rules = @()            
-            Write-OctopusVerbose "The channel $($channel.Name) does not exist for the project $($destinationProject.Name), creating one now.  Please note, I cannot create version rules, so those will be emptied out"
+            Write-OctopusVerbose "The channel $($channel.Name) does not exist for the project $($destinationProject.Name), creating one now.  Please note, I cannot create version rules at this time, so those will be emptied out for now."
             Write-OctopusChangeLog "      - Add $($channel.Name)"
             $newChannel = Save-OctopusProjectChannel -projectChannel $cloneChannel -destinationData $destinationData   
             

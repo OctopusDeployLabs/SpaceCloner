@@ -140,20 +140,26 @@ function Copy-OctopusVariableSetValues
         if ($variableMatchType -eq "NoMatch")
         {
             Write-OctopusVerbose "New variable $variableName with unique scoping has been found.  Adding to list."
-
-            Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"
-            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
-
+            
             if ($octopusVariable.Value -eq "Dummy Value")         
             {                
                 Write-OctopusPostCloneCleanUp "The variable $variableName is a sensitive variable, value set to 'Dummy Value'"
             }
             
+            if ($CloneScriptOptions.OverwriteExistingVariables.ToLower().Trim() -eq "addnewwithdefaultvalue")
+            {
+                Write-OctopusPostCloneCleanUp "The variable $variableName is a new variable and the OverwriteExistingVariables was set to AddNewWithDefaultValue, adding value set to 'REPLACE ME'"
+                $octopusVariable.Value = "REPLACE ME"
+            }
+
+            Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"
+            Write-OctopusVariableScopeToChangeLog -octopusVariable $octopusVariable -destinationVariableSetVariables $destinationVariableSetVariables
+            
             $octopusVariable.Id = $null
 
             $DestinationVariableSetVariables.Variables += $octopusVariable
         }
-        elseif ($variableMatchType -eq "ScopeMatch" -and $CloneScriptOptions.OverwriteExistingVariables -eq $false)
+        elseif ($variableMatchType -eq "ScopeMatch" -and $CloneScriptOptions.OverwriteExistingVariables -ne $true)
         {
             Write-OctopusVerbose "The variable $variableName already exists on the destination with matching scope and you elected to only copy over new items, skipping this one."
             Write-OctopusChangeLog "      - $variableName already exists with the following scope, skipping"
@@ -219,8 +225,9 @@ function Compare-OctopusVariables
     {
         Write-OctopusVerbose "      The source variable name $($sourceVariable.Name) and the destination $($destinationVariable.Name) have the same sensitivity.  Moving on to checking scoping."
     }
-
-    if ($destinationVariable.IsSensitive -eq $false -and $sourceVariable.IsSensitive -eq $false -and $sourceVariable.Value.ToLower().Trim() -eq $destinationVariable.Value.ToLower().Trim())
+    
+    Write-OctopusVerbose "Comparing $($sourceVariable.Value) with $($destinationVariable.Value)"
+    if ($destinationVariable.IsSensitive -eq $false -and $sourceVariable.IsSensitive -eq $false -and [string]::IsNullOrWhiteSpace($sourceVariable.Value) -eq $false -and [string]::IsNullOrWhiteSpace($destinationVariable.Value) -eq $false -and $sourceVariable.Value.ToLower().Trim() -eq $destinationVariable.Value.ToLower().Trim())
     {
         Write-OctopusVerbose "      The source variable and the destination variable have the same name AND the same value"
         return "ValueMatch"
