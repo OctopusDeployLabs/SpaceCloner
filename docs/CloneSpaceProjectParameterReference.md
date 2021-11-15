@@ -92,7 +92,7 @@ The infrastructure scoping parameters are:
 - `InfrastructureTenantScopingMatch`: How to handle when a Deployment Target or Account is scoped to 1 to N Tenants in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableTenantTagsScopingMatch`: How to handle when a Deployment Target or Account is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 
-See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+See more how this works in the [how matching works page](HowMatchingWorks.md).
 
 ## Options
 
@@ -100,7 +100,7 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 
 - `OverwriteExistingCustomStepTemplates`: Indicates if existing custom step templates (not community step templates) should be overwritten.  Useful when you make a change to a step template, you want to move over to another instance.  Defaults to `false`.
 - `OverwriteExistingLifecyclesPhases`: Indicates you want to overwrite the phases on existing lifecycles.  This is useful when you have an updated lifecycle you want to be applied another space/instance.  You will want to leave this to false if the destination lifecycle has different phases.  The default is `false`.
-- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.  Options are `true`, `false`, or `AddNewWithDefaultValue`. See how [Variable Matching Works](HowVariableMatchingWorks.md)
+- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.  Options are `true`, `false`, or `AddNewWithDefaultValue`. See more how this works in the [how matching works page](HowMatchingWorks.md).
 - `CloneProjectChannelRules`: Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
 - `CloneProjectDeploymentProcess`: Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks`: Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The default is `true`.
@@ -110,5 +110,5 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `CloneTenantVariables`: Indicates if tenant variables should be cloned.  The default is`false`.
 - `IgnoreVersionCheckResult`: Indicates if the script should ignore version checks rules and proceed with the clone.  This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.
 - `SkipPausingWhenIgnoringVersionCheckResult`: When `IgnoreVersionCheckResult` is set to true the script will pause for 20 seconds when it detects a difference to let you cancel.  You can skip that check by setting this to `true`. This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.
-- `ProcessCloningOption`: Tells the cloner how to handle the situation where steps are in a destination runbook or deployment process but not in the source.  Options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`.
+- `ProcessCloningOption`: Tells the cloner how to handle the situation where steps are in a destination runbook or deployment process but not in the source.  Options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`. See more how this works in the [how matching works page](HowMatchingWorks.md).
 - `WhatIf`: Set to `$true` if you want to see everything this script will do without it actually doing the work.  Set to `$false` to have it do the work.  Defaults to `$false`.

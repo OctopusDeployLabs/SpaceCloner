@@ -98,6 +98,9 @@ The use cases for the space cloner is centered around repeated runs between two 
 # How the space cloner works
 Please see the [how it works page](docs/HowItWorks.md).
 
+# How matching works
+Please see the [how matching works page](docs/HowMatchingWorks.md).
+
 # Sensitive variables
 Please see the page [sensitive variables](docs/SensitiveVariables.md) to see how sensitive variables are handled.
 
