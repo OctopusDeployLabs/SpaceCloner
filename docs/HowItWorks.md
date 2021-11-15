@@ -86,29 +86,11 @@ This script was designed to be run multiple times with the same parameters.  It 
 - Targets (match by name)
 - Tenants (match by name) -> it will add missing projects to the tenant
 
-### Variable Matching
-
-The cloner defaults to leaving variables on the destination instance as-is.  **The space cloner will never overwrite a sensitive variable.**
-
-On your source space you have the variable `Testing.Variable` and it is set to `Test`.  On the destination instance that same variable exists and it is set to `Super Test`.  By default the cloner will leave the value on the destination instance as `Super Test`.  To update that value to match the source you will have to set the parameter `OverwriteExistingVariables` to `$true`.  
-
-**The default for the paramter `OverwriteExistingVariables` is `$false`.**  
-
-The space cloner matches variables by comparing:
-- Names
-- Sensitive Values vs Non Sensitive Values
-- Environment Scoping
-- Channel Scoping
-- Process Scoping
-- Machine Scoping
-- Step Scoping
-- Role Scoping
-
-If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
-
 ## Scope Matching
-
 Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?  See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+
+## Variable Matching
+Variable matching is very complex as variables can have a variety of scoping associated with them.  See how [Variable Matching Works](HowVariableMatchingWorks.md).
 
 ## Limitations
 Because this is hitting the Octopus Restful API, it cannot decrypt items from the Octopus Database.  To decrypt items from the Octopus database, you'll need access to the master key and the database.  This script was designed to run on an Octopus Cloud instance.  You, the user, do not have access to that information.  

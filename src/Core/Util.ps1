@@ -929,7 +929,8 @@ function Test-OctopusIncludeExcludeFilterParameter
     param (
         $includeFilters,
         $excludeFilters,
-        $parameterName
+        $parameterName,
+        $defaultIncludeValue
     )
 
     if ([string]::IsNullOrWhiteSpace($includeFilters) -eq $false -and [string]::IsNullOrWhiteSpace($excludeFilters) -eq $false)
@@ -940,8 +941,8 @@ function Test-OctopusIncludeExcludeFilterParameter
     
     if ([string]::IsNullOrWhiteSpace($includeFilters) -and [string]::IsNullOrWhiteSpace($excludeFilters))
     {
-        Write-OctopusVerbose "Both include and exclude filters were empty for $parameterName.  This means you want to include everything.  Setting the include filter to all."
-        return "all"
+        Write-OctopusVerbose "Both include and exclude filters were empty for $parameterName.  Setting the include filter to $defaultIncludeFilter."
+        return $defaultIncludeValue
     }
 
     Write-OctopusVerbose "The values for $parameterName are include filters: $includeFilters and exclude filters: $excludeFilters"

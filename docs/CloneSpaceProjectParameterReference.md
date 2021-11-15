@@ -28,17 +28,36 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 - `ProjectsToClone`: The list of projects to clone.
 - `CertificatesToClone`: The list of certificates to clone.  No support for `all` or wildcards.  Format: `[CertificateName1]::[Password01],[CertificateName2]::[Password02]`, for example `MyCert::Password!`.  
 
-## Items to Exclude
+## Items to Exclude / Include
 
-All the items to exclude parameters allow for the following filters:
+The list of items to include might be longer than a list to exclude.  On the flip side of that, the list of items to exclude might be longer than the list of items to include.  You can provide either or parameters.
+
+**Please Note**: You cannot have both a exclude and include parameter specified.  You have to pick to include or exclude items (or leave it alone.)
+
+All the items to exclude / include parameters allow for the following filters:
 - `all`: special keyword which will clone everything
 - Wildcards: use AWS* to pull in all items starting with AWS
 - Specific item names: pass in specific item names to clone that item and only that item
 
-- `EnvironmentsToExclude`: The list of environments to exclude from this clone
-- `WorkersToExclude`: The list of workers to exclude from this clone
-- `TargetsToExclude`: The list of targets to exclude from this clone
-- `TenantsToExclude`: The list of tenants to exclude from this clone
+Environments
+- `EnvironmentsToInclude`: The list of environments to include from this clone. The default is `all`.
+- `EnvironmentsToExclude`: The list of environments to exclude from this clone. The default is `$null`.
+
+Workers
+- `WorkersToInclude`: The list of workers to include from this clone. The default is `all`.
+- `WorkersToExclude`: The list of workers to exclude from this clone. The default is `$null`.
+
+Targets
+- `TargetsToInclude`: The list of targets to include from this clone. The default is `all`.
+- `TargetsToExclude`: The list of targets to exclude from this clone. The default is `$null`.
+
+Tenants
+- `TenantsToInclude`: The list of tenants to include from this clone. The default is `all`.
+- `TenantsToExclude`: The list of tenants to exclude from this clone. The default is `$null`.
+
+Channels
+- `ChannelsToInclude`: The list of channels to include from this clone. The default is `all`.
+- `ChannelsToExclude`: The list of channels to exclude from this clone. The default is `$null`.
 
 ## Scoping Match Options
 
@@ -51,22 +70,27 @@ You can have variables, deployment process steps, or infrastructure items (worke
 - `ErrorUnlessPartialMatch`: An **Error** will be thrown unless a partial match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` OR `Test`.
 - `SkipUnlessPartialMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless a partial match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` OR `Test`.
 - `IgnoreMismatch`: The item will be cloned regardless of matching.
+- `IgnoreMismatchOnNewLeaveExistingAlone`: The item will be cloned when it is new and scoping doesn't match.  Otherwise it will leave that already exists alone.
 
-The parameters are:
-
+The process scoping parameters are:
 - `ProcessEnvironmentScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `ProcessChannelScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to to 1 to N Channels in the source but not all Channels are in the destination.  Default is `SkipUnlessPartialMatch`.
+- `ProcessTenantTagsScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 
+The variable scoping parameters are:
 - `VariableChannelScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Channels in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableEnvironmentScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableProcessOwnerScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment or Runbooks in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableActionScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment Steps in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableMachineScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment Targets in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
+- `VariableTenantTagsScopingMatch`: How to handle when a step in a project or library variabe set is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableAccountScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Account in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableCertificateScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Certificate in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 
+The infrastructure scoping parameters are:
 - `InfrastructureEnvironmentScopingMatch`: How to handle when a Deployment Target or Account is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `InfrastructureTenantScopingMatch`: How to handle when a Deployment Target or Account is scoped to 1 to N Tenants in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
+- `VariableTenantTagsScopingMatch`: How to handle when a Deployment Target or Account is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 
 See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
 
@@ -76,11 +100,12 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 
 - `OverwriteExistingCustomStepTemplates`: Indicates if existing custom step templates (not community step templates) should be overwritten.  Useful when you make a change to a step template, you want to move over to another instance.  Defaults to `false`.
 - `OverwriteExistingLifecyclesPhases`: Indicates you want to overwrite the phases on existing lifecycles.  This is useful when you have an updated lifecycle you want to be applied another space/instance.  You will want to leave this to false if the destination lifecycle has different phases.  The default is `false`.
-- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  This applies to project variables, variable sets, and tenant variables.  The default is `false`.
+- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.  Options are `true`, `false`, or `AddNewWithDefaultValue`. See how [Variable Matching Works](HowVariableMatchingWorks.md)
 - `CloneProjectChannelRules`: Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
 - `CloneProjectDeploymentProcess`: Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks`: Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The default is `true`.
 - `CloneProjectVersioningReleaseCreationSettings`: Indicates if the same versioning rules will be applied to the project.  The default is `false`.
+- `ClonePackages`: Indicates if any packages should be cloned.  Set this to `false` to skip cloning packages.  The defualt is `true`.
 - `CloneTeamUserRoleScoping`: Indicates if the space teams should have their scoping cloned.  Will use the same teams based on parameter `SpaceTeamsToClone`.  The default is`false`.
 - `CloneTenantVariables`: Indicates if tenant variables should be cloned.  The default is`false`.
 - `IgnoreVersionCheckResult`: Indicates if the script should ignore version checks rules and proceed with the clone.  This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.

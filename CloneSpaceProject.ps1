@@ -90,11 +90,11 @@ $IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $Igno
 $SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
 $WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName "WhatIf" -defaultValue $false
 
-$EnvironmentsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $EnvironmentsToInclude -excludeFilters $EnvironmentsToExclude -parameterName "Environments"
-$WorkersToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $WorkersToInclude -excludeFilters $WorkersToExclude -parameterName "Worker"
-$TargetsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TargetsToInclude -excludeFilters $TargetsToExclude -parameterName "Target"
-$TenantsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TenantsToInclude -excludeFilters $TenantsToExclude -parameterName "Tenants"
-$ChannelsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $ChannelsToInclude -excludeFilters $ChannelsToExclude -parameterName "Channels"
+$EnvironmentsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $EnvironmentsToInclude -excludeFilters $EnvironmentsToExclude -parameterName "Environments" -DefaultIncludeFilter "all"
+$WorkersToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $WorkersToInclude -excludeFilters $WorkersToExclude -parameterName "Worker" -DefaultIncludeFilter "$null"
+$TargetsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TargetsToInclude -excludeFilters $TargetsToExclude -parameterName "Target" -DefaultIncludeFilter "$null"
+$TenantsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TenantsToInclude -excludeFilters $TenantsToExclude -parameterName "Tenants" -DefaultIncludeFilter "all"
+$ChannelsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $ChannelsToInclude -excludeFilters $ChannelsToExclude -parameterName "Channels" -DefaultIncludeFilter "all"
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
