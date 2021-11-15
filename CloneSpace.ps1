@@ -40,6 +40,7 @@ param (
     $CloneTenantVariables,
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
+    $ProcessTenantTagScopingMatch,
     $VariableChannelScopingMatch,
     $VariableEnvironmentScopingMatch,
     $VariableProcessOwnerScopingMatch,
@@ -47,8 +48,10 @@ param (
     $VariableMachineScopingMatch,
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
+    $VariableTenantTagScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
     $InfrastructureTenantScopingMatch,
+    $InfrastructureTenantTagScopingMatch,
     $ProcessCloningOption,    
     $WhatIf
 )
@@ -117,6 +120,7 @@ if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -e
 $ProcessCloningOption = Test-OctopusProcessCloningParameter -ParameterValue $ProcessCloningOption
 $ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$ProcessTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessTenantTagScopingMatch" -ParameterValue $ProcessTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -125,9 +129,11 @@ $VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "Va
 $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$InfrastructureTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantTagScopingMatch" -ParameterValue $InfrastructureTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $IgnoreVersionCheckResult -parameterName "IgnoreVersionCheckResult" -defaultValue $false
 $SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
@@ -167,6 +173,7 @@ $CloneScriptOptions = @{
     CloneTenantVariables = $CloneTenantVariables;  
     ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
     ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 
+    ProcessTenantTagScopingMatch = $ProcessTenantTagScopingMatch;
     VariableChannelScopingMatch = $VariableChannelScopingMatch;
     VariableEnvironmentScopingMatch = $VariableEnvironmentScopingMatch;
     VariableProcessOwnerScopingMatch = $VariableProcessOwnerScopingMatch;
@@ -174,8 +181,10 @@ $CloneScriptOptions = @{
     VariableMachineScopingMatch = $VariableMachineScopingMatch;
     VariableAccountScopingMatch = $VariableAccountScopingMatch;
     VariableCertificateScopingMatch = $VariableCertificateScopingMatch;
+    VariableTenantTagScopingMatch = $VariableTenantTagScopingMatch;
     InfrastructureEnvironmentScopingMatch = $InfrastructureEnvironmentScopingMatch;
     InfrastructureTenantScopingMatch = $InfrastructureTenantScopingMatch;
+    InfrastructureTenantTagScopingMatch = $InfrastructureTenantTagScopingMatch;
     ProcessCloningOption = $ProcessCloningOption;
 }
 

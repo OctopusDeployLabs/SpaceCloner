@@ -42,6 +42,14 @@ function Copy-OctopusInfrastructureAccounts
                 continue
             }
             $accountClone.TenantIds = @($newTenantIds.NewIdList)
+
+            Write-OctopusVerbose "Attempting to match Account Tenant Ids to the destination"
+            $newTenantTags = Convert-SourceTenantTagListToDestinationTenantTagList -tenantTagListToConvert $accountClone.TenantTags -destinationDataTenantTagSets $destinationData.TenantTagList -matchingOption $CloneScriptOptions.InfrastructureTenantTagScopingMatch
+            if ($newTenantTags.CanProceed -eq $false)
+            {
+                continue
+            }
+            $accountClone.TenantTags = @($newTenantTags.NewIdList)            
             
             Convert-OctopusAWSAccountInformation -accountClone $accountClone
             Convert-OctopusAzureServicePrincipalAccount -accountClone $accountClone

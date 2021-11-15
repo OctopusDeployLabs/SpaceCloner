@@ -90,6 +90,20 @@ function Copy-OctopusVariableSetValues
             $octopusVariable.Scope.Machine = @($NewMachineIds.NewIdList)
         }
 
+        if (Get-Member -InputObject $octopusVariable.Scope -Name "TenantTag" -MemberType Properties)
+        {
+            Write-OctopusVerbose "$variableName has tenant tag scoping, converting to destination values"            
+
+            $NewTenantTags = Convert-SourceTenantTagListToDestinationTenantTagList -tenantTagListToConvert $octopusVariable.Scope.TenantTag -destinationDataTenantTagSets $destinationData.TenantTagList -matchingOption $CloneScriptOptions.VariableTenantTagScopingMatch
+
+            if ($NewMachineIds.CanProceed -eq $false)
+            {
+                continue
+            }
+
+            $octopusVariable.Scope.TenantTag = @($NewTenantTags.NewIdList)
+        }
+
         if ($octopusVariable.Type -match ".*Account")
         {
             Write-OctopusVerbose "$variableName is an account value, converting to destination account"
@@ -128,7 +142,7 @@ function Copy-OctopusVariableSetValues
         Write-OctopusVerbose "Checking if $variableName exists on destination"   
         for($i = 0; $i -lt $DestinationVariableSetVariables.Variables.Length; $i++)
         {            
-            $localVariableMatchType = Compare-OctopusVariables -sourceVariable $octopusVariable -destinationVariable $DestinationVariableSetVariables.Variables[$i] -sourceData $sourceData -destinationData $destinationData
+            $localVariableMatchType = Compare-OctopusVariables -sourceVariable $octopusVariable -destinationVariable $DestinationVariableSetVariables.Variables[$i] -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions
             if ($localVariableMatchType -ne "NoMatch")
             {
                 $foundIndex = $i 
@@ -203,7 +217,8 @@ function Compare-OctopusVariables
         $sourceVariable,
         $destinationVariable,
         $sourceData,
-        $destinationData
+        $destinationData,
+        $CloneScriptOptions
     )
 
     if ($destinationVariable.Name.ToLower().Trim() -ne $sourceVariable.Name.ToLower().Trim())
@@ -233,51 +248,51 @@ function Compare-OctopusVariables
         return "ValueMatch"
     }
 
-    $hasMatchingEnvironmentScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Environment"
+    $hasMatchingEnvironmentScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Environment" -scopingMatchingOption $CloneScriptOptions.VariableEnvironmentScopingMatch
 
     if ($hasMatchingEnvironmentScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingChannelScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Channel"
+    $hasMatchingChannelScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Channel" -scopingMatchingOption $CloneScriptOptions.VariableChannelScopingMatch
 
     if ($hasMatchingChannelScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingProcessOwnerScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "ProcessOwner"
+    $hasMatchingProcessOwnerScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "ProcessOwner" -scopingMatchingOption $CloneScriptOptions.VariableProcessOwnerScopingMatch
 
     if ($hasMatchingProcessOwnerScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingActionScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Action"
+    $hasMatchingActionScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Action" -scopingMatchingOption $CloneScriptOptions.VariableActionScopingMatch
 
     if ($hasMatchingActionScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingRoleScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Role"
+    $hasMatchingRoleScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Role" -scopingMatchingOption "ErrorUnlessExactMatch"
 
     if ($hasMatchingRoleScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingMachineScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Machine"
+    $hasMatchingMachineScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "Machine" -scopingMatchingOption $CloneScriptOptions.VariableMachineScopingMatch
 
     if ($hasMatchingMachineScoping -eq $false)
     {
         return "NoMatch"
     }
 
-    $hasMatchingMachineScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "TenantTag"
+    $hasMatchingTenantTagScoping = Compare-VariableScopingProperty -sourceVariable $sourceVariable -destinationVariable $destinationVariable -sourceData $sourceData -destinationData $destinationData -propertyName "TenantTag" -scopingMatchingOption $CloneScriptOptions.VariableTenantTagScopingMatch
 
-    if ($hasMatchingMachineScoping -eq $false)
+    if ($hasMatchingTenantTagScoping -eq $false)
     {
         return "NoMatch"
     }
@@ -292,18 +307,25 @@ function Compare-VariableScopingProperty
         $destinationVariable,
         $sourceData,
         $destinationData,
-        $propertyName
+        $propertyName,
+        $scopingMatchingOption
     )
 
     $sourceHasPropertyScoping = $null -ne (Get-Member -InputObject $sourceVariable.Scope -Name $propertyName -MemberType Properties)
-    $destinationHasPropertyScoping = $null -ne (Get-Member -InputObject $destinationVariable.Scope -Name $propertyName -MemberType Properties)
+    $destinationHasPropertyScoping = $null -ne (Get-Member -InputObject $destinationVariable.Scope -Name $propertyName -MemberType Properties)    
 
     if ($sourceHasPropertyScoping -ne $destinationHasPropertyScoping)
     {  
+        if ($scopingMatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $scopingMatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+        {
+            Write-OctopusVerbose "          The scoping option for $propertyName on variables is set to $scopingMatchingOption.  Because of that, we are considering this a match even though the source scoping and destination scoping do not match.  Please be sure to set the OverwriteExistingVariables param to $false or AddNewWithDefaultValue to avoid overwriting existing values."
+            return $true
+        }
+
         if ($sourceHasPropertyScoping -eq $true -and $destinationHasPropertyScoping -eq $false -and $sourceVariable.Scope.$propertyName.Length -eq 0)
         {
             Write-OctopusVerbose "          The source variable says it is scoped to $($propertyName) but the destination variable is not scoped to anything.  But there are no items in the source list.  This is the same as having the same (no) scoping.  They match."
-            return true
+            return $true
         }
 
         Write-OctopusVerbose "          The source variable is scoped to $($propertyName)s $($sourceVariable.Scope.$propertyName) while the destination variable is scoped to the $($destinationVariable.Scope.$propertyName).  This means one has scoping while the other does not."
@@ -312,10 +334,16 @@ function Compare-VariableScopingProperty
     
     if ($sourceHasPropertyScoping -and $destinationHasPropertyScoping)
     {
-        Write-OctopusVerbose "          The source variable and destination variable are both scoped to $($propertyName)s, comparing the two scoping"
+        Write-OctopusVerbose "          The source variable and destination variable are both scoped to $($propertyName)s, comparing the two scoping"        
 
         if ($sourceVariable.Scope.$propertyName.Length -ne $destinationVariable.Scope.$propertyName.Length)
         {
+            if ($scopingMatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $scopingMatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+            {
+                Write-OctopusVerbose "          The scoping option for $propertyName on variables is set to $scopingMatchingOption.  Because of that, we are considering this a match even though the source variable is scoped to $($sourceVariable.Scope.$propertyName.Length) $propertyName item(s) while the destination is scoped to $($destinationVariable.Scope.$propertyName.Length) item(s).  Please be sure to set the OverwriteExistingVariables param to $false or AddNewWithDefaultValue to avoid overwriting existing values."
+                return $true
+            }
+
             Write-OctopusVerbose "          The source variable and destination variable do not have the same $propertyName scoping length, they do not match"
             return $false
         }

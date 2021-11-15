@@ -206,7 +206,7 @@ function Convert-SourceIdListToDestinationIdList
         }
     }    
 
-    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch")
+    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
     {
         Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true.  Return object has $($returnObject.NewIdList.Count) item(s) matching."
         return $returnObject
@@ -242,6 +242,83 @@ function Convert-SourceIdListToDestinationIdList
     $returnObject.CanProceed = $false
 
     return $returnObject
+}
+
+function Convert-SourceTenantTagListToDestinationTenantTagList
+{
+    param (
+        $tenantTagListToConvert,
+        $destinationDataTenantTagSets,
+        $matchingOption
+    )    
+
+    $returnObject = @{
+        NewIdList = @()
+        CanProceed = $true
+    }
+
+    if ($tenantTagListToConvert.Count -eq 0)
+    {
+        Write-OctopusVerbose "Skipping the tenant tag conversion because there are no tenant tags in the list to convert"
+        return $returnObject
+    }
+
+    foreach ($tenantTag in $tenantTagListToConvert)
+    {
+        $tenantTagSplit = $tenantTag -split "/"
+        $tenantTagSetToFind = $tenantTagSplit[0]
+
+        $tenantTagSet = Get-OctopusItemByName -ItemName $tenantTagSetToFind -ItemList $destinationDataTenantTagSets
+        if ($null -eq $tenantTagSet)
+        {            
+            if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone" -or $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -or $MatchingOption.ToLower().Trim() -eq "skipunlesspartialmatch")
+            {
+                Write-OctopusVerbose "Unable to find tenant tag set $tenantTagSetToFind on the destination.  The matching option was set to $matchingOption. Moving onto the next tenant tag."
+                continue
+            }
+
+            Write-OctopusCritical "Unable to find tenant tag set $tenantTagSetToFind on the testination.  The matching option was set to $matchingOption. Stopping the clone."
+            exit 1
+        }
+
+        $matchingTenantTagOption = $tenantTagSet.Tags | Where-Object ${_.CanonicalTagName -eq $tenantTag}
+        if ($null -eq $matchingTenantTagOption)
+        {
+            if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone" -or $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -or $MatchingOption.ToLower().Trim() -eq "skipunlesspartialmatch")
+            {
+                Write-OctopusVerbose "Unable to find $tenantTag in the destination.  The matching option was set to $matchingOption.  Moving onto the next tenant tag."
+                continue
+            }
+
+            Write-OctopusCritical "Unable to find tenant tag $tenantTag.  The matching option was set to $matchingOption. Stopping the clone."
+            exit 1
+        }
+
+        $returnObject.NewIdList += $tenantTag
+    }
+
+    if ($returnObject.NewIdList.Count -ne $tenantTagListToConvert.Count -and $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch")    
+    {
+        Write-OctopusVerbose "The tenant tag lists do not exactly match and the scoping option was set to $matchingOption.  Skipping this step."
+        $returnObject.CanProceed = $false
+    }
+
+    if ($returnObject.NewIdList.Count -ge 1 -and $tenantTagListToConvert.Count -ge 1)
+    {
+        Write-OctopusVerbose "Both the original tenant tag list and the new tenant tag list had at least one match.  Proceeding"
+        return $returnObject
+    }
+
+    if ($MatchingOption.ToLower().Trim() -eq "errorunlesspartialmatch")
+    {
+        Write-OctopusCritical "A partial match was not found for the tenant tags and the Matching Option is set to ErrorUnlessPartialMatch.  The source item had $($tenantTagListToConvert.Count) item(s) and the destination had $($returnObject.NewIdList.Count) item(s).  Exiting.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+        Exit 1
+    }
+
+    Write-OctopusVerbose "A partial match was not found for the tenant tags and matching option is SkipUnlessPartialMatch.  The source item had $($tenantTagListToConvert.Count) item(s) and the destination had $($returnObject.NewIdList.Count) item(s).  Can proceed is set to false to skip this item."
+    $returnObject.CanProceed = $false
+ 
+    return $tenantTagScoping
 }
 
 function Test-OctopusObjectHasProperty
@@ -709,7 +786,6 @@ function Test-OctopusScopeMatchParameter
         $defaultValue,
         $singleValueItem
     )
-
     
     if ([string]::IsNullOrWhiteSpace($parameterValue))
     {
@@ -729,9 +805,9 @@ function Test-OctopusScopeMatchParameter
     }
     else
     {
-        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "errorunlesspartialmatch" -and $lowerParameterValue -ne "skipunlesspartialmatch" -and $lowerParameterValue -ne "ignoremismatch")
+        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "errorunlesspartialmatch" -and $lowerParameterValue -ne "skipunlesspartialmatch" -and $lowerParameterValue -ne "ignoremismatch" -and $lowerParameterValue -ne "ignoremismatchonnewleaveexistingalone")
         {
-            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, ErrorUnlessPartialMatch, SkipUnlessPartialMatch, or IgnoreMismatch."
+            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, ErrorUnlessPartialMatch, SkipUnlessPartialMatch, IgnoreMismatch, or IgnoreMismatchOnNewLeaveExistingAlone."
             exit 1
         }  
     }      
