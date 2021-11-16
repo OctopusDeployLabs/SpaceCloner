@@ -33,6 +33,8 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
 
 The scoping options are:
 - `ProcessEnvironmentScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` in case you might have steps scoped to `Dev` or `Test` 
@@ -78,7 +80,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
     -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
     -CloneProjectDeploymentProcess "true"
     -ProcessEnvironmentScopingMatch "SkipUnlessExactMatch" `
     -ProcessChannelScopingMatch "SkipUnlessPartialMatch" `
@@ -110,6 +114,8 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
 
 The scoping options are:
 - `ProcessEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` 
@@ -158,7 +164,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
     -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
     -CloneProjectDeploymentProcess "true"
     -ProcessEnvironmentScopingMatch "SkipUnlessExactMatch" `
     -ProcessChannelScopingMatch "SkipUnlessExactMatch" `
@@ -193,6 +201,8 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
 
 The scoping options are:
 - `ProcessEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
@@ -240,7 +250,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
     -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
     -CloneProjectDeploymentProcess "true"
     -ProcessEnvironmentScopingMatch "SkipUnlessPartialMatch" `
     -ProcessChannelScopingMatch "SkipUnlessPartialMatch" `

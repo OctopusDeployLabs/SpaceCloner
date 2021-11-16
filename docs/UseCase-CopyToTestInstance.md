@@ -22,6 +22,7 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
@@ -56,7 +57,8 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
     -CloneTenantVariables "true" `
-    -CloneProjectDeploymentProcess "true"
+    -CloneProjectDeploymentProcess "true" `
+    -CloneProjectLogos "true"
 ```
 
 # Example - CloneSpaceProject.ps1
@@ -74,6 +76,7 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
 
 ```PowerShell
 CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -96,5 +99,6 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
     -CloneTenantVariables "true" `
-    -CloneProjectDeploymentProcess "true"
+    -CloneProjectDeploymentProcess "true" `
+    -CloneProjectLogos "true"
 ```

@@ -63,4 +63,5 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `CloneProjectDeploymentProcess`: Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks`: Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The defaults is `true`.
 - `CloneProjectVersioningReleaseCreationSettings`: Indicates if the release versioning strategy and release creation strategy should be cloned.  The default is `false`.
+- `CloneProjectLogos`: Indicates if the project logo should be cloned.  The default is `true`.  Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
 - `ProcessCloningOption`: Tells the cloner how to handle the situation where steps are in a destination runbook or deployment process but not in the source.  Options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`. See more how this works in the [how matching works page](HowMatchingWorks.md).

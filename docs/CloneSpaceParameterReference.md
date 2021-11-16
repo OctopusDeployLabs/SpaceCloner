@@ -94,6 +94,8 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `CloneProjectDeploymentProcess`: Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks`: Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The default is `true`.
 - `CloneProjectVersioningReleaseCreationSettings`: Indicates if the release versioning strategy and release creation strategy should be cloned.  The default is `false`.
+- `CloneProjectLogos`: Indicates if the project logo should be cloned.  The default is `true`.  Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
+- `CloneTenantLogos`: Indicates if the tenant logo should be cloned.  The default is `true`. Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
 - `CloneTeamUserRoleScoping`: Indicates if the space teams should have their scoping cloned.  Will use the same teams based on parameter `SpaceTeamsToClone`.  The default is`false`.
 - `CloneTenantVariables`: Indicates if tenant variables should be cloned.  The default is`false`.
 - `IgnoreVersionCheckResult`: Indicates if the script should ignore version checks rules and proceed with the clone.  This should only be used for cloning to test instances of Octopus Deploy.  The default is `false`.
