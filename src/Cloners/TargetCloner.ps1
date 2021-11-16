@@ -50,6 +50,14 @@ function Copy-OctopusTargets
             }
             $copyOfItemToClone.TenantIds = @($newTenantIds.NewIdList)
 
+            Write-OctopusVerbose "Attempting to match Account Tenant Ids to the destination"
+            $newTenantTags = Convert-SourceTenantTagListToDestinationTenantTagList -tenantTagListToConvert $copyOfItemToClone.TenantTags -destinationDataTenantTagSets $destinationData.TenantTagList -matchingOption $CloneScriptOptions.InfrastructureTenantTagScopingMatch
+            if ($newTenantTags.CanProceed -eq $false)
+            {
+                continue
+            }
+            $copyOfItemToClone.TenantTags = @($newTenantTags.NewIdList) 
+
             if ((Test-OctopusObjectHasProperty -objectToTest $target -propertyName "MachinePolicyId") -eq $true -and $null -ne $target.MachinePolicyId)
             {
                 $copyOfItemToClone.MachinePolicyId = Convert-SourceIdToDestinationId -SourceList $sourceData.MachinePolicyList -DestinationList $destinationData.MachinePolicyList -IdValue $target.MachinePolicyId -ItemName "$($copyOfItemToClone.Name) Machine Policy" -MatchingOption "ErrorUnlessExactMatch"

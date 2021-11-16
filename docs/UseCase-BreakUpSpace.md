@@ -30,6 +30,7 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
 
 ```PowerShell
 CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -63,7 +64,8 @@ CloneSpace.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
-    -CloneProjectDeploymentProcess "true"
+    -CloneProjectDeploymentProcess "true" `
+    -CloneProjectLogos "true"
 ```
 
 # Example - CloneSpaceProject.ps1
@@ -79,6 +81,7 @@ Please refer to the [Parameter reference page](CloneSpaceProjectParameterReferen
 - `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
 
 ```PowerShell
 CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
@@ -100,5 +103,6 @@ CloneSpaceProject.ps1 -SourceOctopusUrl "https://samples.octopus.app" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
-    -CloneProjectDeploymentProcess "true"
+    -CloneProjectDeploymentProcess "true" `
+    -CloneProjectLogos "true"
 ```

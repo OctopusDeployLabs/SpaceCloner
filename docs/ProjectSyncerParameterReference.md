@@ -28,36 +28,40 @@ You must specify items to clone.  By default, nothing is cloned.  If you wish to
 
 Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?
 
-You can have variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to environments.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
+You can have variables, deployment process steps, or infrastructure items (workers, accounts, targets), scoped to a variety of items.  The scope matching options tell the space cloner how to handle when a mismatch like this occurs.  The options are:
 
 - `ErrorUnlessExactMatch`: An **Error** will be thrown unless an exact match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` AND `Test`.
 - `SkipUnlessExactMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless an exact match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` AND `Test`.
 - `ErrorUnlessPartialMatch`: An **Error** will be thrown unless a partial match on the scoping is found.  For example, the source has `Development` and `Test`, an error will be thrown unless the destination has `Development` OR `Test`.
 - `SkipUnlessPartialMatch`: The item (variable, account, step, etc.) will be excluded or skipped unless a partial match is found. For example, the source has `Development` and `Test`, the item will be skipped unless `Development` OR `Test`.
 - `IgnoreMismatch`: The item will be cloned regardless of matching.
+- `IgnoreMismatchOnNewLeaveExistingAlone`: The item will be cloned when it is new and scoping doesn't match.  Otherwise it will leave that already exists alone.
 
-The parameters are:
-
+The process scoping parameters are:
 - `ProcessEnvironmentScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `ProcessChannelScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to to 1 to N Channels in the source but not all Channels are in the destination.  Default is `SkipUnlessPartialMatch`.
+- `ProcessTenantTagsScopingMatch`: How to handle when a step in a deployment or runbook process is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 
+The variable scoping parameters are:
 - `VariableChannelScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Channels in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableEnvironmentScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Environments in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableProcessOwnerScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment or Runbooks in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableActionScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment Steps in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableMachineScopingMatch`: How to handle when a variable in a project or library variable set is scoped to 1 to N Deployment Targets in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
+- `VariableTenantTagsScopingMatch`: How to handle when a step in a project or library variabe set is scoped to to 1 to N Tenant Tags in the source but not all Tenant Tags are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableAccountScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Account in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 - `VariableCertificateScopingMatch`: How to handle when a variable in a project or library variable set is scoped to an Certificate in the source but not all environments are in the destination.  Default is `SkipUnlessPartialMatch`.
 
-See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+See more how this works in the [how matching works page](HowMatchingWorks.md).
 
 ## Options
 
 The values for these options are either `True`, `False` or `null`.  Null will cause the default parameter to be used.
 
-- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.
+- `OverwriteExistingVariables`: Indicates if all existing variables (except sensitive variables) should be overwritten.  The default is `false`.  Options are `true`, `false`, or `AddNewWithDefaultValue`. See more how this works in the [how matching works page](HowMatchingWorks.md).
 - `CloneProjectChannelRules`: Indicates if the project channel rules should be cloned and overwrite existing channel rules.  The default is `false`.
 - `CloneProjectDeploymentProcess`: Indicates if the project deployment process should be cloned.  Set this to `false` to only clone project runbooks.  The default is `true`.
 - `CloneProjectRunbooks`: Indicates if project runbooks should be cloned.  Set this to `false` to only clone the project deployment process.  The defaults is `true`.
 - `CloneProjectVersioningReleaseCreationSettings`: Indicates if the release versioning strategy and release creation strategy should be cloned.  The default is `false`.
-- `ProcessCloningOption`: Tells the cloner how to handle the situation where steps are in a destination runbook or deployment process but not in the source.  Options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`.
+- `CloneProjectLogos`: Indicates if the project logo should be cloned.  The default is `true`.  Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
+- `ProcessCloningOption`: Tells the cloner how to handle the situation where steps are in a destination runbook or deployment process but not in the source.  Options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`. See more how this works in the [how matching works page](HowMatchingWorks.md).

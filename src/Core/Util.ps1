@@ -206,9 +206,9 @@ function Convert-SourceIdListToDestinationIdList
         }
     }    
 
-    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch")
+    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
     {
-        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true."
+        Write-OctopusVerbose "Ignoring the matching test for $IdListName because the Matching Option was set to IgnoreMismatch. Can Proceed is true.  Return object has $($returnObject.NewIdList.Count) item(s) matching."
         return $returnObject
     }
     
@@ -244,6 +244,105 @@ function Convert-SourceIdListToDestinationIdList
     return $returnObject
 }
 
+function Convert-SourceTenantTagListToDestinationTenantTagList
+{
+    param (
+        $tenantTagListToConvert,
+        $destinationDataTenantTagSets,
+        $matchingOption
+    )    
+
+    $returnObject = @{
+        NewIdList = @()
+        CanProceed = $true
+    }
+
+    Write-OctopusVerbose "Converting $($tenantTagListToConvert | ConvertTo-Json) to the destination"
+
+    if ($tenantTagListToConvert.Count -eq 0)
+    {
+        Write-OctopusVerbose "      Skipping the tenant tag conversion because there are no tenant tags in the list to convert"
+        return $returnObject
+    }
+
+    $tenantTagList = @($tenantTagListToConvert)
+
+    foreach ($tenantTag in $tenantTagList)
+    {
+        $tenantTagSplit = $tenantTag -split "/"
+        $tenantTagSetToFind = $tenantTagSplit[0]
+
+        $tenantTagSet = Get-OctopusItemByName -ItemName $tenantTagSetToFind -ItemList $destinationDataTenantTagSets
+        if ($null -eq $tenantTagSet)
+        {            
+            if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone" -or $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -or $MatchingOption.ToLower().Trim() -eq "skipunlesspartialmatch")
+            {
+                Write-OctopusVerbose "      Unable to find tenant tag set $tenantTagSetToFind on the destination.  The matching option was set to $matchingOption. Moving onto the next tenant tag."
+                continue
+            }
+
+            Write-OctopusCritical "     Unable to find tenant tag set $tenantTagSetToFind on the testination.  The matching option was set to $matchingOption. Stopping the clone."
+            exit 1
+        }
+
+        $matchingTenantTagOption = $false
+        $tenantTagSetTagList = @($tenantTagSet.Tags)
+        foreach ($tenantTagItem in $tenantTagSetTagList)
+        {
+            Write-OctopusVerbose "      Comparing $($tenantTagItem.CanonicalTagName) with $tenantTag"
+            if ($tenantTagItem.CanonicalTagName -eq $tenantTag)
+            {
+                Write-OctopusVerbose "          The tenant tag item matches"
+                $matchingTenantTagOption = $true
+                break
+            }
+        }        
+
+        if ($matchingTenantTagOption -eq $false)
+        {
+            if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone" -or $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch" -or $MatchingOption.ToLower().Trim() -eq "skipunlesspartialmatch")
+            {
+                Write-OctopusVerbose "      Unable to find $tenantTag in the destination.  The matching option was set to $matchingOption.  Moving onto the next tenant tag."
+                continue
+            }
+
+            Write-OctopusCritical "     Unable to find tenant tag $tenantTag.  The matching option was set to $matchingOption. Stopping the clone."
+            exit 1
+        }
+
+        $returnObject.NewIdList += $tenantTag
+    }
+
+    if ($MatchingOption.ToLower().Trim() -eq "ignoremismatch" -or $MatchingOption.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+    {
+        Write-OctopusVerbose "      Skipping the comparison test for tenant tag list because the scoping option was set to $matchingOption."
+        return $returnObject
+    }
+
+    if ($returnObject.NewIdList.Count -ne $tenantTagListToConvert.Count -and $MatchingOption.ToLower().Trim() -eq "skipunlessexactmatch")    
+    {
+        Write-OctopusVerbose "      The tenant tag lists do not exactly match and the scoping option was set to $matchingOption.  Skipping this step."
+        $returnObject.CanProceed = $false
+    }
+
+    if ($returnObject.NewIdList.Count -ge 1 -and $tenantTagListToConvert.Count -ge 1)
+    {
+        Write-OctopusVerbose "      Both the original tenant tag list and the new tenant tag list had at least one match.  Proceeding."
+        return $returnObject
+    }
+
+    if ($MatchingOption.ToLower().Trim() -eq "errorunlesspartialmatch")
+    {
+        Write-OctopusCritical "     A partial match was not found for the tenant tags and the Matching Option is set to ErrorUnlessPartialMatch.  The source item had $($tenantTagListToConvert.Count) item(s) and the destination had $($returnObject.NewIdList.Count) item(s).  Exiting.  If this is a what-if run then you need to adjust your parameters because it will result in missing data."
+        Exit 1
+    }
+
+    Write-OctopusVerbose "      A partial match was not found for the tenant tags and matching option is SkipUnlessPartialMatch.  The source item had $($tenantTagListToConvert.Count) item(s) and the destination had $($returnObject.NewIdList.Count) item(s).  Can proceed is set to false to skip this item."
+    $returnObject.CanProceed = $false
+ 
+    return $returnObject
+}
+
 function Test-OctopusObjectHasProperty
 {
     param(
@@ -271,7 +370,8 @@ function Add-PropertyIfMissing
         $objectToTest,
         $propertyName,
         $propertyValue,
-        $overwriteIfExists)
+        $overwriteIfExists
+    )
     
     if ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false)
     {            
@@ -279,7 +379,7 @@ function Add-PropertyIfMissing
 
         return $true
     }
-    elseif ($null -ne $overwriteIfExists -and $overwriteIfExists -eq $true -and ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false))
+    elseif ([string]::IsNullOrWhiteSpace($overwriteIfExists) -eq $false -and $overwriteIfExists.ToString() -eq "$true" -and ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false))
     {
         $objectToTest.$propertyName = $propertyValue
 
@@ -311,168 +411,6 @@ function Copy-OctopusObject
     }
 
     return $copyOfItem
-}
-
-function Get-OctopusFilteredList
-{
-    param(
-        $itemList,
-        $itemType,
-        $filters
-    )
-
-    $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters  
-        
-    if ($filteredList.Length -eq 0)
-    {
-        Write-OctopusWarning "No $itemType items were found to clone, skipping"
-    }
-    else
-    {
-        Write-OctopusSuccess "$itemType items were found to clone, starting clone for $itemType"
-    }
-
-    return $filteredList
-}
-
-function Get-OctopusFilteredListByPackageId
-{
-    param(
-        $itemList,
-        $itemType,
-        $filters
-    )
-
-    $filteredList = New-OctopusPackageIdFilteredList -itemList $itemList -itemType $itemType -filters $filters  
-        
-    if ($filteredList.Length -eq 0)
-    {
-        Write-OctopusWarning "No $itemType items were found to clone, skipping"
-    }
-    else
-    {
-        Write-OctopusSuccess "$itemType items were found to clone, starting clone for $itemType"
-    }
-
-    return $filteredList
-}
-
-function Get-OctopusExclusionList
-{
-    param(
-        $itemList,
-        $itemType,
-        $filters
-    )
-
-    $filteredList = New-OctopusFilteredList -itemList $itemList -itemType $itemType -filters $filters  
-        
-    if ($filteredList.Length -eq 0)
-    {
-        Write-OctopusWarning "No $itemType items were found to exclude"
-    }    
-
-    return $filteredList
-}
-
-function New-OctopusFilteredList
-{
-    param(
-        $itemList,
-        $itemType,
-        $filters
-    )
-
-    $filteredList = @()  
-    
-    Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
-
-    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
-    {
-        $splitFilters = $filters -split ","
-
-        foreach($item in $itemList)
-        {
-            foreach ($filter in $splitFilters)
-            {
-                Write-OctopusVerbose "Checking to see if $filter matches $($item.Name)"
-                if ([string]::IsNullOrWhiteSpace($filter))
-                {
-                    continue
-                }
-                if (($filter).ToLower().Trim() -eq "all")
-                {
-                    Write-OctopusVerbose "The filter is 'all' -> adding $($item.Name) to $itemType filtered list"
-                    $filteredList += $item
-                }
-                elseif ($item.Name -like $filter)
-                {
-                    Write-OctopusVerbose "The filter $filter matches $($item.Name), adding $($item.Name) to $itemType filtered list"
-                    $filteredList += $item
-                }
-                else
-                {
-                    Write-OctopusVerbose "The item $($item.Name) does not match filter $filter"
-                }
-            }
-        }
-    }
-    else
-    {
-        Write-OctopusWarning "The filter for $itemType was not set."
-    }
-
-    return $filteredList
-}
-
-function New-OctopusPackageIdFilteredList
-{
-    param(
-        $itemList,
-        $itemType,
-        $filters
-    )
-
-    $filteredList = @()  
-    
-    Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
-
-    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
-    {
-        $splitFilters = $filters -split ","
-
-        foreach($item in $itemList)
-        {
-            foreach ($filter in $splitFilters)
-            {
-                Write-OctopusVerbose "Checking to see if $filter matches $($item.PackageId)"
-                if ([string]::IsNullOrWhiteSpace($filter))
-                {
-                    continue
-                }
-                if (($filter).ToLower() -eq "all")
-                {
-                    Write-OctopusVerbose "The filter is 'all' -> adding $($item.PackageId) to $itemType filtered list"
-                    $filteredList += $item
-                }
-                elseif ($item.PackageId -like $filter)
-                {
-                    Write-OctopusVerbose "The filter $filter matches $($item.PackageId), adding $($item.PackageId) to $itemType filtered list"
-                    $filteredList += $item
-                }
-                else
-                {
-                    Write-OctopusVerbose "The item $($item.PackageId) does not match filter $filter"
-                }
-            }
-        }
-    }
-    else
-    {
-        Write-OctopusWarning "The filter for $itemType was not set."
-    }
-
-    return $filteredList
 }
 
 function Convert-OctopusProcessDeploymentStepId
@@ -648,110 +586,4 @@ function Update-OctopusList
     }
 
     return $itemArray
-}
-
-function Test-OctopusScopeMatchParameter
-{
-    param (
-        $parameterValue,
-        $parameterName,
-        $defaultValue,
-        $singleValueItem
-    )
-
-    
-    if ([string]::IsNullOrWhiteSpace($parameterValue))
-    {
-        return $defaultValue
-    }
-
-    $lowerParameterValue = $parameterValue.ToLower().Trim()
-
-
-    if ($singleValueItem)
-    {
-        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "ignoremismatch")
-        {
-            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, or IgnoreMismatch."
-            exit 1
-        }  
-    }
-    else
-    {
-        if ($lowerParameterValue -ne "errorunlessexactmatch" -and $lowerParameterValue -ne "skipunlessexactmatch" -and $lowerParameterValue -ne "errorunlesspartialmatch" -and $lowerParameterValue -ne "skipunlesspartialmatch" -and $lowerParameterValue -ne "ignoremismatch")
-        {
-            Write-OctopusCritical "The parameter $parameterName is set to $parameterValue.  Acceptable values are ErrorUnlessExactMatch, SkipUnlessExactMatch, ErrorUnlessPartialMatch, SkipUnlessPartialMatch, or IgnoreMismatch."
-            exit 1
-        }  
-    }      
-
-    return $parameterValue
-}
-
-function Test-OctopusTrueFalseParameter
-{
-    param (
-        $parameterValue,
-        $parameterName,
-        $defaultValue
-    )
-
-    if ([string]::IsNullOrWhiteSpace($parameterValue))
-    {
-        Write-OctopusVerbose "The parameter $parameterName sent in was null or empty, setting to $defaultValue."
-        return $defaultValue
-    }
-
-    if ($parameterValue -ne $true -and $parameterValue -ne $false)
-    {
-        Write-OctopusCritical "The value for $parameterName was $parameterValue.  It must be $true or $false. Exiting."
-        exit 1
-    }
-
-    Write-OctopusVerbose "The value sent in for $parameterName is $parameterValue."
-    return $parameterValue
-}
-
-function Test-OctopusProcessCloningParameter
-{
-    param (
-        $parameterValue        
-    )
-
-    if ([string]::IsNullOrWhiteSpace($parameterValue))
-    {
-        Write-OctopusVerbose "The parameter ProcessCloningOption was empty or null, setting to KeepAdditionalDestinationSteps."
-        return "KeepAdditionalDestinationSteps"
-    }
-    
-    if ($parameterValue.ToLower().Trim() -ne "keepadditionaldestinationsteps" -and $parameterValue.ToLower().Trim() -ne "sourceonly")
-    {
-        Write-OctopusCritical "The parameter ProcessCloningOption is set to $parameterValue.  Acceptable values are KeepAdditionalDestinationSteps or SourceOnly."
-        exit 1
-    }
-
-    Write-OctopusVerbose "The value sent in for ProcessCloningOption is $parameterValue."
-    return $parameterValue
-}
-
-function Test-OctopusOverwriteExistingLifecyclesPhasesParameter
-{
-    param (
-        $parameterValue
-    )
-
-    if ([string]::IsNullOrWhiteSpace($parameterValue))
-    {
-        Write-OctopusVerbose "The parameter OverwriteExistingLifecyclesPhases was empty or null, setting to $false."
-        return $false
-    }
-
-    if ($parameterValue -ne $true -and $parameterValue -ne $false -and $parameterValue.ToLower().Trim() -ne "neverclonelifecyclephases")
-    {
-        Write-OctopusCritical "The parameter OverwriteExistingLifecyclesPhases is set to $parameterValue.  Acceptable values are $true, $false or NeverCloneLifecyclePhases"
-        exit 1
-    }
-
-    Write-OctopusVerbose "The value sent in for OverwriteExistingLifecyclesPhases is $parameterValue."
-    return $parameterValue
 }

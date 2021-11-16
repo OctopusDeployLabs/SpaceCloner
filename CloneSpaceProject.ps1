@@ -6,10 +6,17 @@ param (
     $DestinationOctopusApiKey,
     $DestinationSpaceName,
     $ProjectsToClone,    
-    $EnvironmentsToExclude,                                      
+    $CertificatesToClone,
+    $EnvironmentsToExclude,
+    $EnvironmentsToInclude,                                      
     $WorkersToExclude,
+    $WorkersToInclude,
     $TargetsToExclude,    
-    $TenantsToExclude,    
+    $TargetsToInclude,
+    $TenantsToExclude,
+    $TenantsToInclude,
+    $ChannelsToInclude,
+    $ChannelsToExclude,    
     $OverwriteExistingVariables,    
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
@@ -17,13 +24,14 @@ param (
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess,
-    $IgnoreVersionCheckResult,
-    $SkipPausingWhenIgnoringVersionCheckResult,
+    $CloneProjectDeploymentProcess, 
+    $CloneProjectLogos,
+    $CloneTenantLogos,    
     $CloneTenantVariables,
-    $CertificatesToClone,
+    $ClonePackages,    
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
+    $ProcessTenantTagScopingMatch,
     $VariableChannelScopingMatch,
     $VariableEnvironmentScopingMatch,
     $VariableProcessOwnerScopingMatch,
@@ -31,9 +39,13 @@ param (
     $VariableMachineScopingMatch,
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
+    $VariableTenantTagScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
     $InfrastructureTenantScopingMatch,
+    $InfrastructureTenantTagScopingMatch,
     $ProcessCloningOption,
+    $IgnoreVersionCheckResult,
+    $SkipPausingWhenIgnoringVersionCheckResult,
     $WhatIf  
 )
 
@@ -41,13 +53,15 @@ $ErrorActionPreference = "Stop"
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "FilteredLists.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "ParameterVerification.ps1"))
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
+$OverwriteExistingVariables = Test-OctopusOverwriteExistingVariablesParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
 $OverwriteExistingCustomStepTemplates = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingCustomStepTemplates -parameterName "OverwriteExistingCustomStepTemplates" -defaultValue $false
 $OverwriteExistingLifecyclesPhases = Test-OctopusOverwriteExistingLifecyclesPhasesParameter -parameterValue $OverwriteExistingLifecyclesPhases
 
@@ -55,12 +69,15 @@ $CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $ClonePro
 $CloneTeamUserRoleScoping = Test-OctopusTrueFalseParameter -parameterValue $CloneTeamUserRoleScoping -parameterName "CloneTeamUserRoleScoping" -defaultValue $false
 $CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
 $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
-$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
+$CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
+$CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
+$ClonePackages = Test-OctopusTrueFalseParameter -parameterValue $ClonePackages -parameterName "ClonePackages" -defaultValue $false
 
-$ProcessCloningOption = Test-OctopusProcessCloningParameter -ParameterValue $ProcessCloningOption
 $ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $ProcessChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessChannelScopingMatch" -ParameterValue $ProcessChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$ProcessTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessTenantTagScopingMatch" -ParameterValue $ProcessTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -69,13 +86,21 @@ $VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "Va
 $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$InfrastructureTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantTagScopingMatch" -ParameterValue $InfrastructureTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 
 $IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $IgnoreVersionCheckResult -parameterName "IgnoreVersionCheckResult" -defaultValue $false
 $SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
 $WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName "WhatIf" -defaultValue $false
+
+$EnvironmentsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $EnvironmentsToInclude -excludeFilters $EnvironmentsToExclude -parameterName "Environments" -DefaultIncludeFilter "all"
+$WorkersToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $WorkersToInclude -excludeFilters $WorkersToExclude -parameterName "Worker" -DefaultIncludeFilter "$null"
+$TargetsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TargetsToInclude -excludeFilters $TargetsToExclude -parameterName "Target" -DefaultIncludeFilter "$null"
+$TenantsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TenantsToInclude -excludeFilters $TenantsToExclude -parameterName "Tenants" -DefaultIncludeFilter "all"
+$ChannelsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $ChannelsToInclude -excludeFilters $ChannelsToExclude -parameterName "Channels" -DefaultIncludeFilter "all"
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
@@ -95,7 +120,9 @@ $cloneSpaceCommandLineOptions = @{
     SpaceTeamsToClone = $null;    
     RolesToClone = $null;
     PackagesToClone = $null;
+    ChannelsToClone = $null;
     CertificatesToClone = $CertificatesToClone;
+    ClonePackages = $clonePackages;
 }
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
@@ -284,6 +311,11 @@ function Add-OctopusPackagesToCloneList
         $cloneSpaceCommandLineOptions
     )
 
+    if ($cloneSpaceCommandLineOptions.ClonePackages -eq $false)
+    {
+        return
+    }
+
     foreach ($package in $action.Packages)
     {        
         $feed = Get-OctopusItemById -itemId $package.FeedId -ItemList $sourceData.FeedList               
@@ -328,6 +360,13 @@ function Add-OctopusActionSpaceTeamToCloneList
         $manualInterventionSourceTeamIds = @($action.Properties.'Octopus.Action.Manual.ResponsibleTeamIds' -split ",")
         foreach ($team in $manualInterventionSourceTeamIds)
         {
+            $teamDetails = Get-OctopusItemById -ItemList $sourceData.TeamList -ItemId $team
+            if ($null -eq $teamDetails.SpaceId)
+            {
+                Write-OctopusVerbose "The team $($teamDetails.Name) is a system team, skipping"
+                continue
+            }
+
             Write-OctopusVerbose "Adding $team to clone list"
             $cloneSpaceCommandLineOptions.SpaceTeamsToClone = Add-OctopusIdToCloneList -itemId $team -itemType "Space Team" -destinationList $cloneSpaceCommandLineOptions.SpaceTeamsToClone -sourceList $sourceData.TeamList -exclusionList @()
         }        
@@ -340,7 +379,7 @@ function Add-OctopusDeploymentProcessToCloneList
         $sourceDeploymentProcess,
         $sourceData,
         $cloneSpaceCommandLineOptions,
-        $envrionmentListToExclude
+        $envrionmentListToExclude        
     )
 
     foreach ($step in $sourceDeploymentProcess.Steps)
@@ -365,7 +404,9 @@ function Add-OctopusVariableSetItemsToCloneList
         $variableSet,
         $sourceData,
         $cloneSpaceCommandLineOptions,
-        $envrionmentListToExclude
+        $envrionmentListToExclude,
+        $sourceChannelList,
+        $channelListToExclude
     )
 
     foreach ($octopusVariable in $sourceVariableSetVariables.Variables)
@@ -379,7 +420,16 @@ function Add-OctopusVariableSetItemsToCloneList
             {
                 $cloneSpaceCommandLineOptions.EnvironmentsToClone = Add-OctopusIdToCloneList -itemId $environment -itemType "Environment" -destinationList $cloneSpaceCommandLineOptions.EnvironmentsToClone -sourceList $sourceData.EnvironmentList -exclusionList $envrionmentListToExclude
             }            
-        }     
+        }
+        
+        if (Get-Member -InputObject $octopusVariable.Scope -Name "Channel" -MemberType Properties)
+        {
+            Write-OctopusVerbose "$variableName has channel scoping, adding each item to the clone list"
+            foreach ($channel in $octopusVariable.Scope.Channel)
+            {
+                $cloneSpaceCommandLineOptions.ChannelsToClone = Add-OctopusIdToCloneList -itemId $channel -itemType "Channel" -destinationList $cloneSpaceCommandLineOptions.ChannelsToClone -sourceList $sourceChannelList -exclusionList $channelListToExclude
+            }
+        }
 
         if ($octopusVariable.Type -match ".*Account")
         {
@@ -391,7 +441,7 @@ function Add-OctopusVariableSetItemsToCloneList
         {
             Write-OctopusVerbose "$variableName is a workerpool, adding each item to the clone list"
             $cloneSpaceCommandLineOptions.WorkerPoolsToClone = Add-OctopusIdToCloneList -itemId $octopusVariable.Value -itemType "Worker Pool" -destinationList $cloneSpaceCommandLineOptions.WorkerPoolsToClone -sourceList $sourceData.WorkerPoolList -exclusionList @()
-        }
+        }        
     }
 }
 
@@ -471,6 +521,11 @@ function Add-OctopusWorkersToCloneList
         $workerExclusionList
     )
 
+    if ([string]::IsNullOrWhiteSpace($WorkersToExclude) -eq $false -and $WorkersToExclude.ToLower().Trim() -eq "all")
+    {
+        return
+    }
+
     Write-OctopusSuccess "Adding workers based on project variables and steps" 
     $workerPoolList = $cloneSpaceCommandLineOptions.WorkerPoolsToClone -split ","
 
@@ -512,7 +567,7 @@ function Add-OctopusTenantsToCloneList
 
     foreach ($tenant in $sourceData.TenantList)
     {
-        if ((Test-OctopusObjectHasProperty -objectToTest $tenant.ProjectEnvironments -propertyName $project.Id) -and $cloneSpaceCommandLineOptions.TenantList -notcontains $tenant.Name -and (Get-OctopusIsInExclusionList -exclusionList $tenantListToExclude -itemName $tenant.Name) -eq $false)
+        if ((Test-OctopusObjectHasProperty -objectToTest $tenant.ProjectEnvironments -propertyName $project.Id) -and (Get-OctopusIsInExclusionList -exclusionList $tenantListToExclude -itemName $tenant.Name) -eq $false)
         {
             $cloneSpaceCommandLineOptions.TenantsToClone = Add-OctopusNameToCloneList -ItemName $tenant.Name -destinationList $cloneSpaceCommandLineOptions.TenantsToClone            
         }
@@ -520,10 +575,10 @@ function Add-OctopusTenantsToCloneList
 }
 
 Write-OctopusSuccess "Building all the exclusion lists"
-$tenantListToExclude = Get-OctopusExclusionList -itemList $sourceData.TenantList -itemType "Tenants" -filters $TenantsToExclude
-$envrionmentListToExclude = Get-OctopusExclusionList -itemList $sourceData.EnvironmentList -itemType "Environments" -filters $environmentsToExclude
-$workerListToExclude = Get-OctopusExclusionList -itemList $sourceData.WorkerList -itemType "Workers" -filters $WorkersToExclude
-$targetListToExclude = Get-OctopusExclusionList -itemList $sourceData.TargetList -itemType "Targets" -filters $TargetsToExclude
+$tenantListToExclude = Get-OctopusExclusionList -itemList $sourceData.TenantList -itemType "Tenants" -filters $TenantsToExclude -includeFilters $TenantsToInclude
+$envrionmentListToExclude = Get-OctopusExclusionList -itemList $sourceData.EnvironmentList -itemType "Environments" -filters $environmentsToExclude -includeFilters $EnvironmentsToInclude
+$workerListToExclude = Get-OctopusExclusionList -itemList $sourceData.WorkerList -itemType "Workers" -filters $WorkersToExclude -includeFilters $WorkersToInclude
+$targetListToExclude = Get-OctopusExclusionList -itemList $sourceData.TargetList -itemType "Targets" -filters $TargetsToExclude -includeFilters $TargetsToInclude
 
 Write-OctopusSuccess "Building all project list to clone"
 $projectListToClone = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $ProjectsToClone
@@ -550,7 +605,7 @@ foreach ($project in $projectListToClone)
             Write-OctopusSuccess "      Adding the variable set $($variableSet.Name) to the items variable sets to clone"
             $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone = Add-OctopusIdToCloneList -itemId $variableSetId -itemType "Library Variable Set" -destinationList $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone -sourceList $sourceData.VariableSetList -exclusionList @()
             $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $variableSet -OctopusData $sourceData
-            Add-OctopusVariableSetItemsToCloneList -variableSet $sourceVariableSetVariables -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude
+            Add-OctopusVariableSetItemsToCloneList -variableSet $sourceVariableSetVariables -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude -channelListToExclude @() -sourceChannelList @()
         }        
     }
 
@@ -562,7 +617,7 @@ foreach ($project in $projectListToClone)
 
     Write-OctopusSuccess "  Getting the deployment process for $($project.Name)"
     $sourceDeploymentProcess = Get-OctopusProjectDeploymentProcess -project $project -OctopusData $sourceData
-    Add-OctopusDeploymentProcessToCloneList -sourceData $sourceData -sourceDeploymentProcess $sourceDeploymentProcess -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude
+    Add-OctopusDeploymentProcessToCloneList -sourceData $sourceData -sourceDeploymentProcess $sourceDeploymentProcess -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude -clonePackages $ClonePackages
 
     if ($sourceData.HasRunbooks -eq $true)
     {
@@ -577,12 +632,22 @@ foreach ($project in $projectListToClone)
         }
     }
 
-    $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $project -OctopusData $sourceData
-    Add-OctopusVariableSetItemsToCloneList -variableSet $sourceVariableSetVariables -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -environmentsToExclude $environmentsToExclude
-
     $sourceChannels = Get-OctopusProjectChannelList -project $project -octopusData $sourceData
+    $channelExclusionList = Get-OctopusExclusionList -itemList $sourceChannels -itemType "Channels" -filters $ChannelsToExclude -includeFilters $ChannelsToInclude
+
+    $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $project -OctopusData $sourceData
+    Add-OctopusVariableSetItemsToCloneList -variableSet $sourceVariableSetVariables -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude -channelListToExclude $channelExclusionList -sourceChannelList $sourceChannels
+
     foreach ($channel in $sourceChannels)
     {
+        if (Get-OctopusIsInExclusionList -exclusionList $channelExclusionList -itemName $channel.Name)
+        {
+            Write-OctopusVerbose "The channel $($channel.Name) was in the exclusion list, moving onto the next channel"
+            continue
+        }
+
+        $cloneSpaceCommandLineOptions.ChannelsToClone = Add-OctopusNameToCloneList -ItemName $channel.Name -destinationList $cloneSpaceCommandLineOptions.ChannelsToClone        
+
         if ($null -ne $channel.LifeCycleId)
         {
             Write-OctopusSuccess "Adding lifecycle for channel name $($channel.Name) in $($project.Name)"
@@ -594,7 +659,7 @@ foreach ($project in $projectListToClone)
 }
 
 Add-OctopusLifeCycleEnvironmentsToCloneList -envrionmentListToExclude $envrionmentListToExclude -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
-Add-OctopusTargetsToCloneList -targetExclusionList $targetListToExclude -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
+Add-OctopusTargetsToCloneList -targetExclusionList $targetListToExclude -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions 
 Add-OctopusWorkersToCloneList -workerExclusionList $workerListToExclude -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
 
 Write-OctopusSuccess "The command line arguments are going to be: "
@@ -623,6 +688,7 @@ Write-OctopusSuccess "  -TargetsToClone $($cloneSpaceCommandLineOptions.TargetsT
 Write-OctopusSuccess "  -SpaceTeamsToClone $($cloneSpaceCommandLineOptions.SpaceTeamsToClone)"
 Write-OctopusSuccess "  -PackagesToClone $($cloneSpaceCommandLineOptions.PackagesToClone)"
 Write-OctopusSuccess "  -CertificatesToClone $($cloneSpaceCommandLineOptions.CertificatesToClone)"
+Write-OctopusSuccess "  -ChannelsToClone $($cloneSpaceCommandLineOptions.ChannelsToClone)"
 Write-OctopusSuccess "  -OverwriteExistingVariables $OverwriteExistingVariables"
 Write-OctopusSuccess "  -OverwriteExistingCustomStepTemplates $OverwriteExistingCustomStepTemplates"
 Write-OctopusSuccess "  -OverwriteExistingLifecyclesPhases $OverwriteExistingLifecyclesPhases"
@@ -630,11 +696,14 @@ Write-OctopusSuccess "  -CloneProjectChannelRules $CloneProjectChannelRules"
 Write-OctopusSuccess "  -CloneProjectRunbooks $CloneProjectRunbooks"
 Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $CloneProjectVersioningReleaseCreationSettings"
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
+Write-OctopusSuccess "  -CloneProjectLogos $CloneProjectLogos"
+Write-OctopusSuccess "  -CloneTenantLogos $CloneTenantLogos"
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
 Write-OctopusSuccess "  -CloneTenantVariables $CloneTenantVariables"
 Write-OctopusSuccess "  -ProcessEnvironmentScopingMatch $ProcessEnvironmentScopingMatch"
 Write-OctopusSuccess "  -ProcessChannelScopingMatch $ProcessChannelScopingMatch"
+Write-OctopusSuccess "  -ProcessTenantTagScopingMatch $ProcessTenantTagScopingMatch"
 Write-OctopusSuccess "  -VariableChannelScopingMatch $VariableChannelScopingMatch"
 Write-OctopusSuccess "  -VariableEnvironmentScopingMatch $VariableEnvironmentScopingMatch"
 Write-OctopusSuccess "  -VariableProcessOwnerScopingMatch $VariableProcessOwnerScopingMatch"
@@ -642,8 +711,10 @@ Write-OctopusSuccess "  -VariableActionScopingMatch $VariableActionScopingMatch"
 Write-OctopusSuccess "  -VariableMachineScopingMatch $VariableMachineScopingMatch"
 Write-OctopusSuccess "  -VariableAccountScopingMatch $VariableAccountScopingMatch"
 Write-OctopusSuccess "  -VariableCertificateScopingMatch $VariableCertificateScopingMatch"
+Write-OctopusSuccess "  -VariableTenantTagScopingMatch $VariableTenantTagScopingMatch"
 Write-OctopusSuccess "  -InfrastructureEnvironmentScopingMatch $InfrastructureEnvironmentScopingMatch"
 Write-OctopusSuccess "  -InfrastructureTenantScopingMatch $InfrastructureTenantScopingMatch"
+Write-OctopusSuccess "  -InfrastructureTenantTagScopingMatch $InfrastructureTenantTagScopingMatch"
 Write-OctopusSuccess "  -ProcessCloningOption $ProcessCloningOption"
 Write-OctopusSuccess "  -WhatIf $WhatIf"
 
@@ -672,6 +743,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -TargetsToClone "$($cloneSpaceCommandLineOptions.TargetsToClone)" `
     -SpaceTeamsToClone "$($cloneSpaceCommandLineOptions.SpaceTeamsToClone)" `
     -PackagesToClone "$($cloneSpaceCommandLineOptions.PackagesToClone)" `
+    -ChannelsToClone "$($cloneSpaceCommandLineOptions.ChannelsToClone)" `
     -OverwriteExistingVariables "$OverwriteExistingVariables" `
     -OverwriteExistingCustomStepTemplates "$OverwriteExistingCustomStepTemplates" `
     -OverwriteExistingLifecyclesPhases "$OverwriteExistingLifecyclesPhases" `
@@ -679,12 +751,15 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectRunbooks "$CloneProjectRunbooks" `
     -CloneProjectVersioningReleaseCreationSettings "$CloneProjectVersioningReleaseCreationSettings" `
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
+    -CloneProjectLogos "$CloneProjectLogos" `
+    -CloneTenantLogos "$CloneTenantLogos" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
     -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
     -CloneTenantVariables "$CloneTenantVariables" `
     -EnvironmentScopingMatch "$EnvironmentScopingMatch" `
     -ProcessEnvironmentScopingMatch "$ProcessEnvironmentScopingMatch" `
     -ProcessChannelScopingMatch "$ProcessChannelScopingMatch" `
+    -ProcessTenantTagScopingMatch "$ProcessTenantTagScopingMatch" `
     -VariableChannelScopingMatch "$VariableChannelScopingMatch" `
     -VariableEnvironmentScopingMatch "$VariableEnvironmentScopingMatch" `
     -VariableProcessOwnerScopingMatch "$VariableProcessOwnerScopingMatch" `
@@ -692,8 +767,10 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -VariableMachineScopingMatch "$VariableMachineScopingMatch" `
     -VariableAccountScopingMatch "$VariableAccountScopingMatch" `
     -VariableCertificateScopingMatch "$VariableCertificateScopingMatch" `
+    -VariableTenantTagScopingMatch "$VariableTenantTagScopingMatch" `
     -InfrastructureEnvironmentScopingMatch "$InfrastructureEnvironmentScopingMatch" `
     -InfrastructureTenantScopingMatch "$InfrastructureTenantScopingMatch" `
+    -InfrastructureTenantTagScopingMatch "$InfrastructureTenantTagScopingMatch" `
     -ProcessCloningOption "$ProcessCloningOption" `
     -WhatIf "$whatIf"
 

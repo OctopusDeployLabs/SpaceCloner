@@ -17,11 +17,14 @@ param (
     $VariableMachineScopingMatch,
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
+    $VariableTenantTagScopingMatch,
     $WhatIf     
 )
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "FilteredLists.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "ParameterVerification.ps1"))
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
@@ -33,7 +36,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 
-$OverwriteExistingVariables = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
+$OverwriteExistingVariables = Test-OctopusOverwriteExistingVariablesParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
 
 $VariableChannelScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableChannelScopingMatch" -ParameterValue $VariableChannelScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableEnvironmentScopingMatch" -ParameterValue $VariableEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -42,6 +45,7 @@ $VariableActionScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "Va
 $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableMachineScopingMatch" -ParameterValue $VariableMachineScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
+$VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $true
 
 $IgnoreVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $IgnoreVersionCheckResult -parameterName "IgnoreVersionCheckResult" -defaultValue $false
 $SkipPausingWhenIgnoringVersionCheckResult = Test-OctopusTrueFalseParameter -parameterValue $SkipPausingWhenIgnoringVersionCheckResult -parameterName "SkipPausingWhenIgnoringVersionCheckResult" -defaultValue $false
@@ -50,7 +54,7 @@ $WhatIf = Test-OctopusTrueFalseParameter -parameterValue $WhatIf -parameterName 
 $CloneScriptOptions = @{
     OverwriteExistingVariables = $OverwriteExistingVariables;     
     LibraryVariableSetsToClone = $SourceVariableSetName;
-    DestinationVariableSetName = $DestinationVariableSetName;   
+    DestinationVariableSetName = $DestinationVariableSetName;       
     VariableChannelScopingMatch = $VariableChannelScopingMatch;
     VariableEnvironmentScopingMatch = $VariableEnvironmentScopingMatch;
     VariableProcessOwnerScopingMatch = $VariableProcessOwnerScopingMatch;
@@ -58,6 +62,7 @@ $CloneScriptOptions = @{
     VariableMachineScopingMatch = $VariableMachineScopingMatch;
     VariableAccountScopingMatch = $VariableAccountScopingMatch;
     VariableCertificateScopingMatch = $VariableCertificateScopingMatch;
+    VariableTenantTagScopingMatch = $VariableTenantTagScopingMatch;    
 }
 
 Write-OctopusVerbose "The clone parameters sent in are:"

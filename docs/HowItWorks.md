@@ -86,29 +86,8 @@ This script was designed to be run multiple times with the same parameters.  It 
 - Targets (match by name)
 - Tenants (match by name) -> it will add missing projects to the tenant
 
-### Variable Matching
-
-The cloner defaults to leaving variables on the destination instance as-is.  **The space cloner will never overwrite a sensitive variable.**
-
-On your source space you have the variable `Testing.Variable` and it is set to `Test`.  On the destination instance that same variable exists and it is set to `Super Test`.  By default the cloner will leave the value on the destination instance as `Super Test`.  To update that value to match the source you will have to set the parameter `OverwriteExistingVariables` to `$true`.  
-
-**The default for the paramter `OverwriteExistingVariables` is `$false`.**  
-
-The space cloner matches variables by comparing:
-- Names
-- Sensitive Values vs Non Sensitive Values
-- Environment Scoping
-- Channel Scoping
-- Process Scoping
-- Machine Scoping
-- Step Scoping
-- Role Scoping
-
-If you add a scope, the space cloner will see that as a new variable value and add it.  Same is true for changing from sensitive to non-sensitive or vice versa.
-
-## Scope Matching
-
-Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?  See more how this works in the [How Scope Cloning Works Documentation](HowScopeCloningWorks.md).
+## Matching
+A lot of what the space cloner does is match data between the source instance and the destination instance.  See [how matching works](HowMatchingWorks.md) for more information.
 
 ## Limitations
 Because this is hitting the Octopus Restful API, it cannot decrypt items from the Octopus Database.  To decrypt items from the Octopus database, you'll need access to the master key and the database.  This script was designed to run on an Octopus Cloud instance.  You, the user, do not have access to that information.  
@@ -117,31 +96,6 @@ Please see the [sensitive variables page](SensitiveVariables.md) for more inform
 
 ## Simple Relationship Management
 The process does not attempt to walk a tree of dependencies.  It loads up all the necessary data from the source and destination.  It will attempt to find the corresponding ID in the destination space when it comes across an ID in the source space.  If it cannot find a matching item, it removes that binding.  
-
-## Process Cloning
-This script assumes that when you clone a deployment process, you want to add missing steps but leave existing steps.
-
-I have a deployment process on my source, where I added a new step.
-
-![](../img/process-source-added-step.png)
-
-My destination deployment process has a new step on the end that is not in the source.
-
-![](../img/destination-deployment-process-before-sync.png)
-
-After the sync is finished, the new step was added, and the additional step was left as is.
-
-![](../img/destination-deployment-process-after-sync.png)
-
-The rules for cloning a deployment process are:
-
-- Clone steps not found in the destination process
-- Leave existing steps as is
-- The source process is the source of truth for step order.  It will ensure the destination deployment process order matches.  It will then add additional steps found in the deployment process not found in the source to the end of the deployment process.
-
-### Override Default Process Cloning Behavior
-
-A new parameter has been added to the process cloner, `ProcessCloningOption`.  That allows you to overwrite the default behavior.  The options are `KeepAdditionalDestinationSteps` or `SourceOnly`.  The default is `KeepAdditionalDestinationSteps`.  Setting this parameter to `SourceOnly` will result in any steps in the destination not on the source to be removed.
 
 ## Targets and Workers
 

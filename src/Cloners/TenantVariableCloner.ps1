@@ -125,7 +125,7 @@ function Copy-OctopusTenantProjectVariables
                     Write-OctopusChangeLog "       - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because it is using the default value"
                     continue
                 }
-                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $true) 
+                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables.ToString() -eq "$true") 
                 {
                     Write-OctopusVerbose "The source tenant is using the default value on the source, but the destination is not and overwrite variables is true, Resetting to default value"
                     Write-OctopusChangeLog "       - Resetting $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to default"
@@ -134,7 +134,7 @@ function Copy-OctopusTenantProjectVariables
 
                     continue
                 }
-                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $false) 
+                elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables.ToString() -eq "$false") 
                 {
                     Write-OctopusVerbose "The source doesn't have a value but the destination does, overwrite is set to false, so leaving as is"
                     Write-OctopusChangeLog "       - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because overwrite is set to false (would reset to default)"
@@ -242,7 +242,7 @@ function Copy-OctopusTenantLibraryVariables
                 Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) because it is using the default value"
                 continue
             }
-            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $true) 
+            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables.ToString() -eq "$true") 
             {
                 Write-OctopusVerbose "The source tenant is using the default value on the source, but the destination is not and overwrite variables is true, Resetting to default value"
                 Write-OctopusChangeLog "     - Resetting $($projectTemplateVariable.Label) for Environment $($destinationEnvironment.Name) to default"
@@ -250,7 +250,7 @@ function Copy-OctopusTenantLibraryVariables
                 $destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Variables.PSObject.Properties.Remove($destinationVariableTemplateId)
                 continue
             }
-            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables -eq $false) 
+            elseif ($sourceHasValue -eq $false -and $destinationHasValue -eq $true -and $CloneScriptOptions.OverwriteExistingVariables.ToString() -eq "$false") 
             {
                 Write-OctopusVerbose "The source doesn't have a value but the destination does, overwrite is set to false, so leaving as is"
                 Write-OctopusChangeLog "     - No update to $($projectTemplateVariable.Label) because overwrite is set to false (would reset to default)"

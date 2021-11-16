@@ -15,34 +15,25 @@ function Copy-OctopusProcessStepAction
     Write-OctopusChangeLog "          - ActionType: $($action.ActionType)"
     Write-OctopusChangeLog "          - IsDisabled: $($action.IsDisabled)"
     Write-OctopusChangeLog "          - IsRequired: $($action.IsRequired)"
-    Write-OctopusChangeLog "          - Run Condition: $($action.Condition)"
-       
-    $environmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Environment Scoping"
-    if ($environmentMatch.CanProceed -eq $false)
+    Write-OctopusChangeLog "          - Run Condition: $($action.Condition)" 
+    
+    $canProceed = Convert-OctopusActionEnvironmentScoping -action $action -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -matchingAction $matchingAction
+    if ($canProceed -eq $false)
     {
         return $null
     }
 
-    $action.Environments = @($environmentMatch.NewIdList)
-    Write-OctopusChangeLogListDetails -idList $action.Environments -destinationList $DestinationData.EnvironmentList -listType "Environments" -prefixSpaces "         "
-    
-    $excludeEnvironmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Exclude Environment Scoping"
-    if ($excludeEnvironmentMatch.CanProceed -eq $false)
+    $canProceed = Convert-OctopusActionChannelScoping -action $action -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -matchingAction $matchingAction
+    if ($canProceed -eq $false)
     {
         return $null
     }
-    $action.ExcludedEnvironments = @($excludeEnvironmentMatch.NewIdList)
-    Write-OctopusChangeLogListDetails -idList $action.ExcludedEnvironments -destinationList $DestinationData.EnvironmentList -listType "Excluded Environments" -prefixSpaces "         "    
-    
-    $channelMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels -MatchingOption $CloneScriptOptions.ProcessChannelScopingMatch -IdListName "$($Action.Name) Channel Scoping"
-    if ($channelMatch.CanProceed -eq $false)
-    {
-        return $null
-    }
-    $action.Channels = @($channelMatch.NewIdList)
-    Write-OctopusChangeLogListDetails -idList $action.Channels -destinationList $destinationChannelList -listType "Channels" -prefixSpaces "         "
 
-    Write-OctopusChangeLogListDetails -idList $action.TenantTags -destinationList $DestinationData.TenantTags -listType "Tenant Tags" -prefixSpaces "         " -skipNameConversion $true    
+    $canProceed = Convert-OctopusActionTenantTagScoping -action $action -sourceData $sourceData -destinationData $destinationData -CloneScriptOptions $CloneScriptOptions -matchingAction $matchingAction
+    if ($canProceed -eq $false)
+    {
+        return $null
+    }   
     
     Convert-OctopusProcessActionWorkerPoolId -action $action -sourceData $sourceData -destinationData $destinationData                
     Convert-OctopusProcessActionExecutionContainerFeedId -action $action -sourceData $sourceData -destinationData $destinationData
@@ -56,6 +47,107 @@ function Copy-OctopusProcessStepAction
     Write-OctopusPackagesToChangeLog -action $action -destinationData $destinationData
 
     return $action    
+}
+
+function Convert-OctopusActionEnvironmentScoping
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData,
+        $CloneScriptOptions,        
+        $matchingAction
+    )
+
+    if ($null -ne $matchingAction -and $CloneScriptOptions.ProcessEnvironmentScopingMatch.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+    {
+        $action.Environments = @($matchingAction.Environments)
+        Write-OctopusChangeLog "          - Environment Scoping: Left Alone"
+        $action.ExcludedEnvironments = @($matchingAction.ExcludedEnvironments)
+        Write-OctopusChangeLog "          - Excluded Environment Scoping: Left Alone"
+    }
+    else
+    {        
+        $environmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.Environments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Environment Scoping"
+        if ($environmentMatch.CanProceed -eq $false)
+        {
+            return $false
+        }
+
+        $action.Environments = @($environmentMatch.NewIdList)
+        Write-OctopusChangeLogListDetails -idList $action.Environments -destinationList $DestinationData.EnvironmentList -listType "Environments" -prefixSpaces "         "
+        
+        $excludeEnvironmentMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceData.EnvironmentList -DestinationList $DestinationData.EnvironmentList -IdList $action.ExcludedEnvironments -MatchingOption $CloneScriptOptions.ProcessEnvironmentScopingMatch -IdListName "$($Action.Name) Exclude Environment Scoping"
+        if ($excludeEnvironmentMatch.CanProceed -eq $false)
+        {
+            return $false
+        }
+
+        $action.ExcludedEnvironments = @($excludeEnvironmentMatch.NewIdList)
+        Write-OctopusChangeLogListDetails -idList $action.ExcludedEnvironments -destinationList $DestinationData.EnvironmentList -listType "Excluded Environments" -prefixSpaces "         "
+    }
+
+    return $true
+}
+
+function Convert-OctopusActionChannelScoping
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData,
+        $CloneScriptOptions,        
+        $matchingAction
+    )
+
+    if ($null -ne $matchingAction -and $CloneScriptOptions.ProcessChannelScopingMatch.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+    {
+        $action.Channels = @($matchingAction.Channels)
+        Write-OctopusChangeLog "          - Channel Scoping: Left Alone"        
+    }
+    else
+    {        
+        $channelMatch = Convert-SourceIdListToDestinationIdList -SourceList $SourceChannelList -DestinationList $destinationChannelList -IdList $action.Channels -MatchingOption $CloneScriptOptions.ProcessChannelScopingMatch -IdListName "$($Action.Name) Channel Scoping"
+        if ($channelMatch.CanProceed -eq $false)
+        {
+            return $false
+        }
+
+        $action.Channels = @($channelMatch.NewIdList)
+        Write-OctopusChangeLogListDetails -idList $action.Channels -destinationList $destinationChannelList -listType "Channels" -prefixSpaces "         "
+    }
+
+    return $true
+}
+
+function Convert-OctopusActionTenantTagScoping
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData,
+        $CloneScriptOptions,        
+        $matchingAction
+    )
+    
+    if ($null -ne $matchingAction -and $CloneScriptOptions.ProcessTenantTagScopingMatch.ToLower().Trim() -eq "ignoremismatchonnewleaveexistingalone")
+    {
+        $action.TenantTags = @($matchingAction.TenantTags)
+        Write-OctopusChangeLog "          - Tenant Tag Scoping: Left Alone"        
+    }
+    else
+    {        
+        $tenantTagMatch = Convert-SourceTenantTagListToDestinationTenantTagList -tenantTagListToConvert $action.TenantTags -destinationDataTenantTagSets $destinationData.TenantTagList -matchingOption $CloneScriptOptions.ProcessTenantTagScopingMatch
+        if ($tenantTagMatch.CanProceed -eq $false)
+        {
+            return $False
+        }
+
+        $action.TenantTags = @($tenantTagMatch.NewIdList)
+        Write-OctopusChangeLogListDetails -idList $action.TenantTags -destinationList $DestinationData.TenantTags -listType "Tenant Tags" -prefixSpaces "         " -skipNameConversion $true
+    }    
+
+    return $true
 }
 
 function Convert-OctopusProcessActionWorkerPoolId

@@ -33,19 +33,24 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
 
 The scoping options are:
-- `ProcessEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` in case you might have steps scoped to `Dev` or `Test` 
-- `ProcessChannelScopingMatch` - set to `SkipUnlessPartialMatch` because you might have similar channels but not an exact 1:1 match.
-- `VariableChannelScopingMatch` - set to `SkipUnlessPartialMatch` because you might have similar channels but not an exact 1:1 match
-- `VariableEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` in case you might have steps scoped to `Dev` or `Test` 
+- `ProcessEnvironmentScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` in case you might have steps scoped to `Dev` or `Test` 
+- `ProcessChannelScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` because you might have similar channels but not an exact 1:1 match
+- `ProcessTenantTagsScopingMatch` - set to `SkipUnlessExactMatch` because the tenant tags should be cloned over as is
+- `VariableChannelScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` because you might have similar channels but not an exact 1:1 match
+- `VariableEnvironmentScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` in case you might have steps scoped to `Dev` or `Test` 
 - `VariableProcessOwnerScopingMatch` - set to `SkipUnlessPartialMatch` because you might have runbooks in your source instance not in the destination instances
 - `VariableActionScopingMatch` - set to `SkipUnlessPartialMatch` because you might have deployment process steps in your source instance not in the destination instances
-- `VariableMachineScopingMatch` - set to `SkipUnlessExactMatch` because will no machines will be shared between the two instances.
-- `VariableAccountScopingMatch` - set to `SkipUnlessExactMatch` because you might have different accounts in your source or destination.
-- `VariableCertificateScopingMatch` - set to `SkipUnlessExactMatch` because you might have different certificates in your source or destination.
-- `InfrastructureEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` in case you might have steps scoped to `Dev` or `Test` 
-- `InfrastructureTenantScopingMatch` - set to `SkipUnlessPartialMatch` because you might have similar tenants but not an exact 1:1 match.
+- `VariableMachineScopingMatch` - set to `SkipUnlessExactMatch` because will no machines will be shared between the two instances
+- `VariableAccountScopingMatch` - set to `SkipUnlessExactMatch` because you might have different accounts in your source or destination
+- `VariableCertificateScopingMatch` - set to `SkipUnlessExactMatch` because you might have different certificates in your source or destination
+- `VariableTenantTagsScopingMatch` - set to `SkipUnlessExactMatch` because you might have different tenant tags in your source or destination
+- `InfrastructureEnvironmentScopingMatch` - set to `IgnoreMismatchOnNewLeaveExistingAlone` in case you might have steps scoped to `Dev` or `Test` 
+- `InfrastructureTenantScopingMatch` - set to `SkipUnlessPartialMatch` because you might have similar tenants but not an exact 1:1 match
+- `InfrastructureTenantTagsScopingMatch` - set to `SkipUnlessExactMatch` because the tenant tags should be cloned over as is
 
 Deployment Process Option:
 - `ProcessCloningOption` - Leave it as the default `KeepAdditionalDestinationSteps` unless you plan on having no differences between the instances and you want the source instance to be your truth center.  If the source instance is the truth center then set it to `SourceOnly`.
@@ -75,7 +80,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectVersioningReleaseCreationSettings "true" `
     -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
     -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
     -CloneProjectDeploymentProcess "true"
     -ProcessEnvironmentScopingMatch "SkipUnlessExactMatch" `
     -ProcessChannelScopingMatch "SkipUnlessPartialMatch" `
@@ -107,10 +114,13 @@ The other options are:
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
 - `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
 
 The scoping options are:
 - `ProcessEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` 
-- `ProcessChannelScopingMatch` - set to `SkipUnlessExactMatch` 
+- `ProcessChannelScopingMatch` - set to `SkipUnlessExactMatch`
+- `ProcessTenantTagsScopingMatch` - set to `SkipUnlessExactMatch` 
 - `VariableChannelScopingMatch` - set to `SkipUnlessExactMatch` 
 - `VariableEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` 
 - `VariableProcessOwnerScopingMatch` - set to `SkipUnlessExactMatch` 
@@ -118,7 +128,95 @@ The scoping options are:
 - `VariableMachineScopingMatch` - set to `SkipUnlessExactMatch` 
 - `VariableAccountScopingMatch` - set to `SkipUnlessExactMatch` 
 - `VariableCertificateScopingMatch` - set to `SkipUnlessExactMatch`
+- `VariableTenantTagsScopingMatch` - set to `SkipUnlessExactMatch`
 - `InfrastructureEnvironmentScopingMatch` - set to `SkipUnlessExactMatch` 
+- `InfrastructureTenantScopingMatch` - set to `SkipUnlessExactMatch`
+- `InfrastructureTenantTagsScopingMatch` - set to `SkipUnlessExactMatch` 
+
+Deployment Process Option:
+- `ProcessCloningOption` - Set it to `SourceOnly` as the instances are a 1:1 mirror.
+
+```PowerShell
+CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
+    -SourceOctopusApiKey "SOME KEY" `
+    -SourceSpaceName "My Space Name" `
+    -DestinationOctopusUrl "https://instance2.yoursite.com" `
+    -DestinationOctopusApiKey "My Key" `
+    -DestinationSpaceName "My Space Name" `
+    -EnvironmentsToClone "all" `
+    -WorkerPoolsToClone "all" `
+    -ProjectGroupsToClone "all" `
+    -TenantTagsToClone "all" `
+    -ExternalFeedsToClone "all" `
+    -StepTemplatesToClone "all" `
+    -InfrastructureAccountsToClone "all" `
+    -MachinePoliciesToClone "all" `
+    -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
+    -LifeCyclesToClone "all" `
+    -ProjectsToClone "Redgate - Feature Branch Example" `
+    -TenantsToClone "all" `
+    -SpaceTeamsToClone "all" `
+    -PackagesToClone "Redgate.*" `
+    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
+    -OverwriteExistingVariables "false" `
+    -OverwriteExistingCustomStepTemplates "true" `
+    -OverwriteExistingLifecyclesPhases "true" `
+    -CloneProjectChannelRules "true" `
+    -CloneTeamUserRoleScoping "true" `
+    -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
+    -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
+    -CloneProjectDeploymentProcess "true"
+    -ProcessEnvironmentScopingMatch "SkipUnlessExactMatch" `
+    -ProcessChannelScopingMatch "SkipUnlessExactMatch" `
+    -ProcessTenantTagsScopingMatch "SkipUnlessExactMatch" `
+    -VariableChannelScopingMatch "SkipUnlessExactMatch" `
+    -VariableEnvironmentScopingMatch "SkipUnlessExactMatch" `
+    -VariableProcessOwnerScopingMatch "SkipUnlessExactMatch" `
+    -VariableActionScopingMatch "SkipUnlessExactMatch" `
+    -VariableMachineScopingMatch "SkipUnlessExactMatch" `
+    -VariableAccountScopingMatch "SkipUnlessExactMatch" `
+    -VariableCertificateScopingMatch "SkipUnlessExactMatch" `
+    -VariableTenantTagsScopingMatch "SkipUnlessExactMatch" `
+    -InfrastructureEnvironmentScopingMatch "SkipUnlessExactMatch" `
+    -InfrastructureTenantScopingMatch "SkipUnlessExactMatch" `
+    -InfrastructureTenantTagsScopingMatch "SkipUnlessExactMatch" `
+    -ProcessCloningOption "SourceOnly" `
+```
+
+# Example - Main instance with separate production instances
+
+This example will clone a specific project between with a separate production-only instance.
+
+Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
+
+The other options are:
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
+- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.  
+- `OverwriteExistingLifecyclesPhases` - Set to `NeverCloneLifecyclePhases` as the two instances will have different phases.
+- `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
+- `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
+- `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
+- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
+- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
+- `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
+- `CloneProjectLogos` - set to `true` as you'll want to copy over the project logo.
+- `CloneTenantLogos` - set to `true` as you'll want to copy over the tenant logos.
+
+The scoping options are:
+- `ProcessEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
+- `ProcessChannelScopingMatch` - set to `SkipUnlessPartialMatch` 
+- `ProcessTenantScopingMatch` - set to `SkipUnlessExactMatch`
+- `VariableChannelScopingMatch` - set to `SkipUnlessExactMatch` 
+- `VariableEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
+- `VariableProcessOwnerScopingMatch` - set to `SkipUnlessPartialMatch` 
+- `VariableActionScopingMatch` - set to `SkipUnlessPartialMatch` 
+- `VariableMachineScopingMatch` - set to `SkipUnlessExactMatch` 
+- `VariableAccountScopingMatch` - set to `SkipUnlessExactMatch` 
+- `VariableCertificateScopingMatch` - set to `SkipUnlessExactMatch`
+- `VariableTenantScopingMatch` - set to `SkipUnlessExactMatch`
+- `InfrastructureEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
 - `InfrastructureTenantScopingMatch` - set to `SkipUnlessExactMatch`
 
 Deployment Process Option:
@@ -152,87 +250,13 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -CloneProjectChannelRules "true" `
     -CloneTeamUserRoleScoping "true" `
     -CloneProjectRunbooks "true" `
+    -CloneProjectLogos "true" `
     -CloneTenantVariables "true" `
-    -CloneProjectDeploymentProcess "true"
-    -ProcessEnvironmentScopingMatch "SkipUnlessExactMatch" `
-    -ProcessChannelScopingMatch "SkipUnlessExactMatch" `
-    -VariableChannelScopingMatch "SkipUnlessExactMatch" `
-    -VariableEnvironmentScopingMatch "SkipUnlessExactMatch" `
-    -VariableProcessOwnerScopingMatch "SkipUnlessExactMatch" `
-    -VariableActionScopingMatch "SkipUnlessExactMatch" `
-    -VariableMachineScopingMatch "SkipUnlessExactMatch" `
-    -VariableAccountScopingMatch "SkipUnlessExactMatch" `
-    -VariableCertificateScopingMatch "SkipUnlessExactMatch" `
-    -InfrastructureEnvironmentScopingMatch "SkipUnlessExactMatch" `
-    -InfrastructureTenantScopingMatch "SkipUnlessExactMatch" `
-    -ProcessCloningOption "SourceOnly" `
-```
-
-# Example - Main instance with separate production instances
-
-This example will clone a specific project between with a separate production-only instance.
-
-Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
-
-The other options are:
-- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.
-- `OverwriteExistingCustomStepTemplates` - Set to `True` so the step templates are kept in sync. You might have made some recent changes to the step template.  It is important to keep them up to date.  
-- `OverwriteExistingLifecyclesPhases` - Set to `NeverCloneLifecyclePhases` as the two instances will have different phases.
-- `CloneProjectChannelRules` - set to `true` as you'll want to include the channel rules with the project.
-- `CloneTeamUserRoleScoping` - set to `true` as you'll want to include all the scoped permissions with the teams.
-- `CloneProjectVersioningReleaseCreationSettings` - set to `true` as you'll want to include the release creation settings.
-- `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
-- `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
-- `CloneTenantVariables` - set to `true` as you'll want to include the tenant variables.
-
-The scoping options are:
-- `ProcessEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `ProcessChannelScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `VariableChannelScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `VariableEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `VariableProcessOwnerScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `VariableActionScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `VariableMachineScopingMatch` - set to `SkipUnlessExactMatch` 
-- `VariableAccountScopingMatch` - set to `SkipUnlessExactMatch` 
-- `VariableCertificateScopingMatch` - set to `SkipUnlessExactMatch`
-- `InfrastructureEnvironmentScopingMatch` - set to `SkipUnlessPartialMatch` 
-- `InfrastructureTenantScopingMatch` - set to `SkipUnlessPartialMatch`
-
-Deployment Process Option:
-- `ProcessCloningOption` - Set it to `SourceOnly` as the instances are a 1:1 mirror.
-
-```PowerShell
-CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
-    -SourceOctopusApiKey "SOME KEY" `
-    -SourceSpaceName "My Space Name" `
-    -DestinationOctopusUrl "https://instance2.yoursite.com" `
-    -DestinationOctopusApiKey "My Key" `
-    -DestinationSpaceName "My Space Name" `
-    -EnvironmentsToClone "all" `
-    -WorkerPoolsToClone "all" `
-    -ProjectGroupsToClone "all" `
-    -TenantTagsToClone "all" `
-    -ExternalFeedsToClone "all" `
-    -StepTemplatesToClone "all" `
-    -InfrastructureAccountsToClone "all" `
-    -MachinePoliciesToClone "all" `
-    -LibraryVariableSetsToClone "AWS*,Global,Notification,SQL Server" `
-    -LifeCyclesToClone "all" `
-    -ProjectsToClone "Redgate - Feature Branch Example" `
-    -TenantsToClone "all" `
-    -SpaceTeamsToClone "all" `
-    -PackagesToClone "Redgate.*" `
-    -CertificatesToClone "MyCert::CertPassword,OtherCertName::OtherCertPassword" `
-    -OverwriteExistingVariables "false" `
-    -OverwriteExistingCustomStepTemplates "true" `
-    -OverwriteExistingLifecyclesPhases "true" `
-    -CloneProjectChannelRules "true" `
-    -CloneTeamUserRoleScoping "true" `
-    -CloneProjectRunbooks "true" `
-    -CloneTenantVariables "true" `
+    -CloneTenantLogos "true" `
     -CloneProjectDeploymentProcess "true"
     -ProcessEnvironmentScopingMatch "SkipUnlessPartialMatch" `
     -ProcessChannelScopingMatch "SkipUnlessPartialMatch" `
+    -ProcessTenantTagsScopingMatch "SkipUnlessExactMatch" `
     -VariableChannelScopingMatch "SkipUnlessPartialMatch" `
     -VariableEnvironmentScopingMatch "SkipUnlessPartialMatch" `
     -VariableProcessOwnerScopingMatch "SkipUnlessPartialMatch" `
@@ -240,7 +264,9 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -VariableMachineScopingMatch "SkipUnlessExactMatch" `
     -VariableAccountScopingMatch "SkipUnlessExactMatch" `
     -VariableCertificateScopingMatch "SkipUnlessExactMatch" `
+    -VariablesTenantTagsScopingMatch "SkipUnlessExactMatch" `
     -InfrastructureEnvironmentScopingMatch "SkipUnlessPartialMatch" `
     -InfrastructureTenantScopingMatch "SkipUnlessPartialMatch" `
+    -InfrastructureTenantTagsScopingMatch "SkipUnlessExactMatch" `
     -ProcessCloningOption "SourceOnly" `
 ```
