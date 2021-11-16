@@ -58,6 +58,8 @@ param (
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Logging.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "Util.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "FilteredLists.ps1"))
+. ([System.IO.Path]::Combine($PSScriptRoot, "src", "Core", "ParameterVerification.ps1"))
 
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataAdapter.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusDataFactory.ps1"))
