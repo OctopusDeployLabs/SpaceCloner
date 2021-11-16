@@ -370,7 +370,8 @@ function Add-PropertyIfMissing
         $objectToTest,
         $propertyName,
         $propertyValue,
-        $overwriteIfExists)
+        $overwriteIfExists
+    )
     
     if ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false)
     {            
@@ -378,7 +379,7 @@ function Add-PropertyIfMissing
 
         return $true
     }
-    elseif ($null -ne $overwriteIfExists -and $overwriteIfExists -eq $true -and ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false))
+    elseif ([string]::IsNullOrWhiteSpace($overwriteIfExists) -eq $false -and $overwriteIfExists.ToString() -eq "$true" -and ((Test-OctopusObjectHasProperty -objectToTest $objectToTest -propertyName $propertyName) -eq $false))
     {
         $objectToTest.$propertyName = $propertyValue
 

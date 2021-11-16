@@ -115,7 +115,7 @@ function Test-OctopusOverwriteExistingVariablesParameter
         return $false
     }
 
-    if ($parameterValue -ne $true -and $parameterValue -ne $false -and $parameterValue.ToLower().Trim() -ne "addnewwithdefaultvalue")
+    if ($parameterValue.ToString() -ne "$true" -and $parameterValue.ToString() -ne "$false" -and $parameterValue.ToString().ToLower().Trim() -ne "addnewwithdefaultvalue")
     {
         Write-OctopusCritical "The parameter OverwriteExistingVariables is set to $parameterValue.  Acceptable values are $true, $false or AddNewWithDefaultValue"
         exit 1

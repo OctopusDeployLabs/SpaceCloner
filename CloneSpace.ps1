@@ -34,10 +34,10 @@ param (
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess,
-    $IgnoreVersionCheckResult,
-    $SkipPausingWhenIgnoringVersionCheckResult,
-    $CloneTenantVariables,
+    $CloneProjectDeploymentProcess,    
+    $CloneProjectLogos,
+    $CloneTenantLogos, 
+    $CloneTenantVariables,       
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
     $ProcessTenantTagScopingMatch,
@@ -53,6 +53,8 @@ param (
     $InfrastructureTenantScopingMatch,
     $InfrastructureTenantTagScopingMatch,
     $ProcessCloningOption,    
+    $IgnoreVersionCheckResult,
+    $SkipPausingWhenIgnoringVersionCheckResult,
     $WhatIf
 )
 
@@ -107,7 +109,9 @@ $CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $ClonePro
 $CloneTeamUserRoleScoping = Test-OctopusTrueFalseParameter -parameterValue $CloneTeamUserRoleScoping -parameterName "CloneTeamUserRoleScoping" -defaultValue $false
 $CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
 $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
-$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
+$CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
+$CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 
 $RunbooksToClone = Test-OctopusNewListParameter -parameterValue $RunbooksToClone -parameterName "RunbooksToClone"
@@ -172,7 +176,9 @@ $CloneScriptOptions = @{
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
     CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess; 
-    CloneTenantVariables = $CloneTenantVariables;  
+    CloneTenantVariables = $CloneTenantVariables; 
+    CloneTenantLogos = $CloneTenantLogos;
+    CloneProjectLogos = $CloneProjectLogos; 
     ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
     ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 
     ProcessTenantTagScopingMatch = $ProcessTenantTagScopingMatch;

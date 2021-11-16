@@ -24,7 +24,9 @@ param (
     $CloneTeamUserRoleScoping,
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
-    $CloneProjectDeploymentProcess,    
+    $CloneProjectDeploymentProcess, 
+    $CloneProjectLogos,
+    $CloneTenantLogos,    
     $CloneTenantVariables,
     $ClonePackages,    
     $ProcessEnvironmentScopingMatch,
@@ -67,7 +69,9 @@ $CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $ClonePro
 $CloneTeamUserRoleScoping = Test-OctopusTrueFalseParameter -parameterValue $CloneTeamUserRoleScoping -parameterName "CloneTeamUserRoleScoping" -defaultValue $false
 $CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
 $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
-$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
+$CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
+$CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 $ClonePackages = Test-OctopusTrueFalseParameter -parameterValue $ClonePackages -parameterName "ClonePackages" -defaultValue $false
 
@@ -692,6 +696,8 @@ Write-OctopusSuccess "  -CloneProjectChannelRules $CloneProjectChannelRules"
 Write-OctopusSuccess "  -CloneProjectRunbooks $CloneProjectRunbooks"
 Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $CloneProjectVersioningReleaseCreationSettings"
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
+Write-OctopusSuccess "  -CloneProjectLogos $CloneProjectLogos"
+Write-OctopusSuccess "  -CloneTenantLogos $CloneTenantLogos"
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
 Write-OctopusSuccess "  -CloneTenantVariables $CloneTenantVariables"
@@ -745,6 +751,8 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectRunbooks "$CloneProjectRunbooks" `
     -CloneProjectVersioningReleaseCreationSettings "$CloneProjectVersioningReleaseCreationSettings" `
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
+    -CloneProjectLogos "$CloneProjectLogos" `
+    -CloneTenantLogos "$CloneTenantLogos" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
     -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
     -CloneTenantVariables "$CloneTenantVariables" `

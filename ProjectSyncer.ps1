@@ -10,6 +10,7 @@ param (
     $CloneProjectChannelRules,
     $CloneProjectVersioningReleaseCreationSettings,
     $CloneProjectDeploymentProcess,
+    $CloneProjectLogos,    
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
     $ProcessTenantTagScopingMatch,
@@ -55,7 +56,8 @@ $OverwriteExistingVariables = Test-OctopusOverwriteExistingVariablesParameter -p
 $CloneProjectRunbooks = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectRunbooks -parameterName "CloneProjectRunbooks" -defaultValue $true
 $CloneProjectChannelRules = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectChannelRules -parameterName "CloneProjectChannelRules" -defaultValue $false
 $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectVersioningReleaseCreationSettings -parameterName "CloneProjectVersioningReleaseCreationSettings" -defaultValue $false
-$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $false
+$CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
+$CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
 
 $ProcessCloningOption = Test-OctopusProcessCloningParameter -ParameterValue $ProcessCloningOption
 $ProcessEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "ProcessEnvironmentScopingMatch" -ParameterValue $ProcessEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -82,6 +84,7 @@ $CloneScriptOptions = @{
     CloneProjectChannelRules = $CloneProjectChannelRules;
     CloneProjectVersioningReleaseCreationSettings = $CloneProjectVersioningReleaseCreationSettings;
     CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess;
+    CloneProjectLogos = $CloneProjectLogos;
     ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
     ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 
     ProcessTenantTagScopingMatch = $ProcessTenantTagScopingMatch;

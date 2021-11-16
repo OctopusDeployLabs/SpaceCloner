@@ -160,7 +160,7 @@ function Copy-OctopusVariableSetValues
                 Write-OctopusPostCloneCleanUp "The variable $variableName is a sensitive variable, value set to 'Dummy Value'"
             }
             
-            if ($CloneScriptOptions.OverwriteExistingVariables.ToLower().Trim() -eq "addnewwithdefaultvalue")
+            if ($CloneScriptOptions.OverwriteExistingVariables.ToString().ToLower().Trim() -eq "addnewwithdefaultvalue")
             {
                 Write-OctopusPostCloneCleanUp "The variable $variableName is a new variable and the OverwriteExistingVariables was set to AddNewWithDefaultValue, adding value set to 'REPLACE ME'"
                 $octopusVariable.Value = "REPLACE ME"
@@ -173,7 +173,7 @@ function Copy-OctopusVariableSetValues
 
             $DestinationVariableSetVariables.Variables += $octopusVariable
         }
-        elseif ($variableMatchType -eq "ScopeMatch" -and $CloneScriptOptions.OverwriteExistingVariables -ne $true)
+        elseif ($variableMatchType -eq "ScopeMatch" -and $CloneScriptOptions.OverwriteExistingVariables.ToString() -ne "$true")
         {
             Write-OctopusVerbose "The variable $variableName already exists on the destination with matching scope and you elected to only copy over new items, skipping this one."
             Write-OctopusChangeLog "      - $variableName already exists with the following scope, skipping"
