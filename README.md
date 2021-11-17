@@ -90,10 +90,23 @@ The Space Cloner leverages the Octopus Deploy API.  That limits what it can and 
 - As a user, I want to merge multiple Octopus Deploy instances into the same space on a new instance.  That scenario, merging multiple disparate instances into one massive space, is not recommended.  The chance of overwriting something meaningful is very high.  Just like steering a car with your knees, while possible, it is not recommended.
 
 ## Unsupported
-The use cases for the space cloner is centered around repeated runs between two spaces.  It wasn't intended to keep two instances fully in sync.  It won't clone:
-- Users (the API cannot copy passwords as it doesn't have access to them)
+The use cases for the space cloner is centered around repeately running the cloning script.  However, it wasn't intended to keep two instances fully in sync.  
+
+It won't clone:
+- Users 
 - User Roles
-- Server Settings (folders, JIRA, auth options, etc).  Most of those have some sort or password associated with them, which is never returned in the API.
+- Server Settings (folders, JIRA, auth options, etc).  
+- Releases, Deployments, Runbook Snapshots, and Runbook Runs.
+
+That is due to a few reasons.
+- Octopus Deploy REST API Limits
+    - Sensitive values, such as passwords, are not returned from the REST API.
+    - Creating releases and runbook snapshots snapshots the process and variables as it exists today.  That means it cannot copy a release created six months ago on the source instance.
+    - Task logs, artifacts, and task history cannot be cloned, they are created during a runbook run or deployment.
+    - Creating a deployment or runbook run will cause an actual runbook run or deployment to occur.
+- Security Concerns
+    - Server Manager or higher permissions are required to create users, user roles and modify server settings.  Server managers can also modify any space or project.  That means sharing an API key of a user who has that permission, which is not recommended.
+
 
 # How the space cloner works
 Please see the [how it works page](docs/HowItWorks.md).
