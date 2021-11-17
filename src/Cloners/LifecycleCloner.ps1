@@ -21,7 +21,7 @@ function Copy-OctopusLifecycles
 
         $matchingItem = Get-OctopusItemByName -ItemName $lifecycle.Name -ItemList $destinationData.LifeCycleList   
 
-        if ($null -ne $matchingItem -and ($CloneScriptOptions.OverwriteExistingLifecyclesPhases -eq $false -or $CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToLower().Trim() -eq "neverclonelifecyclephases"))             
+        if ($null -ne $matchingItem -and ($CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToString() -eq "$false" -or $CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToLower().Trim() -eq "neverclonelifecyclephases"))             
         {
             Write-OctopusVerbose "Lifecycle already exists and you selected not to overwrite phases, skipping"
             Write-OctopusChangeLog " - $($lifecycle.Name) already exists, option set to not overwrite, skipping"
@@ -39,7 +39,7 @@ function Copy-OctopusLifecycles
         {            
             Write-OctopusChangeLog " - Add $($lifecycle.Name)"    
 
-            if ($CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToLower().Trim() -eq "neverclonelifecyclephases")
+            if ($CloneScriptOptions.OverwriteExistingLifecyclesPhases.ToString().ToLower().Trim() -eq "neverclonelifecyclephases")
             {
                 Write-OctopusVerbose "Overwrite Existing Lifecycle phases was set to NeverCloneLifeCyclePhases, setting the retention policies and moving onto the next lifecycle."
 
@@ -49,9 +49,9 @@ function Copy-OctopusLifecycles
 
                 $updatedLifecycle = Save-OctopusLifecycle -lifecycle $lifeCycleToClone -destinationData $DestinationData  
                 $destinationData.LifeCycleList = Update-OctopusList -itemList $destinationData.LifeCycleList -itemToReplace $updatedLifecycle
-            }
 
-            continue
+                continue
+            }            
         }      
 
         $phasesWithNoEnvironmentsCount = 0
