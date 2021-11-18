@@ -49,16 +49,27 @@ function Get-OctopusItemById
         $ItemId
         ) 
         
-    Write-OctopusVerbose "Attempting to find $ItemId in the item list of $($ItemList.Length) item(s)"
+    Write-OctopusVerbose "Attempting to find $ItemId in the item list of $($ItemList.Length) item(s)"        
 
-    foreach($item in $ItemList)
+    $itemListConverted = @($ItemList)
+
+    if ($null -eq $itemListConverted)
     {
-        Write-OctopusVerbose "Checking to see if $($item.Id) matches with $ItemId"
-        if ($item.Id -eq $ItemId)
-        {
-            Write-OctopusVerbose "The Ids match, return the item $($item.Name)"
-            return $item
-        }
+        Write-OctopusVerbose "Unable to find $itemId in the list because the list is null"
+        return $null
+    }
+
+    if ($itemListConverted.Count -eq 0)
+    {
+        Write-OctopusVerbose "Unable to find $ItemId in the list because the list is empty"
+        return $null
+    }
+
+    $matchingItem = $itemListConverted | Where-Object {$_.Id -eq $itemId}
+    if ($null -ne $matchingItem)
+    {
+        Write-OctopusVerbose "Found matching id, returning the item $($matchingItem[0].Name)"
+        return $matchingItem[0]
     }
 
     Write-OctopusVerbose "No match found returning null"

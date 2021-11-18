@@ -29,12 +29,6 @@ function Copy-OctopusWorkerPools
             continue
         }
 
-        if ($DestinationData.OctopusUrl -like "*.octopus.app" -and $SourceData.OctopusUrl -notlike "*.octopus.app" -and $workerPool.IsDefault -eq $true)
-        {
-            Write-OctopusWarning "The source is self-hosted, the destination is Octopus Cloud, and the worker pool is the default.  Skipping."
-            continue
-        }
-
         Write-OctopusVerbose "Starting Clone of Worker Pool $($workerPool.Name)"
         
         $matchingItem = Get-OctopusItemByName -ItemName $workerPool.Name -ItemList $destinationData.WorkerPoolList
@@ -45,6 +39,12 @@ function Copy-OctopusWorkerPools
             Write-OctopusChangeLog " - Add $($WorkerPool.Name)"
             
             $copyOfItemToClone = Copy-OctopusObject -ItemToCopy $workerpool -SpaceId $destinationData.SpaceId -ClearIdValue $true    
+
+            if ($DestinationData.OctopusUrl.ToLower().Trim() -like "*.octopus.app" -and $SourceData.OctopusUrl.ToLower().Trim() -notlike "*.octopus.app" -and $copyOfItemToClone.IsDefault -eq $true)
+            {
+                $copyOfItemToClone.IsDefault = $false
+                Write-OctopusVerbose "Cloning from self-hosted to the cloud and this worker pool is marked as the default.  Updating to be not the default."
+            }
 
             $added = Add-PropertyIfMissing -objectToTest $copyOfItemToClone -propertyName "WorkerPoolType" -propertyValue "StaticWorkerPool"                  
 

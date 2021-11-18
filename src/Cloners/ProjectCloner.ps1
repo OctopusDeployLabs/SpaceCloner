@@ -207,7 +207,13 @@ function Get-OctopusProjectReferencedVariableSets
 
         if ($null -ne $sourceVariableSet)
         {
-            $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Variable Sets" -MatchingOption "ErrorUnlessExactMatch"
+            $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $SourceVariableSetId -ItemName "$($project.Name) Variable Sets" -MatchingOption "IgnoreMismatch"
+
+            if ($null -eq $matchingVariableSetId)
+            {
+                Write-OctopusCritical "The variable set $($sourceVariableSet.Name) could not be found on the destination instance.  Your deployments might fail because variables are missing.  Continuing as you might have intentionally skipped this variable set."
+                continue
+            }
 
             $returnList += $matchingVariableSetId
         }

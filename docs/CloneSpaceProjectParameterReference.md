@@ -59,6 +59,10 @@ Channels
 - `ChannelsToInclude`: The list of channels to include from this clone. The default is `all`.
 - `ChannelsToExclude`: The list of channels to exclude from this clone. The default is `$null`.
 
+Library Variable Sets
+- `LibraryVariableSetsToInclude`: The list of channels to include from this clone. The default is `all`.
+- `LibraryVariableSetsToExclude`: The list of channels to exclude from this clone. The default is `$null`.
+
 ## Scoping Match Options
 
 Imagine if your source instance had the environments `Development` and `Test` while the destination only had `Production`.  You have a step scoped to only run on `Development`.  When that step is cloned over what should it do?

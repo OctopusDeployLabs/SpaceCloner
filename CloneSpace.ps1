@@ -101,6 +101,8 @@ param (
 
 $ErrorActionPreference = "Stop"
 
+$cloneStartDateTime = Get-Date
+
 $OverwriteExistingVariables = Test-OctopusOverwriteExistingVariablesParameter -parameterValue $OverwriteExistingVariables -parameterName "OverwriteExistingVariables" -defaultValue $false
 $OverwriteExistingCustomStepTemplates = Test-OctopusTrueFalseParameter -parameterValue $OverwriteExistingCustomStepTemplates -parameterName "OverwriteExistingCustomStepTemplates" -defaultValue $false
 $OverwriteExistingLifecyclesPhases = Test-OctopusOverwriteExistingLifecyclesPhasesParameter -parameterValue $OverwriteExistingLifecyclesPhases
@@ -256,3 +258,8 @@ $cleanupLogPath = Get-OctopusCleanUpLogPath
 
 Write-OctopusSuccess "The script to clone $SourceSpaceName from $SourceOctopusUrl to $DestinationSpaceName in $DestinationOctopusUrl has completed.  Please see $logPath for more details."
 Write-OctopusWarning "You have post clean-up tasks to finish.  Any sensitive variables or encrypted values were created with dummy values which you must replace.  Please see $cleanUpLogPath for a list of items to fix."
+
+$cloneEndDateTime = Get-Date
+$cloneElapsedTime = New-TimeSpan $cloneStartDateTime $cloneEndDateTime
+
+Write-OctopusSuccess "It took $($cloneElapsedTime.Hours):$($cloneElapsedTime.Minutes):$($cloneElapsedTime.Seconds).$($cloneElapsedTime.Milliseconds) for the clone to finish."

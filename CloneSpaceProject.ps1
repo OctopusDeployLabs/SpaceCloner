@@ -17,6 +17,8 @@ param (
     $TenantsToInclude,
     $ChannelsToInclude,
     $ChannelsToExclude,    
+    $LibraryVariableSetsToInclude,
+    $LibraryVariableSetsToExclude,
     $OverwriteExistingVariables,    
     $OverwriteExistingCustomStepTemplates,
     $OverwriteExistingLifecyclesPhases,
@@ -101,6 +103,7 @@ $WorkersToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $W
 $TargetsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TargetsToInclude -excludeFilters $TargetsToExclude -parameterName "Target" -DefaultIncludeFilter "$null"
 $TenantsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $TenantsToInclude -excludeFilters $TenantsToExclude -parameterName "Tenants" -DefaultIncludeFilter "all"
 $ChannelsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $ChannelsToInclude -excludeFilters $ChannelsToExclude -parameterName "Channels" -DefaultIncludeFilter "all"
+$LibraryVariableSetsToInclude = Test-OctopusIncludeExcludeFilterParameter -includeFilters $LibraryVariableSetsToInclude -excludeFilters $LibraryVariableSetsToExclude -parameterName "Library Variable Sets" -DefaultIncludeFilter "all"
 
 $cloneSpaceCommandLineOptions = @{
     EnvironmentsToClone = $null;
@@ -579,6 +582,7 @@ $tenantListToExclude = Get-OctopusExclusionList -itemList $sourceData.TenantList
 $envrionmentListToExclude = Get-OctopusExclusionList -itemList $sourceData.EnvironmentList -itemType "Environments" -filters $environmentsToExclude -includeFilters $EnvironmentsToInclude
 $workerListToExclude = Get-OctopusExclusionList -itemList $sourceData.WorkerList -itemType "Workers" -filters $WorkersToExclude -includeFilters $WorkersToInclude
 $targetListToExclude = Get-OctopusExclusionList -itemList $sourceData.TargetList -itemType "Targets" -filters $TargetsToExclude -includeFilters $TargetsToInclude
+$variableSetListToExclude = Get-OctopusExclusionList -itemList $sourceData.VariableSetList -itemType "Library Variable Sets" -filters $LibraryVariableSetsToExclude -includeFilters $LibraryVariableSetsToInclude
 
 Write-OctopusSuccess "Building all project list to clone"
 $projectListToClone = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $ProjectsToClone
@@ -602,6 +606,12 @@ foreach ($project in $projectListToClone)
         }
         elseif ($null -ne $variableSet)
         {
+            if (Get-OctopusIsInExclusionList -exclusionList $variableSetListToExclude -itemName $($variableSet.Name))
+            {
+                Write-OctopusVerbose "      The variable set $($variableSet.Name) was in the exclusion list, skipping."
+                continue
+            }
+            
             Write-OctopusSuccess "      Adding the variable set $($variableSet.Name) to the items variable sets to clone"
             $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone = Add-OctopusIdToCloneList -itemId $variableSetId -itemType "Library Variable Set" -destinationList $cloneSpaceCommandLineOptions.LibraryVariableSetsToClone -sourceList $sourceData.VariableSetList -exclusionList @()
             $sourceVariableSetVariables = Get-OctopusVariableSetVariables -variableSet $variableSet -OctopusData $sourceData
