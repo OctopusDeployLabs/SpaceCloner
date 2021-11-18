@@ -135,7 +135,7 @@ function Test-OctopusNewListParameter
 
     if ([string]::IsNullOrWhiteSpace($parameterValue))
     {
-        Write-OctopusWarning "The paramter $parameterName is empty or null but this is a paramter you previously didn't have to set.  Setting to 'all' so it doesn't break your existing clone."
+        Write-OctopusWarning "The parameter $parameterName is empty or null but this is a parameter you previously didn't have to set.  Setting to 'all' so it doesn't break your existing clone."
         return "all"
     }
 

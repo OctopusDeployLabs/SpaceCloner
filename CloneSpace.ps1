@@ -116,9 +116,6 @@ $CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjec
 $CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 
-$RunbooksToClone = Test-OctopusNewListParameter -parameterValue $RunbooksToClone -parameterName "RunbooksToClone"
-$ChannelsToClone = Test-OctopusNewListParameter -parameterValue $ChannelsToClone -parameterName "ChannelsToClone"
-
 if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -eq "all")
 {
     Write-OctopusCritical "The parameter CertificatesToClone is set to 'all'.  That is the one parameter that cannot be set to all.  You must specify specific certificates to clone with their password."
