@@ -132,6 +132,20 @@ function Copy-OctopusVariableSetValues
             $octopusVariable.Value = $newCertificateId
         }
 
+        if ($octopusVariable.Type -eq "WorkerPool")
+        {
+            Write-OctopusVerbose "$variableName is an worker pool value, converting to a worker pool type"
+
+            $newWorkerPoolId = Convert-SourceIdToDestinationId -SourceList $sourceData.WorkerPoolList -DestinationList $destinationData.WorkerPoolList -IdValue $octopusVariable.Value -ItemName "$($octopusVariable.Name) Worker Pool" -MatchingOption $CloneScriptOptions.VariableWorkerPoolScopingMatch
+
+            if ($null -eq $newWorkerPoolId -and $CloneScriptOptions.VariableWorkerPoolScopingMatch.ToLower().Trim() -eq "skippunlessexactmatch")
+            {
+                continue
+            }
+
+            $octopusVariable.Value = $newWorkerPoolId
+        }
+
         if ($octopusVariable.IsSensitive -eq $true)
         {
             $octopusVariable.Value = "Dummy Value"
@@ -162,8 +176,16 @@ function Copy-OctopusVariableSetValues
             
             if ($CloneScriptOptions.OverwriteExistingVariables.ToString().ToLower().Trim() -eq "addnewwithdefaultvalue")
             {
-                Write-OctopusPostCloneCleanUp "The variable $variableName is a new variable and the OverwriteExistingVariables was set to AddNewWithDefaultValue, adding value set to 'REPLACE ME'"
-                $octopusVariable.Value = "REPLACE ME"
+                if ($octopusVariable.Type -eq "String")
+                {
+                    Write-OctopusPostCloneCleanUp "The variable $variableName is a new variable and the OverwriteExistingVariables was set to AddNewWithDefaultValue, adding value set to 'REPLACE ME'"
+                    $octopusVariable.Value = "REPLACE ME"
+                }
+                elseif ($octopusVariable.IsSensitive -eq $false)                                
+                {
+                    Write-OctopusPostCloneCleanUp "The variable $variableName is a new variable and the OverwriteExistingVariables was set to AddNewWithDefaultValue, but the variable is not a string, setting it to an empty value"
+                    $octopusVariable.Value = ""
+                }
             }
 
             Write-OctopusChangeLog "      - Add $variableName with value $($octopusVariable.Value)"

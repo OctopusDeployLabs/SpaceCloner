@@ -48,6 +48,12 @@ function Get-OctopusItemById
         $ItemList,
         $ItemId
         ) 
+
+    if ([string]::IsNullOrWhiteSpace($ItemId) -eq $true)
+    {
+        Write-OctopusCritical "The sent in item id was $null.  Ids should not be null and you will get an error at some point.  Stopping this clone so you can fix the issue."
+        exit 1
+    }
         
     Write-OctopusVerbose "Attempting to find $ItemId in the item list of $($ItemList.Length) item(s)"        
 

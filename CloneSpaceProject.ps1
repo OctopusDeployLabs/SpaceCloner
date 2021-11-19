@@ -42,6 +42,7 @@ param (
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
     $VariableTenantTagScopingMatch,
+    $VariableWorkerPoolScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
     $InfrastructureTenantScopingMatch,
     $InfrastructureTenantTagScopingMatch,
@@ -89,6 +90,7 @@ $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "V
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableWorkerPoolScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableWorkerPoolScopingMatch" -ParameterValue $VariableWorkerPoolScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $true
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -722,6 +724,7 @@ Write-OctopusSuccess "  -VariableMachineScopingMatch $VariableMachineScopingMatc
 Write-OctopusSuccess "  -VariableAccountScopingMatch $VariableAccountScopingMatch"
 Write-OctopusSuccess "  -VariableCertificateScopingMatch $VariableCertificateScopingMatch"
 Write-OctopusSuccess "  -VariableTenantTagScopingMatch $VariableTenantTagScopingMatch"
+Write-OctopusSuccess "  -VariableWorkerPoolScopingMatch $VariableWorkerPoolScopingMatch"
 Write-OctopusSuccess "  -InfrastructureEnvironmentScopingMatch $InfrastructureEnvironmentScopingMatch"
 Write-OctopusSuccess "  -InfrastructureTenantScopingMatch $InfrastructureTenantScopingMatch"
 Write-OctopusSuccess "  -InfrastructureTenantTagScopingMatch $InfrastructureTenantTagScopingMatch"
@@ -778,6 +781,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -VariableAccountScopingMatch "$VariableAccountScopingMatch" `
     -VariableCertificateScopingMatch "$VariableCertificateScopingMatch" `
     -VariableTenantTagScopingMatch "$VariableTenantTagScopingMatch" `
+    -VariableWorkerPoolScopingMatch "$VariableWorkerPoolScopingMatch" `
     -InfrastructureEnvironmentScopingMatch "$InfrastructureEnvironmentScopingMatch" `
     -InfrastructureTenantScopingMatch "$InfrastructureTenantScopingMatch" `
     -InfrastructureTenantTagScopingMatch "$InfrastructureTenantTagScopingMatch" `

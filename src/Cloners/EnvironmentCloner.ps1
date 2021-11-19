@@ -30,7 +30,7 @@ function Copy-OctopusEnvironments
 
             $newEnvironment = Save-OctopusEnvironment -environment $copyOfItemToClone -DestinationData $destinationData            
 
-            $destinationData.EnvironmentList += $newEnvironment
+            $destinationData.EnvironmentList = Update-OctopusList -itemList $destinationData.EnvironmentList -itemToReplace $newEnvironment
         }
         else 
         {

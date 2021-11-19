@@ -76,7 +76,7 @@ function Copy-OctopusTargets
             Convert-OctopusTargetTenantedDeploymentParticipation -target $copyOfItemToClone
 
             $newOctopusTarget = Save-OctopusTarget -target $copyOfItemToClone -destinationdata $destinationData
-            $destinationData.TargetList += $newOctopusTarget
+            $destinationData.TargetList = Update-OctopusList -itemList $destinationData.TargetList -itemToReplace $newOctopusTarget
         }
         else
         {

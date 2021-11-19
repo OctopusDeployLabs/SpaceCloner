@@ -49,6 +49,7 @@ param (
     $VariableAccountScopingMatch,
     $VariableCertificateScopingMatch,
     $VariableTenantTagScopingMatch,
+    $VariableWorkerPoolScopingMatch,
     $InfrastructureEnvironmentScopingMatch,
     $InfrastructureTenantScopingMatch,
     $InfrastructureTenantTagScopingMatch,
@@ -135,6 +136,7 @@ $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "V
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
+$VariableWorkerPoolScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableWorkerPoolScopingMatch" -ParameterValue $VariableWorkerPoolScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $true
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -188,7 +190,8 @@ $CloneScriptOptions = @{
     VariableMachineScopingMatch = $VariableMachineScopingMatch;
     VariableAccountScopingMatch = $VariableAccountScopingMatch;
     VariableCertificateScopingMatch = $VariableCertificateScopingMatch;
-    VariableTenantTagScopingMatch = $VariableTenantTagScopingMatch;
+    VariableWorkerPoolScopingMatch = $VariableWorkerPoolScopingMatch;
+    VariableTenantTagScopingMatch = $VariableTenantTagScopingMatch;    
     InfrastructureEnvironmentScopingMatch = $InfrastructureEnvironmentScopingMatch;
     InfrastructureTenantScopingMatch = $InfrastructureTenantScopingMatch;
     InfrastructureTenantTagScopingMatch = $InfrastructureTenantTagScopingMatch;

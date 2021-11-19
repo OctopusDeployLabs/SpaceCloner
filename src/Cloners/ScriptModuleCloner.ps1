@@ -35,7 +35,7 @@ function Copy-OctopusScriptModules
             $copyscriptModule.VariableSetId = $null
             
             $destinationVariableSet = Save-OctopusVariableSet -libraryVariableSet $copyscriptModule -destinationData $destinationData
-            $destinationData.ScriptModuleList += $destinationVariableSet            
+            $destinationData.ScriptModuleList = Update-OctopusList -itemList $destinationData.ScriptModuleList -itemToReplace $destinationVariableSet
         }
         else
         {

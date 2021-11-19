@@ -50,7 +50,7 @@ function Copy-OctopusSpaceTeams
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Members" -idList $copyOfItemToClone.MemberUserIds -destinationList $DestinationData.UserList            
 
             $newOctopusTeam = Save-OctopusTeam -team $copyOfItemToClone -destinationData $destinationData            
-            $destinationData.TeamList += $newOctopusTeam
+            $destinationData.TeamList = Update-OctopusList -itemList $destinationData.TeamList -itemToReplace $newOctopusTeam
 
             Write-OctopusPostCloneCleanUp "Team $($team.Name) was created, external security groups were cleared."
         }

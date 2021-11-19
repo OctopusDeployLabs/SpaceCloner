@@ -212,9 +212,18 @@ function Copy-OctopusTenantLibraryVariables
 
     foreach ($sourceTenantLibraryVariable in $sourceTenantLibraryVariableList)
     {
-        Write-OctopusVerbose "Attempting to match library variable set Id $($sourceTenantLibraryVariable.Name) with destination Id"
-        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name  -ItemName "$($destinationTenant.Name) Library Variable Set" -MatchingOption "ErrorUnlessExactMatch"
         $libraryVariableSet = Get-OctopusItemById -ItemList $sourceData.VariableSetList -ItemId $sourceTenantLibraryVariable.Name
+        $scriptModuleVariableSet = Get-OctopusItemById -ItemList $sourceData.ScriptModuleList -ItemId $sourceTenantLibraryVariable.Name
+        
+        if ($null -ne $scriptModuleVariableSet)
+        {
+            Write-OctopusVerbose "The variable set associated with the tenant is in fact a script module.  Skipping ot the next variable set."
+            continue
+        }
+
+        Write-OctopusVerbose "Attempting to match library variable set Id $($libraryVariableSet.Name) with destination Id"
+        $matchingVariableSetId = Convert-SourceIdToDestinationId -SourceList $sourceData.VariableSetList -DestinationList $destinationData.VariableSetList -IdValue $sourceTenantLibraryVariable.Name  -ItemName "$($libraryVariableSet.Name) Library Variable Set" -MatchingOption "ErrorUnlessExactMatch"
+        
         Write-OctopusVerbose "The library variable set id for $($sourceTenantLibraryVariable.Name) on the destination is $matchingVariableSetId"    
 
         if ($destinationTenantVariables.LibraryVariables.$($matchingVariableSetId).Templates.Length -eq 0)

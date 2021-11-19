@@ -33,7 +33,7 @@ function Copy-OctopusTenants
             $tenantToAdd.ProjectEnvironments = @{}                        
 
             $destinationTenant = Save-OctopusTenant -Tenant $tenantToAdd -destinationData $destinationData
-            $destinationData.TenantList += $destinationTenant
+            $destinationData.TenantList = Update-OctopusList -itemList $destinationData.TenantList -itemToReplace $destinationTenant
 
             if ($CloneScriptOptions.CloneTenantLogos -eq $true)
             {

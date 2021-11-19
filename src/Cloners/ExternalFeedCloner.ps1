@@ -28,13 +28,14 @@ function Copy-OctopusExternalFeeds
             
             if ($feed.FeedType -eq "AwsElasticContainerRegistry")
             {
-                Throw "Unable to clone $($feed.Name) because it is an AWS Elastic Container Registry.  When it is created Octopus will test the AWS credentials.  As this is making API calls, I do not have access to said credentials.  Without this feed the remainder of your clone will most likely fail.  Please create the external feed on the destination and try again.  Exiting."
+                Write-OctopusCritical "Unable to clone $($feed.Name) because it is an AWS Elastic Container Registry.  When it is created Octopus will test the AWS credentials.  As this is making API calls, I do not have access to said credentials.  Without this feed the remainder of your clone will most likely fail.  Please create the external feed on the destination and try again.  Exiting."
+                exit 1
             }
 
             Write-OctopusChangeLog " - Add $($feed.Name)"
 
             $newExternalFeed = Save-OctopusExternalFeed -ExternalFeed $copyOfItemToClone -DestinationData $destinationData            
-            $destinationData.FeedList += $newExternalFeed
+            $destinationData.FeedList = Update-OctopusList -itemList $destinationData.FeedList -itemToReplace $newExternalFeed
         }
         else 
         {

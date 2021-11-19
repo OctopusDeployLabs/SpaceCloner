@@ -64,7 +64,7 @@ function Copy-OctopusWorkers
             }
 
             $newOctopusWorker = Save-OctopusWorker -worker $copyOfItemToClone -destinationData $destinationData            
-            $destinationData.WorkerList += $newOctopusWorker
+            $destinationData.WorkerList = Update-OctopusList -itemList $destinationData.WorkerList -itemToReplace $newOctopusWorker
         }
         else 
         {
