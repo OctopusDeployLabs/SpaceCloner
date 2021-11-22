@@ -30,6 +30,7 @@ param (
     $CloneProjectLogos,
     $CloneTenantLogos,    
     $CloneTenantVariables,
+    $CloneStepTemplateLogos,
     $ClonePackages,    
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
@@ -75,6 +76,7 @@ $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter 
 $CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
 $CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
 $CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
+$CloneStepTemplateLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneStepTemplateLogos -parameterName "CloneStepTemplateLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 $ClonePackages = Test-OctopusTrueFalseParameter -parameterValue $ClonePackages -parameterName "ClonePackages" -defaultValue $false
 
@@ -90,7 +92,7 @@ $VariableMachineScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "V
 $VariableAccountScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableAccountScopingMatch" -ParameterValue $VariableAccountScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableCertificateScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableCertificateScopingMatch" -ParameterValue $VariableCertificateScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 $VariableTenantTagScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableTenantTagScopingMatch" -ParameterValue $VariableTenantTagScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
-$VariableWorkerPoolScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableWorkerPoolScopingMatch" -ParameterValue $VariableWorkerPoolScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $true
+$VariableWorkerPoolScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "VariableWorkerPoolScopingMatch" -ParameterValue $VariableWorkerPoolScopingMatch -DefaultValue "SkipUnlessExactMatch" -SingleValueItem $true
 
 $InfrastructureEnvironmentScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureEnvironmentScopingMatch" -ParameterValue $InfrastructureEnvironmentScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
 $InfrastructureTenantScopingMatch = Test-OctopusScopeMatchParameter -ParameterName "InfrastructureTenantScopingMatch" -ParameterValue $InfrastructureTenantScopingMatch -DefaultValue "SkipUnlessPartialMatch" -SingleValueItem $false
@@ -710,6 +712,7 @@ Write-OctopusSuccess "  -CloneProjectVersioningReleaseCreationSettings $ClonePro
 Write-OctopusSuccess "  -CloneProjectDeploymentProcess $CloneProjectDeploymentProcess"
 Write-OctopusSuccess "  -CloneProjectLogos $CloneProjectLogos"
 Write-OctopusSuccess "  -CloneTenantLogos $CloneTenantLogos"
+Write-OctopusSuccess "  -CloneStepTemplateLogos $CloneStepTemplateLogos"
 Write-OctopusSuccess "  -IgnoreVersionCheckResult $IgnoreVersionCheckResult"
 Write-OctopusSuccess "  -SkipPausingWhenIgnoringVersionCheckResult $SkipPausingWhenIgnoringVersionCheckResult"
 Write-OctopusSuccess "  -CloneTenantVariables $CloneTenantVariables"
@@ -766,6 +769,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -CloneProjectDeploymentProcess "$CloneProjectDeploymentProcess" `
     -CloneProjectLogos "$CloneProjectLogos" `
     -CloneTenantLogos "$CloneTenantLogos" `
+    -CloneStepTemplateLogos "$CloneStepTemplateLogos" `
     -IgnoreVersionCheckResult "$IgnoreVersionCheckResult" `
     -SkipPausingWhenIgnoringVersionCheckResult "$SkipPausingWhenIgnoringVersionCheckResult" `
     -CloneTenantVariables "$CloneTenantVariables" `

@@ -82,6 +82,8 @@ function Invoke-OctopusApi
     }
     catch
     {
+        Write-OctopusCritical "There was an error making a $method call to $url.  All request information (JSON body specifically) is stored in the log.  Please check that for more information."
+
         if ($null -ne $_.Exception.Response)
         {
             if ($_.Exception.Response.StatusCode -eq 401)
@@ -90,20 +92,21 @@ function Invoke-OctopusApi
             }
             elseif ($_.ErrorDetails.Message)
             {                
-                Write-OctopusVerbose -Message "Error calling $url StatusCode: $($_.Exception.Response) $($_.ErrorDetails.Message)"
-                Write-OctopusVerbose $_.Exception
+                Write-OctopusCritical -Message "Error calling $url StatusCode: $($_.Exception.Response) $($_.ErrorDetails.Message)"
+                Write-OctopusCritical $_.Exception
             }            
             else 
             {
-                Write-OctopusVerbose $_.Exception
+                Write-OctopusCritical $_.Exception
             }
         }
         else
         {
-            Write-OctopusVerbose $_.Exception
+            Write-OctopusCritical $_.Exception
         }
 
-        Throw "There was an error calling the Octopus API please check the log for more details"
+        Write-OctopusCritical "Exiting the SpaceCloner."
+        Exit 1
     }    
 }
 

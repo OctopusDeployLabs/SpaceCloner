@@ -37,6 +37,7 @@ param (
     $CloneProjectDeploymentProcess,    
     $CloneProjectLogos,
     $CloneTenantLogos, 
+    $CloneStepTemplateLogos,
     $CloneTenantVariables,       
     $ProcessEnvironmentScopingMatch,
     $ProcessChannelScopingMatch,
@@ -115,6 +116,7 @@ $CloneProjectVersioningReleaseCreationSettings = Test-OctopusTrueFalseParameter 
 $CloneProjectDeploymentProcess = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectDeploymentProcess -parameterName "CloneProjectDeploymentProcess" -defaultValue $true
 $CloneProjectLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneProjectLogos -parameterName "CloneProjectLogos" -defaultValue $true
 $CloneTenantLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantLogos -parameterName "CloneTenantLogos" -defaultValue $true
+$CloneStepTemplateLogos = Test-OctopusTrueFalseParameter -parameterValue $CloneStepTemplateLogos -parameterName "CloneStepTemplateLogos" -defaultValue $true
 $CloneTenantVariables = Test-OctopusTrueFalseParameter -parameterValue $CloneTenantVariables -parameterName "CloneTenantVariables" -defaultValue $false
 
 if ($null -ne $CertificatesToClone -and $CertificatesToClone.ToLower().Trim() -eq "all")
@@ -179,6 +181,7 @@ $CloneScriptOptions = @{
     CloneProjectDeploymentProcess = $CloneProjectDeploymentProcess; 
     CloneTenantVariables = $CloneTenantVariables; 
     CloneTenantLogos = $CloneTenantLogos;
+    CloneStepTemplateLogos = $CloneStepTemplateLogos;
     CloneProjectLogos = $CloneProjectLogos; 
     ProcessEnvironmentScopingMatch = $ProcessEnvironmentScopingMatch;
     ProcessChannelScopingMatch = $ProcessChannelScopingMatch; 

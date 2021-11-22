@@ -111,6 +111,7 @@ The values for these options are either `True`, `False` or `null`.  Null will ca
 - `CloneProjectVersioningReleaseCreationSettings`: Indicates if the same versioning rules will be applied to the project.  The default is `false`.
 - `CloneProjectLogos`: Indicates if the project logo should be cloned.  The default is `true`.  Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
 - `CloneTenantLogos`: Indicates if the tenant logo should be cloned.  The default is `true`. Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
+- `CloneStepTemplateLogos`: Indicates if the step template logo should be cloned.  The default is `true`. Recommended setting to `true` on the initial clone, `false` on subsequent clones to keep the cloning fast.
 - `ClonePackages`: Indicates if any packages should be cloned.  Set this to `false` to skip cloning packages.  The defualt is `true`.
 - `CloneTeamUserRoleScoping`: Indicates if the space teams should have their scoping cloned.  Will use the same teams based on parameter `SpaceTeamsToClone`.  The default is`false`.
 - `CloneTenantVariables`: Indicates if tenant variables should be cloned.  The default is`false`.

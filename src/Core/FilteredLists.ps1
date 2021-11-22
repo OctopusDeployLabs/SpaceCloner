@@ -123,39 +123,51 @@ function New-OctopusFilteredList
     
     Write-OctopusSuccess "Creating filter list for $itemType with a filter of $filters"
 
-    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $null -ne $itemList)
+    if ([string]::IsNullOrWhiteSpace($filters) -eq $true)
     {
-        if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $filters.ToLower().Trim() -eq "all")
-        {
-            return $itemList
-        }
+        Write-OctopusWarning "The filter for $itemType was not set.  Returning empty list."
+        return $filteredList
+    }
 
-        $splitFilters = $filters -split ","
+    if ($null -eq $itemList -or $itemList.Count -eq 0)
+    {
+        Write-OctopusWarning "The item list for $itemType was empty.  Returning an empty list."
+        return $filteredList
+    }
+    
+    if ([string]::IsNullOrWhiteSpace($filters) -eq $false -and $filters.ToLower().Trim() -eq "all")
+    {
+        Write-OctopusVerbose "The filter was set to 'all' returning the entire list of $itemType."
+        return $itemList
+    }
+
+    $splitFilters = $filters -split ","
+
+    foreach ($filter in $splitFilters)
+    {
+        if ([string]::IsNullOrWhiteSpace($filter))
+        {
+            Write-OctopusVerbose "The filter is an empty string, moving onto the next item."
+            continue
+        } 
+
+        $filterToCompare = $filter.ToLower().Trim()
 
         foreach($item in $itemList)
-        {
-            foreach ($filter in $splitFilters)
+        {                            
+            Write-OctopusVerbose "Checking to see if $filterToCompare matches $($item.Name)"
+                                               
+            if ($item.Name.ToLower().Trim() -like $filterToCompare)
             {
-                Write-OctopusVerbose "Checking to see if $filter matches $($item.Name)"
-                if ([string]::IsNullOrWhiteSpace($filter))
-                {
-                    continue
-                }
-                elseif ($item.Name -like $filter)
-                {
-                    Write-OctopusVerbose "The filter $filter matches $($item.Name), adding $($item.Name) to $itemType filtered list"
-                    $filteredList += $item
-                }
-                else
-                {
-                    Write-OctopusVerbose "The item $($item.Name) does not match filter $filter"
-                }
+                Write-OctopusVerbose "The filter $filter matches $($item.Name), adding $($item.Name) to $itemType filtered list"
+                $filteredList += $item
+            }
+            else
+            {
+                Write-OctopusVerbose "The item $($item.Name) does not match filter $filter.  Moving onto next item."
+                continue
             }
         }
-    }
-    else
-    {
-        Write-OctopusWarning "The filter for $itemType was not set."
     }
 
     return $filteredList
