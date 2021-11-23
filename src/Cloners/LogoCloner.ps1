@@ -5,8 +5,15 @@ function Copy-OctopusItemLogo
         $destinationItem,
         $SourceData,
         $DestinationData,
-        $CloneScriptOptions
+        $CloneScriptOptions,
+        $CloneLogo
     )
+
+    if ([string]::IsNullOrWhiteSpace($CloneLogo) -or $cloneLogo -eq $false)
+    {
+        Write-OctopusVerbose "Cloning logos is set to $CloneLogo.  Skipping the logo cloning for $($sourceItem.Name)."
+        return
+    }
 
     $queryString = $sourceItem.Links.Logo.SubString($sourceItem.Links.Logo.IndexOf("?") + 4)
     if ($queryString -ne $sourceData.ApiInformation.Version)
@@ -42,6 +49,6 @@ function Copy-OctopusItemLogo
     }
     else
     {
-        Write-OctopusVerbose "The item $($item.Name) does not have a logo, skipping logo clone"
+        Write-OctopusVerbose "The item $($SourceItem.Name) does not have a logo because the links to is set to $($sourceItem.Links.Logo), which matches the API version.  An actual logo will have a non-api version value."
     }    
 }

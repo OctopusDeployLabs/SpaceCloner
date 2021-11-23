@@ -130,6 +130,7 @@ $cloneSpaceCommandLineOptions = @{
     ChannelsToClone = $null;
     CertificatesToClone = $CertificatesToClone;
     ClonePackages = $clonePackages;
+    ProjectsToClone = $null;
 }
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
@@ -380,6 +381,34 @@ function Add-OctopusActionSpaceTeamToCloneList
     }
 }
 
+function Add-OctopusActionSubProjectsToCloneList
+{
+    param (
+        $action,
+        $sourceData,
+        $cloneSpaceCommandlineOptions
+    )
+
+    if ($action.ActionType -ne "Octopus.DeployRelease")
+    {
+        return
+    }
+
+    Write-OctopusVerbose "Adding the sub projects from the deploy a release step to the clone list."
+    if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.DeployRelease.ProjectId")
+    {
+        $projectToAdd = Get-OctopusItemById -ItemList $sourceData.ProjectList  -ItemId $action.Properties.'Octopus.Action.DeployRelease.ProjectId'
+        if ($null -eq $projectToAdd)
+        {
+            Write-OctopusVerbose "Unable to find $($action.Properties.'Octopus.Action.DeployRelease.ProjectId')"
+            return
+        }
+
+        Write-OctopusVerbose "Adding $($projectToAdd.Name) to the clone list"
+        $cloneSpaceCommandLineOptions.ProjectsToClone = Add-OctopusNameToCloneList -ItemName $projectToAdd.Name -destinationList $cloneSpaceCommandLineOptions.ProjectsToClone
+    }
+}
+
 function Add-OctopusDeploymentProcessToCloneList
 {
     param (
@@ -401,6 +430,7 @@ function Add-OctopusDeploymentProcessToCloneList
             Add-OctopusActionStepTemplateToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
             Add-OctopusActionEnvironmentsToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude
             Add-OctopusActionWorkerPoolIdToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
+            Add-OctopusActionSubProjectsToCloneList -action $action -sourceData $sourceData -cloneSpaceCommandlineOptions $cloneSpaceCommandLineOptions
         }
     }
 }
@@ -589,10 +619,12 @@ $targetListToExclude = Get-OctopusExclusionList -itemList $sourceData.TargetList
 $variableSetListToExclude = Get-OctopusExclusionList -itemList $sourceData.VariableSetList -itemType "Library Variable Sets" -filters $LibraryVariableSetsToExclude -includeFilters $LibraryVariableSetsToInclude
 
 Write-OctopusSuccess "Building all project list to clone"
-$projectListToClone = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $ProjectsToClone
+$projectListToClone = @(Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $ProjectsToClone)
 
-foreach ($project in $projectListToClone)
+for ($i = 0; $i -lt $projectListToClone.Count; $i++) 
 {
+    $project = $projectListToClone[$i]
+
     Write-OctopusSuccess "Starting $($project.Name)"
     Write-OctopusSuccess "  Adding variable sets for $($project.Name)"
     foreach ($variableSetId in $project.IncludedLibraryVariableSetIds)
@@ -631,7 +663,22 @@ foreach ($project in $projectListToClone)
 
     Write-OctopusSuccess "  Getting the deployment process for $($project.Name)"
     $sourceDeploymentProcess = Get-OctopusProjectDeploymentProcess -project $project -OctopusData $sourceData
+    $beforeProjectCloneList = $cloneSpaceCommandLineOptions.ProjectsToClone
     Add-OctopusDeploymentProcessToCloneList -sourceData $sourceData -sourceDeploymentProcess $sourceDeploymentProcess -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -envrionmentListToExclude $envrionmentListToExclude -clonePackages $ClonePackages
+
+    if ($beforeProjectCloneList -ne $cloneSpaceCommandLineOptions.ProjectsToClone)
+    {
+        Write-OctopusSuccess "The projects to clone list has changed, updating the array to include additional projects"
+        $newProjectList = Get-OctopusFilteredList -itemList $sourceData.ProjectList -itemType "Projects" -filters $cloneSpaceCommandLineOptions.ProjectsToClone
+        foreach ($newProject in $newProjectList)
+        {
+            $existingProject = $projectListToClone | Where-Object {$_.Id -eq $newProject.Id}
+            if ($null -eq $existingProject)
+            {
+                $projectListToClone += $newProject
+            }
+        }
+    }
 
     if ($sourceData.HasRunbooks -eq $true)
     {
@@ -670,6 +717,7 @@ foreach ($project in $projectListToClone)
     }
 
     Add-OctopusTenantsToCloneList -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions -sourceData $sourceData -tenantExclusionList $tenantExclusionList -project $project
+    $cloneSpaceCommandLineOptions.ProjectsToClone = Add-OctopusNameToCloneList -ItemName $project.Name -destinationList $cloneSpaceCommandLineOptions.ProjectsToClone
 }
 
 Add-OctopusLifeCycleEnvironmentsToCloneList -envrionmentListToExclude $envrionmentListToExclude -sourceData $sourceData -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
@@ -684,7 +732,7 @@ Write-OctopusSuccess "  -SourceSpaceName $SourceSpaceName"
 Write-OctopusSuccess "  -DestinationOctopusUrl $DestinationOctopusUrl"
 Write-OctopusSuccess "  -DestinationOctopusApiKey *************"
 Write-OctopusSuccess "  -DestinationSpaceName $DestinationSpaceName"
-Write-OctopusSuccess "  -ProjectsToClone $ProjectsToClone"
+Write-OctopusSuccess "  -ProjectsToClone $($cloneSpaceCommandLineOptions.ProjectsToClone)"
 Write-OctopusSuccess "  -EnvironmentsToClone $($cloneSpaceCommandLineOptions.EnvironmentsToClone)"
 Write-OctopusSuccess "  -WorkerPoolsToClone $($cloneSpaceCommandLineOptions.WorkerPoolsToClone)"
 Write-OctopusSuccess "  -ProjectGroupsToClone $($cloneSpaceCommandLineOptions.ProjectGroupsToClone)"
@@ -742,7 +790,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -DestinationOctopusUrl "$DestinationOctopusUrl" `
     -DestinationOctopusApiKey "$DestinationOctopusApiKey" `
     -DestinationSpaceName "$DestinationSpaceName" `
-    -ProjectsToClone "$ProjectsToClone" `
+    -ProjectsToClone "$($cloneSpaceCommandLineOptions.ProjectsToClone)" `
     -EnvironmentsToClone "$($cloneSpaceCommandLineOptions.EnvironmentsToClone)" `
     -WorkerPoolsToClone "$($cloneSpaceCommandLineOptions.WorkerPoolsToClone)" `
     -ProjectGroupsToClone "$($cloneSpaceCommandLineOptions.ProjectGroupsToClone)" `

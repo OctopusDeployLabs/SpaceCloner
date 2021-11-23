@@ -42,7 +42,8 @@ function Copy-OctopusProcessStepAction
     Convert-OctopusProcessActionFeedId -action $action -sourceData $sourceData -destinationData $destinationData  
     Convert-OctopusPackageList -item $action -sourceData $sourceData -destinationData $destinationData          
     Convert-OctopusSinglePackageProprty -action $action -sourceData $sourceData -destinationData $destinationData
-    Convert-OctopusActionIdsForMatchingActionId -action $action -matchingAction $matchingAction       
+    Convert-OctopusActionIdsForMatchingActionId -action $action -matchingAction $matchingAction   
+    Convert-OctopusDeployAReleaseStep -action $action -sourceData $sourceData -destinationData $destinationData    
     
     Write-OctopusPackagesToChangeLog -action $action -destinationData $destinationData
 
@@ -272,7 +273,7 @@ function Convert-OctopusProcessActionFeedId
 
     if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.Package.FeedId")
     {
-        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($action.Name) Feed Id" -MatchingOption "ErrorUnlessExactMatch"                    
+        $action.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $action.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($action.Name) Feed Id" -MatchingOption "ErrorUnlessExactMatch"
         Write-OctopusChangeLogListDetails -idList @($action.Properties.'Octopus.Action.Package.FeedId') -destinationList $DestinationData.FeedList -listType "Package Feed" -prefixSpaces "         "
         $packageId = $action.Properties.'Octopus.Action.Package.PackageId'
         Write-OctopusChangeLog "            - $packageId"
@@ -326,6 +327,49 @@ function Convert-OctopusActionIdsForMatchingActionId
                 }
             }
         }
+    }
+}
+
+function Convert-OctopusDeployAReleaseStep
+{
+    param (
+        $action,
+        $sourceData,
+        $destinationData
+    )
+
+    if ($action.ActionType -ne "Octopus.DeployRelease")
+    {
+        return
+    }
+
+    $projectVariableUsed = $false
+    foreach ($package in $action.Packages)
+    {
+        if ($package.PackageId -like "#{*")
+        {
+            $projectVariableUsed = $true
+            Write-OctopusWarning "The package $($package.PackageId) appears to be a variable.  Unable to convert this over.  You will need to clean this up on the destination instance."
+            Write-OctopusPostCloneCleanUp "The step $($action.Name) uses a project variable.  Please ensure that project variable is pointed to the right project id."
+
+            continue
+        }
+        
+        $package.PackageId = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $package.PackageId -ItemName "$($action.Name) Sub Project" -MatchingOption "ErrorUnlessExactMatch"
+    }
+
+    if ($projectVariableUsed -eq $true)
+    {
+        return
+    }
+
+    if (Test-OctopusObjectHasProperty -objectToTest $action.Properties -propertyName "Octopus.Action.DeployRelease.ProjectId")
+    {
+        $action.Properties.'Octopus.Action.DeployRelease.ProjectId' = Convert-SourceIdToDestinationId -SourceList $sourceData.ProjectList -DestinationList $destinationData.ProjectList -IdValue $action.Properties.'Octopus.Action.DeployRelease.ProjectId' -ItemName "$($action.Name) Deploy A Release Project Properties" -MatchingOption "ErrorUnlessExactMatch"
+    }
+    else
+    {
+        $added = Add-PropertyIfMissing -objectToTest $action.Properties -propertyName "Octopus.Action.DeployRelease.ProjectId" -propertyValue $action.Packages[0].PackageId
     }
 }
 

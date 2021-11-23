@@ -34,11 +34,9 @@ function Copy-OctopusTenants
 
             $destinationTenant = Save-OctopusTenant -Tenant $tenantToAdd -destinationData $destinationData
             $destinationData.TenantList = Update-OctopusList -itemList $destinationData.TenantList -itemToReplace $destinationTenant
-
-            if ($CloneScriptOptions.CloneTenantLogos -eq $true)
-            {
-                Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions            
-            }
+            
+            Copy-OctopusItemLogo -sourceItem $tenant -destinationItem $destinationTenant -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions -CloneLogo $CloneScriptOptions.CloneTenantLogos           
+            
         }
         elseif ($firstRun -eq $false)
         {

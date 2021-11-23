@@ -74,11 +74,8 @@ function Copy-OctopusStepTemplates
             }
 
             $destinationStepTemplate = Save-OctopusStepTemplate -StepTemplate $stepTemplateToClone -DestinationData $destinationData            
-
-            if ($cloneScriptOptions.CloneStepTemplateLogos -eq $true)
-            {
-                Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions    
-            }
+            
+            Copy-OctopusItemLogo -sourceItem $stepTemplate -destinationItem $destinationStepTemplate -sourceData $SourceData -destinationData $DestinationData -CloneScriptOptions $CloneScriptOptions -CloneLogo $CloneScriptOptions.CloneStepTemplateLogos  
             
             $destinationData.StepTemplates = Update-OctopusList -itemList $destinationData.StepTemplates -itemToReplace $destinationStepTemplate
         }
