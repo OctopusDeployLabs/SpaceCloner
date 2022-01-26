@@ -10,11 +10,11 @@ This example is syncing the parent project in the same space.
 Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) for more details on the parameters.
 
 Options:
-- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.  
-- `OverwriteExistingCustomStepTemplates` - Set to `false` as its the same space instance, and this makes no sense to run.
-- `OverwriteExistingLifecyclesPhases` - Set to `false` as its the same space in the same instance, and this makes no sense to run.
-- `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to run.
-- `CloneTeamUserRoleScoping` - set to `false` as its the same space in the same instance, and this makes no sense to run.
+- `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added.  
+- `OverwriteExistingCustomStepTemplates` - Set to `true` as you'll want to make sure you have the latest step templates.
+- `OverwriteExistingLifecyclesPhases` - Set to `false` because you've most likely have a unique lifecycle.
+- `CloneProjectChannelRules` - set to `false` as the project already exists with its own rules.
+- `CloneTeamUserRoleScoping` - set to `false` as you won't want to overwrite team user role scoping.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
 - `CloneProjectRunbooks` - set to `true` as you'll want to include the project runbooks.
@@ -29,7 +29,7 @@ CloneSpace.ps1 -SourceOctopusUrl "https://instance1.yoursite.com" `
     -ParentProjectName "Redgate - Feature Branch Example" `
     -ChildProjectsToSync "Redgate - Child*" `
     -OverwriteExistingVariables "false" `
-    -OverwriteExistingCustomStepTemplates "false" `
+    -OverwriteExistingCustomStepTemplates "true" `
     -OverwriteExistingLifecyclesPhases "false" `
     -CloneProjectChannelRules "false" `
     -CloneTeamUserRoleScoping "false" `
