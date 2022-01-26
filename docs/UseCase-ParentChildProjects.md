@@ -11,9 +11,9 @@ Please refer to the [Parameter reference page](CloneSpaceParameterReference.md) 
 
 Options:
 - `OverwriteExistingVariables` - set to `false` to keep the differences preserved.  Any new variable found will be added still.  
-- `OverwriteExistingCustomStepTemplates` - Set to `false` as its the same space instance, and this makes no sense to rune.
+- `OverwriteExistingCustomStepTemplates` - Set to `false` as its the same space instance, and this makes no sense to run.
 - `OverwriteExistingLifecyclesPhases` - Set to `false` as its the same space in the same instance, and this makes no sense to run.
-- `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to rune.
+- `CloneProjectChannelRules` - set to `false` as its the same space in the same instance, and this makes no sense to run.
 - `CloneTeamUserRoleScoping` - set to `false` as its the same space in the same instance, and this makes no sense to run.
 - `CloneProjectVersioningReleaseCreationSettings` - set to `false` as you'll want to exclude the release creation settings.
 - `CloneProjectDeploymentProcess` - set to `true` as you'll want to include the project deployment process.
