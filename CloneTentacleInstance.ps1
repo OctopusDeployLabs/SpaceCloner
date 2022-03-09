@@ -28,37 +28,6 @@ $ErrorActionPreference = "Stop"
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusRepository.ps1"))
 . ([System.IO.Path]::Combine($PSScriptRoot, "src", "DataAccess", "OctopusFakeFactory.ps1"))
 
-if(-not (Get-Variable -Name "IsWindows" -ErrorAction SilentlyContinue)) {
-    Write-Verbose "`$IsWindows doesnt exist, determining value and creating variable.";
-    $IsWindows = $False
-
-    if($PSVersionTable.PSEdition -ieq "Desktop") {
-        $IsWindows = $True;
-    }
-    else {
-        if (Get-Member -inputObject $PSVersionTable -Name "Platform" -MemberType Properties) {
-            if($PSVersionTable.Platform -ieq "Win32NT") {
-                $IsWindows = $True
-            }
-        }
-    }
-}
-
-if(-not (Get-Variable -Name "IsLinux" -ErrorAction SilentlyContinue)) {
-    Write-Verbose "`$IsLinux doesnt exist, determining value and creating variable."
-    $IsLinux = $False
-    if(Get-Member -InputObject $PSVersionTable -Name "Platform" -MemberType Properties) {
-        if($PSVersionTable.Platform -ieq "Unix") {
-            $IsLinux = $True
-        }
-    }
-}
-
-# Safety check to make sure the calculation doesnt result in both variables being the same value.
-if($IsWindows -eq $IsLinux) {
-    throw "Calculation for OS caused both `$IsWindows and `$IsLinux to be the same value!"
-}
-
 if ($null -eq $DestinationOctopusServerThumbprint)
 {
     Throw "The parameter DestinationOctopusServerThumbprint is required.  You can get this by going to configuration -> thumbprint in the destination Octopus Deploy instance."
@@ -422,17 +391,17 @@ function Get-TentacleDirectories
 
     $tentacleDirectory = @{}
 
-    if ($IsWindows)
-    {
-        $tentacleDirectory.HomeDirectory = "C:\Octopus\$ClonedInstanceName" 
-        $tentacleDirectory.AppDirectory = "C:\Octopus\$ClonedInstanceName\Applications" 
-        $tentacleDirectory.ConfigFile = "C:\Octopus\$ClonedInstanceName\Tentacle\Tentacle.config"  
-    }
-    else
+    if ($IsLinux)
     {
         $tentacleDirectory.HomeDirectory = "/etc/octopus/default/$ClonedInstanceName" 
         $tentacleDirectory.AppDirectory = "/home/Octopus/$ClonedInstanceName/Applications/" 
-        $tentacleDirectory.ConfigFile = "/etc/octopus/default/$ClonedInstanceName/tentacle-default.config"  
+        $tentacleDirectory.ConfigFile = "/etc/octopus/default/$ClonedInstanceName/tentacle-default.config"
+    }
+    else
+    {
+        $tentacleDirectory.HomeDirectory = "C:\Octopus\$ClonedInstanceName" 
+        $tentacleDirectory.AppDirectory = "C:\Octopus\$ClonedInstanceName\Applications" 
+        $tentacleDirectory.ConfigFile = "C:\Octopus\$ClonedInstanceName\Tentacle\Tentacle.config"    
     }
 
     return $tentacleDirectory
