@@ -391,17 +391,17 @@ function Get-TentacleDirectories
 
     $tentacleDirectory = @{}
 
-    if ($IsWindows)
-    {
-        $tentacleDirectory.HomeDirectory = "C:\Octopus\$ClonedInstanceName" 
-        $tentacleDirectory.AppDirectory = "C:\Octopus\$ClonedInstanceName\Applications" 
-        $tentacleDirectory.ConfigFile = "C:\Octopus\$ClonedInstanceName\Tentacle\Tentacle.config"  
-    }
-    else
+    if ($IsLinux)
     {
         $tentacleDirectory.HomeDirectory = "/etc/octopus/default/$ClonedInstanceName" 
         $tentacleDirectory.AppDirectory = "/home/Octopus/$ClonedInstanceName/Applications/" 
-        $tentacleDirectory.ConfigFile = "/etc/octopus/default/$ClonedInstanceName/tentacle-default.config"  
+        $tentacleDirectory.ConfigFile = "/etc/octopus/default/$ClonedInstanceName/tentacle-default.config"
+    }
+    else
+    {
+        $tentacleDirectory.HomeDirectory = "C:\Octopus\$ClonedInstanceName" 
+        $tentacleDirectory.AppDirectory = "C:\Octopus\$ClonedInstanceName\Applications" 
+        $tentacleDirectory.ConfigFile = "C:\Octopus\$ClonedInstanceName\Tentacle\Tentacle.config"    
     }
 
     return $tentacleDirectory
