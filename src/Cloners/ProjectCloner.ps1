@@ -80,6 +80,8 @@ function Copy-OctopusProjectSettings
         $copyOfProject.ClonedFromProjectId = $null                
 
         $copyOfProject.IncludedLibraryVariableSetIds = @(Get-OctopusProjectReferencedVariableSets -project $copyOfProject -sourceProjectLibraryVariableSets @($copyOfProject.IncludedLibraryVariableSetIds) -sourceData $sourceData -destinationData $destinationData)                
+        $copyOfProject.Templates = @()
+        $copyOfProject.Templates = @(Get-OctopusProjectTemplatesExistingProject -sourceProject $sourceProject -destinationProject $copyOfProject)
 
         $copyOfProject.ProjectGroupId = Convert-SourceIdToDestinationId -SourceList $SourceData.ProjectGroupList -DestinationList $DestinationData.ProjectGroupList -IdValue $copyOfProject.ProjectGroupId -ItemName "$($copyOfProject.Name) Project Group" -MatchingOption "ErrorUnlessExactMatch"
         $copyOfProject.LifeCycleId = Convert-SourceIdToDestinationId -SourceList $SourceData.LifeCycleList -DestinationList $DestinationData.LifeCycleList -IdValue $copyOfProject.LifeCycleId -ItemName "$($copyOfProject.Name) Default Lifecycle" -MatchingOption "ErrorUnlessExactMatch"
@@ -106,6 +108,8 @@ function Copy-OctopusProjectSettings
 
         $existingVariableSetIds = @($matchingProject.IncludedLibraryVariableSetIds)
         $matchingProject.IncludedLibraryVariableSetIds = @(Get-OctopusProjectReferencedVariableSets -project $sourceProject -sourceProjectLibraryVariableSets @($sourceProject.IncludedLibraryVariableSetIds) -sourceData $sourceData -destinationData $destinationData)
+
+        $matchingProject.Templates = @(Get-OctopusProjectTemplatesExistingProject -sourceProject $sourceProject -destinationProject $matchingProject)
 
         foreach ($variableSetId in $existingVariableSetIds)
         {
@@ -226,6 +230,51 @@ function Get-OctopusProjectReferencedVariableSets
             exit 1    
         }
     }    
+
+    return $returnList
+}
+
+function Get-OctopusProjectTemplatesExistingProject
+{
+    param (
+        $sourceProject,
+        $destinationProject
+    )
+
+    $sourceTemplateList = @($sourceProject.Templates)
+    $destinationTemplateList = @($destinationProject.Templates)
+
+    $returnList = @()
+
+    Write-OctopusVerbose "Looping through all the source project variable templates and add any new ones to the destination."
+    foreach ($sourceTemplate in $sourceTemplateList)
+    {     
+        Write-OctopusVerbose "Cloning the project template variable $($sourceTemplate.Name) to the destination project $($destinationProject.Name)"   
+
+        $newTemplate = Copy-OctopusObject -ItemToCopy $sourceTemplate -ClearIdValue $true -SpaceId $null
+        $matchingDestinationTemplate = Get-OctopusItemByName -ItemList $destinationTemplateList -ItemName $sourceTemplate.Name
+
+        if ($null -ne $matchingDestinationTemplate)
+        {
+            Write-OctopusVerbose "The project variable template $($sourceTemplate.Name) already exists on the destination project with the ID of $($matchingDestinationTemplate.Id).  Updating all other properties to match."
+            $newTemplate.Id = $matchingDestinationTemplate.Id
+        }
+
+        $returnList += $newTemplate
+    }
+
+    Write-OctopusVerbose "Making sure we aren't about to delete and project variable templates."
+    foreach ($destinationTemplate in $destinationTemplateList)
+    {
+        Write-OctopusVerbose "Checking to see if the project template variable $($destinationTemplate.Name) exists on the source"   
+
+        $matchingSourceTemplate = Get-OctopusItemByName -ItemList $sourceTemplateList -ItemName $destinationTemplate.Name
+        if ($null -eq $matchingSourceTemplate)
+        {
+            Write-OctopusVerbose "The project template variable $($destinationTemplate.Name) does not exist on the source.  Adding it back to the list so we don't lose it."
+            $returnList += $destinationTemplate
+        }
+    }
 
     return $returnList
 }
