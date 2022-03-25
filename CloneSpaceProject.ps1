@@ -131,6 +131,7 @@ $cloneSpaceCommandLineOptions = @{
     CertificatesToClone = $CertificatesToClone;
     ClonePackages = $clonePackages;
     ProjectsToClone = $null;
+    RunbooksToClone = $null;
 }
 
 $sourceData = Get-OctopusData -octopusUrl $SourceOctopusUrl -octopusApiKey $SourceOctopusApiKey -spaceName $SourceSpaceName -whatIf $whatIf
@@ -690,6 +691,7 @@ for ($i = 0; $i -lt $projectListToClone.Count; $i++)
             Write-OctopusSuccess "  Getting the deployment process for $($runbook.Name)"
             $sourceRunbookProcess = Get-OctopusRunbookProcess -runbook $runbook -OctopusData $sourceData
             Add-OctopusDeploymentProcessToCloneList -sourceData $sourceData -sourceDeploymentProcess $sourceRunbookProcess -cloneSpaceCommandLineOptions $cloneSpaceCommandLineOptions
+            $cloneSpaceCommandLineOptions.RunbooksToClone = Add-OctopusNameToCloneList -ItemName $runbook.Name -destinationList $cloneSpaceCommandLineOptions.RunbooksToClone
         }
     }
 
@@ -749,6 +751,7 @@ Write-OctopusSuccess "  -WorkersToClone $($cloneSpaceCommandLineOptions.WorkersT
 Write-OctopusSuccess "  -TargetsToClone $($cloneSpaceCommandLineOptions.TargetsToClone)"
 Write-OctopusSuccess "  -SpaceTeamsToClone $($cloneSpaceCommandLineOptions.SpaceTeamsToClone)"
 Write-OctopusSuccess "  -PackagesToClone $($cloneSpaceCommandLineOptions.PackagesToClone)"
+Write-OctopusSuccess "  -RunbooksToClone $($cloneSpaceCommandLineOptions.RunbooksToClone)"
 Write-OctopusSuccess "  -CertificatesToClone $($cloneSpaceCommandLineOptions.CertificatesToClone)"
 Write-OctopusSuccess "  -ChannelsToClone $($cloneSpaceCommandLineOptions.ChannelsToClone)"
 Write-OctopusSuccess "  -OverwriteExistingVariables $OverwriteExistingVariables"
@@ -807,6 +810,7 @@ $cloneSpaceScript = "$PSScriptRoot\CloneSpace.ps1"
     -TargetsToClone "$($cloneSpaceCommandLineOptions.TargetsToClone)" `
     -SpaceTeamsToClone "$($cloneSpaceCommandLineOptions.SpaceTeamsToClone)" `
     -PackagesToClone "$($cloneSpaceCommandLineOptions.PackagesToClone)" `
+    -RunbooksToClone "$($cloneSpaceCommandLineOptions.RunbooksToClone)" `
     -ChannelsToClone "$($cloneSpaceCommandLineOptions.ChannelsToClone)" `
     -OverwriteExistingVariables "$OverwriteExistingVariables" `
     -OverwriteExistingCustomStepTemplates "$OverwriteExistingCustomStepTemplates" `
