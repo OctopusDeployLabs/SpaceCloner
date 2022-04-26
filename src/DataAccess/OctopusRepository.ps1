@@ -656,7 +656,14 @@ function Save-OctopusCommunityStepTemplate
         $destinationData
     )
 
-    return Save-OctopusApi -OctopusUrl $destinationData.OctopusUrl -SpaceId $null -EndPoint "communityactiontemplates/$($communityStepTemplate.Id)/installation/$($destinationData.SpaceId)" -ApiKey $destinationData.OctopusApiKey -Method POST -whatIf $destinationData.WhatIf
+    $returnValue = Save-OctopusApi -OctopusUrl $destinationData.OctopusUrl -SpaceId $null -EndPoint "communityactiontemplates/$($communityStepTemplate.Id)/installation/$($destinationData.SpaceId)" -ApiKey $destinationData.OctopusApiKey -Method POST -whatIf $destinationData.WhatIf
+
+    if ($null -eq $returnValue)
+    {
+        return New-OctopusFakeCommunityStep -communityStepTemplate $communityStepTemplate
+    }
+
+    return $returnValue
 }
 
 function Save-OctopusCertificate

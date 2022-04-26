@@ -164,13 +164,15 @@ Function Save-OctopusApi
     Write-OctopusVerbose "Checking to see if the whatif flag was sent in"
     if ($null -ne $whatIf -and $whatIf -eq $true)
     {
-        Write-OctopusVerbose "What if set to true, skipping $method to $endPoint and just returning the item"
-        Write-OctopusVerbose ($item | ConvertTo-Json -Depth 10)
-        
+        Write-OctopusVerbose "What if set to true, skipping $method to $endPoint"
+                
         if ($null -eq $Item)
         {
+            Write-Host "There is no item to save, returning null."
             return $null
         }        
+
+        Write-OctopusVerbose ($item | ConvertTo-Json -Depth 10)
         
         if ((Test-OctopusObjectHasProperty -objectToTest $Item -propertyName "Id") -eq $true -and $null -eq $Item.Id)
         {

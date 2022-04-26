@@ -227,3 +227,26 @@ function New-OctopusFakeStepListForVariableScoping
     
     return $returnList
 }
+
+function New-OctopusFakeCommunityStep 
+{
+    param (
+        $communityStepTemplate
+    )
+
+    return 
+    {
+        Id = (New-Guid).ToString(),
+        ActionType = $communityStepTemplate.Type,
+        Description = $communityStepTemplate.Description,
+        Name = $communityStepTemplate.Name,
+        Version = $communityStepTemplate.Version,
+        Properties = $communityStepTemplate.Properties,
+        Parameters = $communityStepTemplate.Parameters,
+        Packages = @(),
+        StepPackageId = $communityStepTemplate.StepPackageId,
+        SpaceId = $null
+        LastModifiedBy = $communityStepTemplate.Author,
+        LastModifiedOn = $null
+    }
+}
