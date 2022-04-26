@@ -556,7 +556,16 @@ function Convert-OctopusPackageList
 
     foreach ($package in $item.Packages)
     {
-        $package.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $package.FeedId
+        if ($package.FeedId -notlike "*NonExisting*" -or $null -eq $package.FeedId)
+        {
+            $package.FeedId = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $package.FeedId    
+        }
+        else
+        {
+            Write-OctopusVerbose "The package for this step is deferred, skipping over the package feed conversion."
+            $package.FeedId = $null
+        }
+
         $package.Id = $null
     }    
 }

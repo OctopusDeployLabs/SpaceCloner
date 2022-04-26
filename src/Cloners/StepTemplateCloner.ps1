@@ -61,6 +61,7 @@ function Copy-OctopusStepTemplates
 
             if (Test-OctopusObjectHasProperty -objectToTest $stepTemplateToClone.Properties -propertyName "Octopus.Action.Package.FeedId")
             {
+                Write-OctopusVerbose "The step template $($stepTemplateToClone.Name) has a feed id, attempting to convert it to the destination"
                 $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' = Convert-SourceIdToDestinationId -SourceList $sourceData.FeedList -DestinationList $destinationData.FeedList -IdValue $stepTemplateToClone.Properties.'Octopus.Action.Package.FeedId' -ItemName "$($stepTemplateToClone.Name) Feed Id Package Property" -MatchingOption "ErrorUnlessExactMatch"
             }
 

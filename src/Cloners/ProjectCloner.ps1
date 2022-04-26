@@ -29,7 +29,7 @@ function Copy-OctopusProjects
         {
             if ($project.IsVersionControlled -eq $true)
             {
-                Write-OctopusError "Unable to clone $($project.Name) because has been configured for version control.  At this time, the space cloner does not support version control."
+                Write-OctopusCritical "Unable to clone $($project.Name) because has been configured for version control.  At this time, the space cloner does not support version control."
                 continue
             }
         }

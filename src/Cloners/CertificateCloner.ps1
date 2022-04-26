@@ -97,8 +97,8 @@ function Copy-OctopusCertificates
             }
             catch
             {
-                Write-OctopusError "Unable to read the file $filePath as binary"
-                Write-OctopusError $_.Exception                
+                Write-OctopusCritical "Unable to read the file $filePath as binary"
+                Write-OctopusCritical $_.Exception                
             }
             
             $certificateContent = [System.Convert]::ToBase64String($fileContentToConvertToBase64)
