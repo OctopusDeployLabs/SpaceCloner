@@ -135,6 +135,12 @@ function Convert-SourceIdToDestinationId
         $MatchingOption
     )
 
+    if ($null -eq $IdValue)
+    {
+        Write-OctopusCritical "The ID Value for $ItemName is null.  This should never happen.  Stopping the clone to prevent corrupting your instance.  Please review the log to determine what I was trying to clone and fix the data.  Typically it is a variable or parameter referencing something that doesn't exist."
+        Exit 1
+    }
+
     $idValueSplit = $IdValue -split "-"
     if ($idValueSplit.Length -le 2 -and $IdValue.Tolower().Trim() -ne "feeds-builtin" -and $IdValue.Tolower().Trim() -ne "feeds-builtin-releases")
     {

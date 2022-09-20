@@ -66,7 +66,11 @@ function Copy-OctopusTargets
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Environment Scoping" -idList $copyOfItemToClone.EnvironmentIds -destinationList $DestinationData.EnvironmentList
             Write-OctopusChangeLogListDetails -prefixSpaces "    " -listType "Tenant Scoping" -idList $copyOfItemToClone.TenantIds -destinationList $DestinationData.TenantList
 
-            $copyOfItemToClone.Status = "Unknown"
+            if ((Test-OctopusObjectHasProperty -objectToTest $copyOfItemToClone -propertyName "Status") -eq $true)
+            {
+               $copyOfItemToClone.Status = "Unknown"
+            }
+
             $copyOfItemToClone.HealthStatus = "Unknown"
             $copyOfItemToClone.StatusSummary = ""
 
