@@ -109,7 +109,7 @@ function Compare-TentacleWithMachineRegistration
         return $true
     }
 
-    $portNumber = ($machineRegistration.EndPoint.Uri -split ":")[2]    
+    $portNumber = ([System.Uri]$machineRegistration.EndPoint.Uri).Port
     if ($localTentacle.Tentacle.Services.PortNumber -eq $portNumber)
     {
         Write-OctopusSuccess "The machine $($machineRegistration.Id):$($machineRegistration.Name) port $($localTentacle.Tentacle.Services.PortNumber) matches port number $portNumber"
